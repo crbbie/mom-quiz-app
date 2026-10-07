@@ -11,8 +11,12 @@
   var cache = LddStore.getCache();
   var activeSetId = null;
 
-  var study = { list: [], idx: 0, answered: false, chosen: -1, ok: 0, no: 0 };
-  var exam = { list: [], idx: 0, answers: [], timeLeft: 0, totalTime: 0, timerId: null };
+  var study = { list: [], idx: 0, answers: [], transient: false };
+  var exam = { list: [], idx: 0, answers: [], timeLeft: 0, totalTime: 0, endsAt: 0, timerId: null };
+  // DOM-independent session tracking (B7): 'study' | 'exam' | null.
+  // persistSession() uses this, never screen visibility, so start/answer/nav
+  // always save even before show() runs.
+  var activeKind = null;
 
   /* ---------- helpers ---------- */
   function shuffle(a) {
@@ -54,6 +58,42 @@
   function sessionActive() {
     return ($('screen-study') && $('screen-study').classList.contains('active') && study.list.length > 0) ||
            ($('screen-exam') && $('screen-exam').classList.contains('active') && exam.list.length > 0);
+  }
+
+  // ---- session snapshot helpers (B1): persist the EXACT displayed option
+  // order/permutation so resume restores same text + same correct mapping.
+  // Snapshots are plain JSON; old key-only sessions still restore via keys.
+  function snapshotList(list) {
+    return list.map(function (q) {
+      return { id: q.id, setId: q.setId, q: q.q, o: q.o.slice(), c: q.c, e: q.e || '', category: q.category || null };
+    });
+  }
+  function restoreList(snaps) {
+    return snaps.map(function (s, i) {
+      return { id: s.id, setId: s.setId, q: s.q, o: s.o.slice(), c: s.c, e: s.e || '', category: s.category || null, order: (i + 1) * 10 };
+    });
+  }
+  function validSnapshot(s) {
+    return s && typeof s.id === 'string' && typeof s.setId === 'string' &&
+      typeof s.q === 'string' && Array.isArray(s.o) && s.o.length === 4 &&
+      (s.c === 0 || s.c === 1 || s.c === 2 || s.c === 3);
+  }
+
+  // ---- study scoring (B2): one answer record per question, totals derived.
+  function recountStudy() {
+    var ok = 0, no = 0;
+    for (var i = 0; i < study.list.length; i++) {
+      var a = study.answers[i];
+      if (a === undefined || a < 0) continue;
+      if (a === study.list[i].c) ok++; else no++;
+    }
+    return { ok: ok, no: no };
+  }
+
+  // ---- exam timer (B6): absolute deadline; remaining always derived.
+  function examRemaining() {
+    if (exam.endsAt) return Math.max(0, Math.round((exam.endsAt - Date.now()) / 1000));
+    return Math.max(0, exam.timeLeft | 0);
   }
 
   window.show = show;
@@ -157,6 +197,8 @@
     cache.sets.forEach(function (s) { oldById[s.id] = s; });
     var changed = (catalog.version !== cache.catalogVersion) || sets.length !== cache.sets.length;
     var questionsBySet = {};
+    var usableMeta = [];
+    var failures = [];
     var ok = true;
 
     for (var i = 0; i < sets.length; i++) {
@@ -164,6 +206,7 @@
       var old = oldById[s.id];
       if (old && old.version === s.version && old.file === s.file && cache.questionsBySet[s.id]) {
         questionsBySet[s.id] = cache.questionsBySet[s.id];
+        usableMeta.push(old);
         continue; // unchanged — keep cached questions, no download
       }
       changed = true;
@@ -177,11 +220,18 @@
         });
         if (!list.length) throw new Error('empty set');
         questionsBySet[s.id] = list;
+        usableMeta.push(s); // new version metadata ONLY after successful download
       } catch (e2) {
-        if (cache.questionsBySet[s.id]) {
-          questionsBySet[s.id] = cache.questionsBySet[s.id]; // keep old copy
+        if (old && cache.questionsBySet[s.id]) {
+          // B4: keep OLD content AND OLD version metadata so the next sync
+          // still sees a version mismatch and retries. Never mark old
+          // content with the new version.
+          questionsBySet[s.id] = cache.questionsBySet[s.id];
+          usableMeta.push(old);
+          failures.push(s.id);
         } else {
-          ok = false; // brand-new set failed to download; skip it for now
+          failures.push(s.id); // brand-new set failed to download; skip it for now
+          ok = false;
         }
       }
     }
@@ -191,12 +241,21 @@
       return;
     }
 
-    var usableSets = sets.filter(function (s) { return questionsBySet[s.id]; });
     var active = sessionActive();
-    LddStore.setCache(catalog.version || 0, usableSets, questionsBySet);
+    // B4: on partial failure keep the OLD catalog version so the next sync
+    // retries instead of treating stale content as current.
+    var saveCatalogVersion = failures.length ? cache.catalogVersion : (catalog.version || 0);
+    LddStore.setCache(saveCatalogVersion, usableMeta, questionsBySet);
     cache = LddStore.getCache();
     LddStore.migrateAll(cache, seedIdsOfFirstSet());
     LddStore.pruneStaleIds(cache);
+
+    if (failures.length) {
+      if (!active) renderHome();
+      setSyncStatus('off', 'Cập nhật chưa hoàn tất — sẽ thử lại (' + failures.length + ' bộ)');
+      toast('Cập nhật chưa hoàn tất — giữ dữ liệu cũ, sẽ thử lại');
+      return;
+    }
 
     if (changed) {
       if (!active) renderHome();
@@ -236,6 +295,27 @@
       setSyncStatus('off', online ? 'Chưa có dữ liệu' : 'Ngoại tuyến — cần mạng cho lần đầu');
       return;
     }
+    // B3: kept unfinished session — minimal "Tiếp tục / Bỏ bài" affordance
+    // reusing existing card/button styles (no visual redesign).
+    try {
+      var kept = LddStore.getSession();
+      var keptKeys = sessionKeys(kept);
+      if (kept && keptKeys && keptKeys.length && !sessionActive()) {
+        var klabel = kept.kind === 'exam' ? 'bài thi' : 'bài ôn tập';
+        var rc = document.createElement('div');
+        rc.className = 'set-card';
+        rc.innerHTML =
+          '<h2>⏸️ Bài đang làm dở</h2>' +
+          '<p class="set-desc">Bạn còn ' + klabel + ' chưa xong. Thoát thường sẽ lưu và về đây.</p>' +
+          '<div class="set-actions">' +
+          '<button class="btn primary" data-act="resume">▶️ Tiếp tục</button>' +
+          '<button class="btn ghost" data-act="drop">🗑️ Bỏ bài</button>' +
+          '</div>';
+        rc.querySelector('[data-act="resume"]').onclick = function () { window.resumeSession(); };
+        rc.querySelector('[data-act="drop"]').onclick = function () { window.discardSession(); };
+        box.appendChild(rc);
+      }
+    } catch (e2) {}
     cache.sets.forEach(function (s) {
       var n = questionsOf(s.id).length;
       var upd = s.updated_at ? fmtDate(Date.parse(s.updated_at)) : '';
@@ -290,7 +370,8 @@
     var prefs = LddStore.getPrefs();
     if (prefs.shuffleQ) list = shuffle(list);
     if (prefs.shuffleA) list = list.map(shuffleOptions);
-    study = { list: list, idx: 0, answered: false, chosen: -1, ok: 0, no: 0 };
+    study = { list: list, idx: 0, answers: list.map(function () { return -1; }), transient: false };
+    activeKind = 'study';
     persistSession();
     $('study-title').textContent = 'Ôn tập — ' + setTitleOf(activeSetId);
     show('study');
@@ -304,9 +385,12 @@
     var q = study.list[study.idx];
     if (!q) return;
     var total = study.list.length;
+    var chosen = study.answers[study.idx];
+    var answered = chosen !== undefined && chosen >= 0;
+    var score = recountStudy();
     $('study-sub').textContent = 'Câu ' + (study.idx + 1) + ' / ' + total;
     $('study-pill').textContent = 'Câu ' + (study.idx + 1);
-    $('study-counter').textContent = study.ok + ' đúng · ' + study.no + ' sai';
+    $('study-counter').textContent = score.ok + ' đúng · ' + score.no + ' sai';
     $('study-progress').style.width = (study.idx / total * 100) + '%';
     $('study-q').textContent = q.q;
     var cat = $('study-cat');
@@ -326,24 +410,25 @@
       opts.appendChild(b);
     });
     $('study-feedback').innerHTML = '';
-    $('study-next').disabled = !study.answered;
-    $('study-next').textContent = study.answered
+    $('study-next').disabled = !answered;
+    $('study-next').textContent = answered
       ? (study.idx === total - 1 ? 'Hoàn thành ✓' : 'Tiếp theo ›')
       : 'Tiếp theo ›';
     $('study-prev').disabled = study.idx === 0;
-    if (study.answered) revealStudyAnswer();
+    if (answered) revealStudyAnswer();
   }
 
   function revealStudyAnswer() {
     var q = study.list[study.idx];
+    var chosen = study.answers[study.idx];
     var nodes = $('study-opts').querySelectorAll('.opt');
     nodes.forEach(function (el, i) {
       el.onclick = null;
       if (i === q.c) el.classList.add('correct');
-      else if (i === study.chosen) el.classList.add('wrong');
+      else if (i === chosen) el.classList.add('wrong');
       else el.classList.add('dim');
     });
-    var ok = study.chosen === q.c;
+    var ok = chosen === q.c;
     $('study-feedback').innerHTML =
       '<div class="feedback ' + (ok ? 'ok' : 'no') + '">' +
       '<div class="head">' + (ok ? '✓ Chính xác!' : '✗ Chưa đúng') + '</div>' +
@@ -353,37 +438,38 @@
 
   window.answerStudy = answerStudy;
   function answerStudy(i) {
-    if (study.answered) return;
+    // B2: one record per question — re-answering an answered question never
+    // increments totals again.
+    if (study.answers[study.idx] !== undefined && study.answers[study.idx] >= 0) return;
     var q = study.list[study.idx];
-    study.answered = true;
-    study.chosen = i;
+    study.answers[study.idx] = i;
+    var score = recountStudy();
     var k = qkey(q);
     if (i === q.c) {
-      study.ok++;
       LddStore.setWrong(LddStore.getWrong().filter(function (id) { return id !== k; }));
     } else {
-      study.no++;
       var w2 = LddStore.getWrong();
       if (w2.indexOf(k) < 0) { w2.push(k); LddStore.setWrong(w2); }
     }
     revealStudyAnswer();
     $('study-next').disabled = false;
-    $('study-counter').textContent = study.ok + ' đúng · ' + study.no + ' sai';
+    $('study-counter').textContent = score.ok + ' đúng · ' + score.no + ' sai';
     persistSession();
   }
 
   window.studyNext = function () {
-    if (!study.answered) return;
+    if (study.answers[study.idx] === undefined || study.answers[study.idx] < 0) return;
     if (study.idx === study.list.length - 1) { finishStudy(); return; }
-    study.idx++; study.answered = false; study.chosen = -1;
+    study.idx++;
     renderStudy();
     persistSession();
     window.scrollTo(0, 0);
   };
   window.studyPrev = function () {
     if (study.idx === 0) return;
-    study.idx--; study.answered = false; study.chosen = -1;
+    study.idx--;
     renderStudy();
+    persistSession();
     window.scrollTo(0, 0);
   };
   window.toggleStarCurrent = function () {
@@ -398,26 +484,39 @@
     renderStudy();
   };
   window.exitStudy = function () {
-    if (study.idx > 0 && study.idx < study.list.length - 1) {
-      if (!confirm('Thoát bài ôn tập? Bạn có thể tiếp tục lại sau.')) return;
+    // B3: normal exit = "Lưu và về trang chủ" — KEEP the unfinished session.
+    // Only explicit discard (Bỏ bài on the home resume card), finish, or a
+    // fresh restart may replace it. Transient single-question reviews persist
+    // nothing and destroy nothing.
+    if (!study.transient && study.list.length) {
+      persistSession();
     }
-    LddStore.clearSession();
+    activeKind = null;
     show('home');
+  };
+  // Explicit discard for a kept Study session (used by the home resume card).
+  window.discardStudy = function () {
+    LddStore.clearSession();
+    activeKind = null;
+    study = { list: [], idx: 0, answers: [], transient: false };
+    renderHome();
   };
 
   function finishStudy() {
     var total = study.list.length;
-    var pct = total ? Math.round(study.ok / total * 100) : 0;
-    $('sr-num').textContent = study.ok;
+    var score = recountStudy();
+    var pct = total ? Math.round(score.ok / total * 100) : 0;
+    $('sr-num').textContent = score.ok;
     $('sr-den').textContent = '/ ' + total;
-    $('sr-ok').textContent = study.ok;
-    $('sr-no').textContent = study.no;
+    $('sr-ok').textContent = score.ok;
+    $('sr-no').textContent = score.no;
     $('sr-pct').textContent = pct + '%';
     $('sr-circle').style.setProperty('--deg', (pct * 3.6) + 'deg');
     $('sr-msg').textContent = pct >= 80 ? 'Xuất sắc! 🎉' : pct >= 60 ? 'Khá tốt! 👍' : 'Cần ôn thêm 💪';
-    $('sr-sub').textContent = 'Bạn trả lời đúng ' + study.ok + ' trên ' + total + ' câu';
-    LddStore.pushHistory({ type: 'Ôn tập', setId: activeSetId, score: study.ok, total: total, date: Date.now() });
+    $('sr-sub').textContent = 'Bạn trả lời đúng ' + score.ok + ' trên ' + total + ' câu';
+    LddStore.pushHistory({ type: 'Ôn tập', setId: activeSetId, score: score.ok, total: total, date: Date.now() });
     LddStore.clearSession();
+    activeKind = null;
     show('study-result');
   }
 
@@ -446,7 +545,9 @@
     var n = count === 0 ? pool.length : Math.min(count, pool.length);
     var list = pool.slice(0, n);
     if (shuffleA) list = list.map(shuffleOptions);
-    exam = { list: list, idx: 0, answers: new Array(list.length).fill(-1), totalTime: minutes * 60, timeLeft: minutes * 60, timerId: null };
+    var total = minutes * 60;
+    exam = { list: list, idx: 0, answers: new Array(list.length).fill(-1), totalTime: total, timeLeft: total, endsAt: Date.now() + total * 1000, timerId: null };
+    activeKind = 'exam';
     persistSession();
     show('exam');
     renderExam();
@@ -455,26 +556,29 @@
 
   function startExamTimer() {
     clearInterval(exam.timerId);
-    updateTimerDisplay();
+    // B6: remaining time is ALWAYS derived from the absolute deadline so
+    // iOS background/suspend time counts toward the exam.
+    if (!exam.endsAt) exam.endsAt = Date.now() + examRemaining() * 1000;
+    updateTimerDisplay(examRemaining());
     exam.timerId = setInterval(function () {
-      exam.timeLeft--;
-      if (exam.timeLeft <= 0) {
-        exam.timeLeft = 0;
-        updateTimerDisplay();
+      var left = examRemaining();
+      if (left <= 0) {
         clearInterval(exam.timerId);
-        alert('⏰ Hết giờ! Bài sẽ được nộp tự động.');
+        updateTimerDisplay(0);
+        // No blocking alert: it would extend time while waiting for dismissal.
         submitExam();
         return;
       }
-      updateTimerDisplay();
-      if (exam.timeLeft % 10 === 0) persistSession();
+      updateTimerDisplay(left);
+      if (left % 10 === 0) persistSession();
     }, 1000);
   }
-  function updateTimerDisplay() {
-    var m = Math.floor(exam.timeLeft / 60), s = exam.timeLeft % 60;
+  function updateTimerDisplay(left) {
+    if (left === undefined) left = examRemaining();
+    var m = Math.floor(left / 60), s = left % 60;
     var el = $('exam-timer');
     el.textContent = '⏱ ' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-    el.classList.toggle('warn', exam.timeLeft <= 60);
+    el.classList.toggle('warn', left <= 60);
   }
 
   function renderExam() {
@@ -505,7 +609,7 @@
       var cell = document.createElement('button');
       cell.className = 'nav-cell' + (exam.answers[i] >= 0 ? ' done' : '') + (i === exam.idx ? ' cur' : '');
       cell.textContent = i + 1;
-      cell.onclick = function () { exam.idx = i; renderExam(); window.scrollTo(0, 0); };
+      cell.onclick = function () { exam.idx = i; renderExam(); persistSession(); window.scrollTo(0, 0); };
       nav.appendChild(cell);
     });
     $('exam-next-btn').textContent = exam.idx === total - 1 ? 'Nộp bài' : 'Sau ›';
@@ -520,18 +624,21 @@
     if (exam.idx === exam.list.length - 1) { confirmSubmitExam(); return; }
     exam.idx++;
     renderExam();
+    persistSession();
     window.scrollTo(0, 0);
   };
   window.examPrev = function () {
     if (exam.idx === 0) return;
     exam.idx--;
     renderExam();
+    persistSession();
     window.scrollTo(0, 0);
   };
   window.confirmExitExam = function () {
     if (confirm('Thoát bài thi? Kết quả sẽ không được lưu.')) {
       clearInterval(exam.timerId);
       LddStore.clearSession();
+      activeKind = null;
       show('home');
     }
   };
@@ -558,7 +665,9 @@
     LddStore.setWrong(w);
     var total = exam.list.length;
     var pct = total ? Math.round(correct / total * 100) : 0;
-    var usedTime = exam.totalTime - exam.timeLeft;
+    var usedTime = exam.totalTime - examRemaining();
+    if (usedTime < 0) usedTime = 0;
+    if (usedTime > exam.totalTime) usedTime = exam.totalTime;
     $('er-num').textContent = correct;
     $('er-den').textContent = '/ ' + total;
     $('er-ok').textContent = correct;
@@ -580,6 +689,7 @@
     });
     LddStore.pushHistory({ type: 'Thi thử', setId: activeSetId, score: correct, total: total, date: Date.now(), time: usedTime });
     LddStore.clearSession();
+    activeKind = null;
     show('exam-result');
   }
 
@@ -614,8 +724,9 @@
     var q = LddStore.questionById(cache, k);
     if (!q) { toast('Câu này đã bị gỡ khỏi bộ đề'); return; }
     activeSetId = q.setId;
-    study = { list: [q], idx: 0, answered: false, chosen: -1, ok: 0, no: 0 };
-    LddStore.clearSession();
+    // Transient review: in-memory only, never overwrites a kept session.
+    study = { list: [q], idx: 0, answers: [-1], transient: true };
+    activeKind = 'study';
     $('study-title').textContent = 'Ôn tập — ' + setTitleOf(activeSetId);
     show('study');
     renderStudy();
@@ -670,60 +781,123 @@
     });
   };
 
-  /* ---------- interrupted session restore ---------- */
+  /* ---------- interrupted session restore (B1/B2/B6/B7) ----------
+   * v2 format persists the EXACT displayed snapshots (question + option order
+   * + correct mapping) plus per-question answers. v1 key-only sessions
+   * (keys/ids + study ok/no or exam answers/timeLeft) still restore. */
   function persistSession() {
     try {
-      if ($('screen-study') && $('screen-study').classList.contains('active') && study.list.length) {
+      // B7: DOM-independent — driven by activeKind, never by screen classes.
+      if (activeKind === 'study' && study.list.length && !study.transient) {
         LddStore.setSession({
-          kind: 'study', setId: activeSetId,
+          v: 2, kind: 'study', setId: activeSetId,
           keys: study.list.map(function (q) { return LddStore.key(q.setId, q.id); }),
-          idx: study.idx, ok: study.ok, no: study.no
+          idx: study.idx, answers: study.answers.slice(), list: snapshotList(study.list)
         });
-      } else if ($('screen-exam') && $('screen-exam').classList.contains('active') && exam.list.length) {
+      } else if (activeKind === 'exam' && exam.list.length) {
         LddStore.setSession({
-          kind: 'exam', setId: activeSetId,
+          v: 2, kind: 'exam', setId: activeSetId,
           keys: exam.list.map(function (q) { return LddStore.key(q.setId, q.id); }),
-          idx: exam.idx, answers: exam.answers,
-          timeLeft: exam.timeLeft, totalTime: exam.totalTime
+          idx: exam.idx, answers: exam.answers.slice(), list: snapshotList(exam.list),
+          timeLeft: examRemaining(), totalTime: exam.totalTime, endsAt: exam.endsAt || 0
         });
       }
     } catch (e) {}
   }
+  // Persist on every visibility/pagehide transition (B7). Never beforeunload-only.
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') persistSession();
+    else if (activeKind === 'exam' && exam.list.length) { updateTimerDisplay(examRemaining()); }
+  });
+  window.addEventListener('pagehide', function () { persistSession(); });
 
-  function offerResume() {
-    var s = LddStore.getSession();
+  function sessionKeys(s) {
     // tolerate previous-era sessions that stored bare `ids`
-    var keys = s && (s.keys || (s.ids || []).map(function (id) {
+    return s && (s.keys || (s.ids || []).map(function (id) {
       var q = LddStore.questionById(cache, id);
       return q ? LddStore.key(q.setId, q.id) : null;
     }));
+  }
+
+  function restoreSessionNow(s) {
+    var keys = sessionKeys(s);
+    if (!s || !keys || !keys.length) return false;
+    var list = null;
+    // B1: prefer exact snapshots when present and valid.
+    if (Array.isArray(s.list) && s.list.length === keys.length && s.list.every(validSnapshot)) {
+      list = restoreList(s.list);
+    } else {
+      list = keys.map(function (k) { return LddStore.questionById(cache, k); });
+      if (list.some(function (q) { return !q; })) { LddStore.clearSession(); return false; }
+    }
+    activeSetId = s.setId;
+    if (s.kind === 'study') {
+      var answers = Array.isArray(s.answers) && s.answers.length === list.length
+        ? s.answers.map(function (a) { return (a === 0 || a === 1 || a === 2 || a === 3) ? a : -1; })
+        : list.map(function () { return -1; });
+      study = { list: list, idx: Math.min(s.idx || 0, list.length - 1), answers: answers, transient: false };
+      activeKind = 'study';
+      $('study-title').textContent = 'Ôn tập — ' + setTitleOf(activeSetId);
+      show('study');
+      renderStudy();
+      return true;
+    }
+    // exam: absolute deadline survives reload/background (B6)
+    var endsAt = s.endsAt || 0;
+    var total = s.totalTime || 600;
+    if (!endsAt && (s.timeLeft || 0) > 0) endsAt = Date.now() + (s.timeLeft | 0) * 1000;
+    if (endsAt && endsAt <= Date.now()) {
+      // Deadline already passed while away: finalize immediately, no extension.
+      exam = {
+        list: list, idx: Math.min(s.idx || 0, list.length - 1),
+        answers: (Array.isArray(s.answers) && s.answers.length === list.length) ? s.answers : new Array(list.length).fill(-1),
+        totalTime: total, timeLeft: 0, endsAt: endsAt, timerId: null
+      };
+      activeKind = 'exam';
+      show('exam');
+      renderExam();
+      submitExam();
+      toast('⏰ Hết giờ — bài đã được nộp tự động');
+      return true;
+    }
+    exam = {
+      list: list, idx: Math.min(s.idx || 0, list.length - 1),
+      answers: (Array.isArray(s.answers) && s.answers.length === list.length) ? s.answers : new Array(list.length).fill(-1),
+      totalTime: total, timeLeft: 0, endsAt: endsAt || (Date.now() + total * 1000), timerId: null
+    };
+    exam.timeLeft = examRemaining();
+    activeKind = 'exam';
+    show('exam');
+    renderExam();
+    startExamTimer();
+    return true;
+  }
+
+  window.resumeSession = function () {
+    var s = LddStore.getSession();
+    if (s) restoreSessionNow(s);
+    renderHome();
+  };
+
+  window.discardSession = function () {
+    LddStore.clearSession();
+    activeKind = null;
+    renderHome();
+  };
+
+  function offerResume() {
+    var s = LddStore.getSession();
+    var keys = sessionKeys(s);
     if (!s || !keys || !keys.length) return;
-    var list = keys.map(function (k) { return LddStore.questionById(cache, k); });
-    if (list.some(function (q) { return !q; })) { LddStore.clearSession(); return; }
+    // If the referenced questions vanished from newer content, drop silently.
+    var probe = Array.isArray(s.list) && s.list.length === keys.length
+      ? s.list.every(validSnapshot)
+      : keys.every(function (k) { return LddStore.questionById(cache, k); });
+    if (!probe) { LddStore.clearSession(); return; }
     var label = s.kind === 'exam' ? 'bài thi' : 'bài ôn';
     setTimeout(function () {
-      if (!confirm('Bạn còn ' + label + ' đang làm dở. Tiếp tục?')) { LddStore.clearSession(); return; }
-      activeSetId = s.setId;
-      if (s.kind === 'study') {
-        study = {
-          list: list,
-          idx: Math.min(s.idx || 0, list.length - 1), answered: false, chosen: -1,
-          ok: s.ok || 0, no: s.no || 0
-        };
-        $('study-title').textContent = 'Ôn tập — ' + setTitleOf(activeSetId);
-        show('study');
-        renderStudy();
-      } else {
-        exam = {
-          list: list,
-          idx: Math.min(s.idx || 0, list.length - 1),
-          answers: s.answers || new Array(list.length).fill(-1),
-          timeLeft: s.timeLeft || 600, totalTime: s.totalTime || 600, timerId: null
-        };
-        show('exam');
-        renderExam();
-        startExamTimer();
-      }
+      if (!confirm('Bạn còn ' + label + ' đang làm dở. Tiếp tục?')) { LddStore.clearSession(); renderHome(); return; }
+      restoreSessionNow(LddStore.getSession());
     }, 600);
   }
 
@@ -731,7 +905,11 @@
    * Content updates arrive via syncContent() above and never need this
    * button. This banner is only for new HTML/CSS/JS deployments. */
   var swReg = null;
+  var swReloadDeferred = false;
   window.applyAppUpdate = function () {
+    // B5: persist the learner session BEFORE activating the new worker so an
+    // approved update never loses position/answers.
+    try { persistSession(); } catch (e) {}
     if (swReg && swReg.waiting) swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
     else window.location.reload();
   };
@@ -750,6 +928,16 @@
         });
       }).catch(function () {});
       navigator.serviceWorker.addEventListener('controllerchange', function () {
+        // B5: never auto-reload an active Study/Exam session — it would wipe
+        // in-memory state. Keep the banner so the learner updates at a safe
+        // point (session was already persisted by applyAppUpdate).
+        if (sessionActive()) {
+          swReloadDeferred = true;
+          var b = $('update-banner');
+          if (b) b.classList.add('show');
+          toast('Sẽ cập nhật sau khi bạn xong bài hiện tại');
+          return;
+        }
         window.location.reload();
       });
     });

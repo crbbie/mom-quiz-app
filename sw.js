@@ -7,7 +7,7 @@
  * deployed catalog/set files are always discovered. The app's own
  * localStorage cache is the primary offline store; this SW fallback only
  * covers edge cases (e.g. no localStorage yet but SW saw the file). */
-var APP_VERSION = 'v2.0.0';
+var APP_VERSION = 'v2.1.0';
 var SHELL_CACHE = 'onthi-shell-' + APP_VERSION;
 var DATA_CACHE = 'onthi-data-v1';
 
@@ -35,10 +35,12 @@ function dataKey(request) {
 }
 
 self.addEventListener('install', function (event) {
+  // B5: a failed precache MUST fail the install so the previous working
+  // worker/cache is never replaced by a broken one. No automatic
+  // skipWaiting here — activation waits for the learner's explicit
+  // "Cập nhật" tap (SKIP_WAITING message) at a safe point.
   event.waitUntil(
     caches.open(SHELL_CACHE).then(function (c) { return c.addAll(SHELL); })
-      .then(function () { return self.skipWaiting(); })
-      .catch(function () { return self.skipWaiting(); })
   );
 });
 
@@ -62,11 +64,12 @@ self.addEventListener('fetch', function (event) {
   var url = new URL(event.request.url);
 
   // Navigations: network first, fall back to cached shell offline.
+  // B5: never hot-swap the cached HTML in place — the shell cache stays
+  // immutable per APP_VERSION so HTML/JS/CSS from different deploys cannot
+  // mix. A newer deploy takes over atomically via worker update + reload.
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).then(function (res) {
-        var copy = res.clone();
-        caches.open(SHELL_CACHE).then(function (c) { c.put('./index.html', copy); });
         return res;
       }).catch(function () {
         return caches.match('./index.html').then(function (r) { return r || caches.match('./'); });
@@ -93,17 +96,14 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  // APP SHELL: cache-first with background revalidation.
+  // APP SHELL: cache-first. B5: no background mutation of the versioned
+  // cache — the shell stays atomic per APP_VERSION until the next worker
+  // activates. (Previously a background revalidation could mix files from
+  // two deploys in one cache.)
   event.respondWith(
     caches.match(event.request).then(function (hit) {
-      var net = fetch(event.request).then(function (res) {
-        if (res && res.status === 200) {
-          var copy = res.clone();
-          caches.open(SHELL_CACHE).then(function (c) { c.put(event.request, copy); });
-        }
-        return res;
-      }).catch(function () { return hit; });
-      return hit || net;
+      if (hit) return hit;
+      return fetch(event.request);
     })
   );
 });
