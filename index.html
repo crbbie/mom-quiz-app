@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ôn thi">
+<meta name="theme-color" content="#1e6fd9">
+<title>Ôn thi</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ========== HOME: choose a question set ========== -->
+  <section class="screen active" id="screen-home">
+    <div class="body" style="padding-top:calc(30px + env(safe-area-inset-top))">
+      <div class="hero">
+        <h1>Ôn thi 📚</h1>
+        <p>Chọn bộ đề để bắt đầu</p>
+      </div>
+      <div class="update-banner" id="update-banner">
+        <span style="flex:1">✨ Có phiên bản mới của ứng dụng.</span>
+        <button onclick="applyAppUpdate()">Cập nhật</button>
+      </div>
+      <div class="sync-line">
+        <span class="sync-dot" id="sync-dot"></span>
+        <span id="sync-text">Đang tải bộ đề…</span>
+        <button onclick="manualSync()">Cập nhật dữ liệu</button>
+      </div>
+      <div id="set-list"></div>
+      <div class="grid2" style="margin-top:14px">
+        <button class="tile" onclick="openList('wrong')">
+          <span class="ico">❌</span><b>Câu đã sai</b>
+          <span class="badge warn empty" id="badge-wrong">0</span>
+        </button>
+        <button class="tile" onclick="openList('star')">
+          <span class="ico">⭐</span><b>Câu đánh dấu</b>
+          <span class="badge star empty" id="badge-star">0</span>
+        </button>
+        <button class="tile" onclick="show('history')">
+          <span class="ico">🕘</span><b>Lịch sử</b>
+        </button>
+        <button class="tile" onclick="show('search')">
+          <span class="ico">🔍</span><b>Tìm câu hỏi</b>
+        </button>
+      </div>
+      <p class="install-hint" id="install-hint">
+        Mẹo: Mở bằng Safari → nút Chia sẻ → <b>Thêm vào Màn hình chính</b><br>để dùng như app, mở là chạy.
+      </p>
+    </div>
+  </section>
+
+  <!-- ========== STUDY ========== -->
+  <section class="screen" id="screen-study">
+    <div class="topbar">
+      <button class="back" onclick="exitStudy()">‹</button>
+      <div class="title"><span id="study-title">Ôn tập</span><small id="study-sub">Câu 1 / 1</small></div>
+      <button class="action" id="study-star" onclick="toggleStarCurrent()">☆</button>
+    </div>
+    <div class="body">
+      <div class="progress"><div id="study-progress" style="width:0%"></div></div>
+      <div class="qmeta">
+        <span class="pill" id="study-pill">Câu 1</span>
+        <span id="study-counter">0 đúng · 0 sai</span>
+      </div>
+      <div class="qcat" id="study-cat" style="display:none"></div>
+      <div class="qtext" id="study-q"></div>
+      <div class="options" id="study-opts"></div>
+      <div id="study-feedback"></div>
+    </div>
+    <div class="bottom-actions">
+      <button class="btn ghost" id="study-prev" onclick="studyPrev()">‹ Câu trước</button>
+      <button class="btn primary" id="study-next" onclick="studyNext()" disabled>Tiếp theo ›</button>
+    </div>
+  </section>
+
+  <!-- ========== STUDY RESULT ========== -->
+  <section class="screen" id="screen-study-result">
+    <div class="topbar">
+      <button class="back" onclick="show('home')">‹</button>
+      <div class="title">Kết quả ôn tập</div>
+    </div>
+    <div class="body">
+      <div class="result-hero">
+        <div class="score-circle" id="sr-circle">
+          <span class="num" id="sr-num">0</span>
+          <span class="den" id="sr-den">/ 0</span>
+        </div>
+        <h2 id="sr-msg">Hoàn thành!</h2>
+        <p id="sr-sub"></p>
+      </div>
+      <div class="stat-row">
+        <div class="stat ok"><b id="sr-ok">0</b><small>Đúng</small></div>
+        <div class="stat no"><b id="sr-no">0</b><small>Sai</small></div>
+        <div class="stat"><b id="sr-pct">0%</b><small>Tỷ lệ</small></div>
+      </div>
+      <div class="bottom-actions">
+        <button class="btn ghost" onclick="show('home')">Về trang chủ</button>
+        <button class="btn primary" onclick="restartStudy()">Ôn lại</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== EXAM SETUP ========== -->
+  <section class="screen" id="screen-exam-setup">
+    <div class="topbar">
+      <button class="back" onclick="show('home')">‹</button>
+      <div class="title"><span id="exam-setup-title">Thi thử</span><small>chọn cấu hình</small></div>
+    </div>
+    <div class="body">
+      <div class="setup-group">
+        <h3>Số câu hỏi</h3>
+        <div class="chips" id="exam-count-chips">
+          <button class="chip" data-v="10">10 câu</button>
+          <button class="chip on" data-v="20">20 câu</button>
+          <button class="chip" data-v="40">40 câu</button>
+          <button class="chip" data-v="0">Tất cả</button>
+        </div>
+      </div>
+      <div class="setup-group">
+        <h3>Thời gian</h3>
+        <div class="chips" id="exam-time-chips">
+          <button class="chip" data-v="10">10 phút</button>
+          <button class="chip on" data-v="20">20 phút</button>
+          <button class="chip" data-v="45">45 phút</button>
+          <button class="chip" data-v="60">60 phút</button>
+        </div>
+      </div>
+      <div class="setup-group">
+        <h3>Tùy chọn</h3>
+        <div class="switch-row">
+          <span>🔀 Đảo thứ tự câu hỏi</span>
+          <div class="switch on" id="sw-shuffle-q" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="switch-row">
+          <span>🎲 Đảo thứ tự đáp án</span>
+          <div class="switch on" id="sw-shuffle-a" onclick="toggleSwitch(this)"></div>
+        </div>
+      </div>
+      <button class="btn primary" style="width:100%;margin-top:8px" onclick="startExam()">Bắt đầu thi</button>
+    </div>
+  </section>
+
+  <!-- ========== EXAM ========== -->
+  <section class="screen" id="screen-exam">
+    <div class="topbar">
+      <button class="back" onclick="confirmExitExam()">‹</button>
+      <div class="title">Thi thử<small id="exam-sub">Câu 1 / 20</small></div>
+      <div class="timer" id="exam-timer">⏱ 20:00</div>
+    </div>
+    <div class="body">
+      <div class="progress"><div id="exam-progress" style="width:0%"></div></div>
+      <div class="qmeta">
+        <span class="pill" id="exam-pill">Câu 1</span>
+        <span id="exam-counter">0/20 đã trả lời</span>
+      </div>
+      <div class="qcat" id="exam-cat" style="display:none"></div>
+      <div class="qtext" id="exam-q"></div>
+      <div class="options" id="exam-opts"></div>
+      <h3 style="font-size:15px;color:#7b8698;margin:22px 0 10px">Bảng câu hỏi</h3>
+      <div class="nav-grid" id="exam-nav"></div>
+      <button class="btn danger" style="width:100%;margin-top:10px" onclick="confirmSubmitExam()">Nộp bài</button>
+    </div>
+    <div class="bottom-actions">
+      <button class="btn ghost" onclick="examPrev()">‹ Trước</button>
+      <button class="btn primary" id="exam-next-btn" onclick="examNext()">Sau ›</button>
+    </div>
+  </section>
+
+  <!-- ========== EXAM RESULT ========== -->
+  <section class="screen" id="screen-exam-result">
+    <div class="topbar">
+      <button class="back" onclick="show('home')">‹</button>
+      <div class="title">Kết quả thi thử</div>
+    </div>
+    <div class="body">
+      <div class="result-hero">
+        <div class="score-circle" id="er-circle">
+          <span class="num" id="er-num">0</span>
+          <span class="den" id="er-den">/ 0</span>
+        </div>
+        <h2 id="er-msg">Kết quả</h2>
+        <p id="er-sub"></p>
+      </div>
+      <div class="stat-row">
+        <div class="stat ok"><b id="er-ok">0</b><small>Đúng</small></div>
+        <div class="stat no"><b id="er-no">0</b><small>Sai</small></div>
+        <div class="stat"><b id="er-pct">0%</b><small>Tỷ lệ</small></div>
+      </div>
+      <h3 style="font-size:16px;color:#41506b;margin:20px 0 12px">Chi tiết bài làm</h3>
+      <div id="er-review"></div>
+      <div class="bottom-actions">
+        <button class="btn ghost" onclick="show('home')">Về trang chủ</button>
+        <button class="btn primary" onclick="show('exam-setup')">Thi lại</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== LIST (wrong / starred) ========== -->
+  <section class="screen" id="screen-list">
+    <div class="topbar">
+      <button class="back" onclick="show('home')">‹</button>
+      <div class="title"><span id="list-title">Danh sách</span><small id="list-sub"></small></div>
+    </div>
+    <div class="body">
+      <div id="list-content"></div>
+    </div>
+  </section>
+
+  <!-- ========== HISTORY ========== -->
+  <section class="screen" id="screen-history">
+    <div class="topbar">
+      <button class="back" onclick="show('home')">‹</button>
+      <div class="title">Lịch sử làm bài<small id="hist-sub"></small></div>
+    </div>
+    <div class="body">
+      <div id="hist-content"></div>
+    </div>
+  </section>
+
+  <!-- ========== SEARCH ========== -->
+  <section class="screen" id="screen-search">
+    <div class="topbar">
+      <button class="back" onclick="show('home')">‹</button>
+      <div class="title">Tìm câu hỏi</div>
+    </div>
+    <div class="body">
+      <div class="search-box">
+        <span class="ico">🔍</span>
+        <input id="search-input" placeholder="Nhập từ khóa..." oninput="doSearch()" autocomplete="off">
+      </div>
+      <div id="search-results"></div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="js/store.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

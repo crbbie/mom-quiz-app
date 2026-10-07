@@ -1,0 +1,40 @@
+# Static PWA — no build step. Ships the repo root as-is to GitHub Pages.
+# Content updates (data/*.json) and app updates (index.html/js/sw.js)
+# deploy the same way; the PWA distinguishes them at runtime
+# (syncContent vs APP_VERSION banner) so reinstall is never needed.
+name: Deploy static PWA to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate question bank (fail deploy on bad content)
+        run: python tools/validate_questions.py
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload static site (repo root, no build)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

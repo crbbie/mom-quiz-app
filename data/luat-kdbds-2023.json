@@ -1,0 +1,969 @@
+{
+  "id": "kdbds-2023",
+  "title": "Luật Kinh doanh BĐS 2023",
+  "description": "Bộ đề Luật Kinh doanh Bất động sản 2023 — 80 câu.",
+  "version": 1,
+  "updated_at": "2026-10-07",
+  "questions": [
+    {
+      "id": "bd9eb282-4418-43d3-a849-08ec9b1f1cdb",
+      "question": "Luật Kinh doanh bất động sản 2023 có hiệu lực thi hành từ ngày nào?",
+      "options": [
+        "01/01/2025",
+        "01/08/2024",
+        "28/11/2023",
+        "01/01/2015"
+      ],
+      "correct": 0,
+      "explanation": "Luật KDBĐS 2023 (số 29/2023/QH15) có hiệu lực thi hành từ ngày 01/01/2025."
+    },
+    {
+      "id": "c6938b8e-1d10-47f4-9a6d-d45e8723e6bd",
+      "question": "Theo Luật KDBĐS 2023, \"Kinh doanh bất động sản\" được hiểu là gì?",
+      "options": [
+        "Chỉ bao gồm việc mua bán nhà ở.",
+        "Chỉ bao gồm hoạt động môi giới và tư vấn bất động sản.",
+        "Việc bỏ vốn đầu tư tạo lập, mua, nhận chuyển nhượng, thuê, thuê mua BĐS để bán, chuyển nhượng, cho thuê, cho thuê lại, cho thuê mua nhằm mục đích lợi nhuận; kinh doanh dịch vụ bất động sản.",
+        "Chỉ việc xây dựng dự án bất động sản."
+      ],
+      "correct": 2,
+      "explanation": "Kinh doanh BĐS bao gồm cả hoạt động đầu tư kinh doanh BĐS và kinh doanh dịch vụ BĐS."
+    },
+    {
+      "id": "55563f2e-24ca-45b9-959d-bfbe896b9e1c",
+      "question": "Trường hợp nào sau đây KHÔNG thuộc phạm vi điều chỉnh của Luật KDBĐS 2023?",
+      "options": [
+        "Kinh doanh dịch vụ môi giới bất động sản.",
+        "Bán nhà ở hình thành trong tương lai của chủ đầu tư dự án.",
+        "Việc bán nhà ở của cơ quan nhà nước do phá sản, giải thể.",
+        "Cho thuê văn phòng của doanh nghiệp kinh doanh BĐS."
+      ],
+      "correct": 2,
+      "explanation": "Việc bán tài sản công do phá sản, giải thể thuộc pháp luật về quản lý, sử dụng tài sản công, không thuộc phạm vi Luật KDBĐS."
+    },
+    {
+      "id": "027e7f87-e52a-4368-a0ce-16fcb60f7a57",
+      "question": "Hành vi nào sau đây bị nghiêm cấm theo Luật KDBĐS 2023?",
+      "options": [
+        "Kinh doanh bất động sản đủ điều kiện theo quy định.",
+        "Công khai đầy đủ thông tin về dự án bất động sản.",
+        "Thu tiền đặt cọc mua nhà hình thành trong tương lai không quá 5% giá bán.",
+        "Giả mạo tài liệu, cố ý làm sai lệch thông tin về bất động sản."
+      ],
+      "correct": 3,
+      "explanation": "Giả mạo tài liệu, cố ý làm sai lệch thông tin về BĐS là hành vi bị nghiêm cấm."
+    },
+    {
+      "id": "851f0c13-d8f1-4e2b-8abf-aadfa4ecb3fe",
+      "question": "Điều kiện về vốn chủ sở hữu đối với doanh nghiệp kinh doanh BĐS làm chủ đầu tư dự án có quy mô sử dụng đất dưới 20 ha theo Luật KDBĐS 2023 là gì?",
+      "options": [
+        "Tối thiểu 20 tỷ đồng.",
+        "Không thấp hơn 15% tổng vốn đầu tư.",
+        "Không thấp hơn 20% tổng vốn đầu tư.",
+        "Không quy định cụ thể."
+      ],
+      "correct": 2,
+      "explanation": "Dự án dưới 20 ha: vốn chủ sở hữu không thấp hơn 20% tổng vốn đầu tư; từ 20 ha trở lên: không thấp hơn 15%."
+    },
+    {
+      "id": "540d705d-c265-4f2c-82df-b9d610bc89cf",
+      "question": "Điều kiện nào KHÔNG bắt buộc đối với nhà ở, công trình xây dựng có sẵn được đưa vào kinh doanh theo Luật KDBĐS 2023?",
+      "options": [
+        "Có Giấy chứng nhận quyền sở hữu hoặc giấy tờ tương đương.",
+        "Không có tranh chấp về quyền sở hữu, quyền sử dụng.",
+        "Phải nằm trong dự án bất động sản đã được phê duyệt.",
+        "Không bị kê biên để bảo đảm thi hành án."
+      ],
+      "correct": 2,
+      "explanation": "Nhà ở, công trình có sẵn không bắt buộc phải nằm trong dự án BĐS đã được phê duyệt."
+    },
+    {
+      "id": "eb5808b3-0f6d-489c-9635-e2b08ba6591a",
+      "question": "Theo Luật KDBĐS 2023, chủ đầu tư phải làm gì trước khi bán nhà ở hình thành trong tương lai?",
+      "options": [
+        "Đã hoàn thành phần móng và nghiệm thu phần móng.",
+        "Hoàn thành nghĩa vụ tài chính về đất đai và có văn bản chấp thuận đủ điều kiện bán của Sở Xây dựng.",
+        "Có hợp đồng bảo lãnh ngân hàng là đủ.",
+        "Hoàn thiện toàn bộ công trình và có Giấy chứng nhận."
+      ],
+      "correct": 1,
+      "explanation": "Chủ đầu tư phải hoàn thành nghĩa vụ tài chính về đất đai và có văn bản chấp thuận của Sở Xây dựng."
+    },
+    {
+      "id": "ca519694-5ef1-4ac7-b8c1-8a22f89cacc6",
+      "question": "Điểm thay đổi quan trọng trong điều kiện chuyển nhượng dự án BĐS theo Luật KDBĐS 2023 so với Luật 2014 là gì?",
+      "options": [
+        "Bắt buộc phải có Giấy chứng nhận quyền sử dụng đất đối với toàn bộ dự án.",
+        "Bỏ yêu cầu chủ đầu tư bên chuyển nhượng phải có Giấy chứng nhận quyền sử dụng đất nếu đã hoàn thành nghĩa vụ tài chính về đất đai.",
+        "Chỉ cho phép chuyển nhượng dự án đã hoàn thiện 100%.",
+        "Yêu cầu bên nhận chuyển nhượng phải là doanh nghiệp nhà nước."
+      ],
+      "correct": 1,
+      "explanation": "Luật 2023 bỏ yêu cầu phải có GCN QSDĐ nếu đã hoàn thành nghĩa vụ tài chính về đất đai."
+    },
+    {
+      "id": "be97c6a6-dbef-4677-8f9c-89d6d0dfae7d",
+      "question": "Mức đặt cọc tối đa mà chủ đầu tư được thu khi bán nhà ở hình thành trong tương lai theo Luật KDBĐS 2023 là bao nhiêu?",
+      "options": [
+        "0% giá bán",
+        "5% giá bán",
+        "30% giá bán",
+        "Không giới hạn"
+      ],
+      "correct": 1,
+      "explanation": "Mức đặt cọc tối đa là 5% giá bán."
+    },
+    {
+      "id": "1cb7a99d-1603-4f77-a3a9-8023b1b7e405",
+      "question": "Mức thanh toán lần đầu sau khi ký hợp đồng mua nhà ở hình thành trong tương lai theo Luật KDBĐS 2023 tối đa là bao nhiêu (bao gồm cả tiền đặt cọc)?",
+      "options": [
+        "50% giá trị hợp đồng",
+        "70% giá trị hợp đồng",
+        "30% giá trị hợp đồng",
+        "95% giá trị hợp đồng"
+      ],
+      "correct": 2,
+      "explanation": "Thanh toán lần đầu tối đa 30% giá trị hợp đồng (bao gồm đặt cọc)."
+    },
+    {
+      "id": "0046ba96-9617-4c81-86cd-6db979bd63d6",
+      "question": "Đối với hợp đồng thuê mua nhà ở hình thành trong tương lai, tổng số tiền thanh toán trước khi bàn giao nhà theo Luật KDBĐS 2023 không được vượt quá bao nhiêu % giá trị hợp đồng?",
+      "options": [
+        "30%",
+        "50%",
+        "70%",
+        "95%"
+      ],
+      "correct": 1,
+      "explanation": "Tổng thanh toán trước bàn giao không vượt quá 50% giá trị hợp đồng."
+    },
+    {
+      "id": "ef2b2a8e-dc93-4eb4-bbcd-80bcd5fe3daa",
+      "question": "Luật KDBĐS 2023 yêu cầu các bên phải ghi thông tin nào vào hợp đồng kinh doanh BĐS một cách chính xác?",
+      "options": [
+        "Chỉ cần ghi giá tham khảo trên thị trường.",
+        "Giá giao dịch thực tế.",
+        "Giá tính thuế theo bảng giá đất của Nhà nước.",
+        "Giá thỏa thuận nhưng không cần công khai."
+      ],
+      "correct": 1,
+      "explanation": "Phải ghi đúng giá giao dịch thực tế."
+    },
+    {
+      "id": "07b90e0e-cee9-4b3c-96f8-52dbea2e8beb",
+      "question": "Kỳ thi sát hạch cấp chứng chỉ hành nghề môi giới BĐS theo Luật KDBĐS 2023 bao gồm những nội dung kiến thức nào?",
+      "options": [
+        "Chỉ kiến thức về marketing và bán hàng BĐS.",
+        "Chỉ kiến thức về pháp luật dân sự và đất đai.",
+        "Kiến thức cơ sở về pháp luật KDBĐS và kiến thức chuyên môn về môi giới BĐS.",
+        "Kiến thức về phong thủy và thẩm định giá BĐS."
+      ],
+      "correct": 2,
+      "explanation": "Gồm kiến thức cơ sở về pháp luật KDBĐS và kiến thức chuyên môn về môi giới BĐS."
+    },
+    {
+      "id": "00f1739b-a947-43dc-bb63-f3aaaa770e58",
+      "question": "Thông tin về bất động sản, dự án bất động sản phải được công khai vào thời điểm nào theo Luật KDBĐS 2023?",
+      "options": [
+        "Sau khi ký hợp đồng mua bán.",
+        "Trong quá trình xây dựng.",
+        "Trước khi đưa bất động sản, dự án bất động sản vào kinh doanh.",
+        "Chỉ khi có yêu cầu của khách hàng."
+      ],
+      "correct": 2,
+      "explanation": "Phải công khai trước khi đưa BĐS, dự án vào kinh doanh."
+    },
+    {
+      "id": "85eaa17f-c4a4-42bb-97fe-5cff64157056",
+      "question": "Điều kiện hành nghề của cá nhân môi giới bất động sản theo Luật KDBĐS 2023 có thay đổi quan trọng nào so với Luật KDBĐS 2014?",
+      "options": [
+        "Không cần chứng chỉ hành nghề nữa.",
+        "Phải có bằng đại học chuyên ngành bất động sản.",
+        "Phải hành nghề trong một doanh nghiệp kinh doanh dịch vụ bất động sản, không được hoạt động độc lập.",
+        "Chỉ cần đăng ký thuế là đủ."
+      ],
+      "correct": 2,
+      "explanation": "Cá nhân môi giới phải hành nghề trong doanh nghiệp dịch vụ BĐS."
+    },
+    {
+      "id": "0fa89318-2152-44ea-85c0-2ee328420f1f",
+      "question": "Doanh nghiệp kinh doanh dịch vụ môi giới bất động sản theo Luật KDBĐS 2023 cần tối thiểu bao nhiêu người có chứng chỉ hành nghề môi giới bất động sản?",
+      "options": [
+        "01 người",
+        "02 người",
+        "03 người",
+        "Không quy định"
+      ],
+      "correct": 0,
+      "explanation": "Tối thiểu 01 người có chứng chỉ hành nghề môi giới BĐS."
+    },
+    {
+      "id": "6c4ab093-0a09-4608-804f-07e9cad9160c",
+      "question": "Sàn giao dịch bất động sản theo Luật KDBĐS 2023 có cần phải được cấp phép hoạt động không?",
+      "options": [
+        "Không, chỉ cần thông báo cho Sở Xây dựng.",
+        "Có, phải gửi hồ sơ đến Sở Xây dựng để được cấp Giấy phép hoạt động sàn.",
+        "Chỉ cần có giấy đăng ký kinh doanh là đủ.",
+        "Chỉ các sàn quy mô lớn mới cần giấy phép."
+      ],
+      "correct": 1,
+      "explanation": "Sàn giao dịch BĐS phải gửi hồ sơ đến Sở Xây dựng để được cấp phép hoạt động."
+    },
+    {
+      "id": "10f16b37-f659-4821-91a9-f84656f24670",
+      "question": "Luật KDBĐS 2023 có bắt buộc mọi giao dịch bất động sản phải thực hiện qua sàn giao dịch không?",
+      "options": [
+        "Có, tất cả giao dịch phải qua sàn.",
+        "Chỉ các giao dịch nhà ở hình thành trong tương lai phải qua sàn.",
+        "Chỉ các giao dịch có yếu tố nước ngoài phải qua sàn.",
+        "Không bắt buộc, việc giao dịch qua sàn là tự nguyện."
+      ],
+      "correct": 3,
+      "explanation": "Giao dịch qua sàn là tự nguyện, không bắt buộc."
+    },
+    {
+      "id": "ad59cb45-5d34-449c-8552-9316aa80f8ad",
+      "question": "Cá nhân kinh doanh bất động sản quy mô nhỏ theo Luật KDBĐS 2023 có bắt buộc phải thành lập doanh nghiệp không?",
+      "options": [
+        "Có, mọi hoạt động kinh doanh BĐS đều phải lập doanh nghiệp.",
+        "Không, nhưng phải kê khai nộp thuế theo quy định.",
+        "Chỉ cần đăng ký hộ kinh doanh cá thể.",
+        "Chỉ được miễn nếu giao dịch dưới 100 triệu đồng."
+      ],
+      "correct": 1,
+      "explanation": "Cá nhân kinh doanh BĐS quy mô nhỏ không phải lập doanh nghiệp nhưng phải kê khai nộp thuế."
+    },
+    {
+      "id": "38795056-c68c-47ae-aaf5-e224874f74b7",
+      "question": "Tiêu chí định lượng để xác định \"cá nhân kinh doanh BĐS quy mô nhỏ\" theo Nghị định 96/2024/NĐ-CP là gì?",
+      "options": [
+        "Dưới 5 giao dịch/năm và dưới 100 tỷ/hợp đồng.",
+        "Dưới 10 giao dịch/năm và dưới 500 tỷ/hợp đồng.",
+        "Không quá 10 giao dịch/năm và không quá 300 tỷ đồng/hợp đồng.",
+        "Chỉ cần không thuộc diện phải lập dự án đầu tư."
+      ],
+      "correct": 2,
+      "explanation": "Không quá 10 giao dịch/năm và không quá 300 tỷ đồng/hợp đồng."
+    },
+    {
+      "id": "781125ea-fdba-4063-bf41-a55be7594ef6",
+      "question": "Theo Luật KDBĐS 2023, trường hợp nào sau đây HỢP ĐỒNG bắt buộc phải công chứng hoặc chứng thực?",
+      "options": [
+        "Hợp đồng mua bán căn hộ giữa chủ đầu tư và khách hàng cá nhân.",
+        "Hợp đồng thuê văn phòng giữa hai doanh nghiệp.",
+        "Hợp đồng mua bán nhà ở giữa hai cá nhân với nhau.",
+        "Hợp đồng môi giới BĐS giữa doanh nghiệp môi giới và khách hàng."
+      ],
+      "correct": 2,
+      "explanation": "Hợp đồng mua bán nhà ở giữa các cá nhân với nhau phải công chứng/chứng thực."
+    },
+    {
+      "id": "d02b9a2b-4e10-49e5-8449-0786d7eb16e9",
+      "question": "Ai có thẩm quyền cấp chứng chỉ hành nghề môi giới BĐS theo Luật KDBĐS 2023?",
+      "options": [
+        "Bộ Xây dựng",
+        "Hiệp hội Bất động sản Việt Nam",
+        "Sở Xây dựng cấp tỉnh",
+        "Doanh nghiệp kinh doanh dịch vụ BĐS"
+      ],
+      "correct": 2,
+      "explanation": "Sở Xây dựng cấp tỉnh có thẩm quyền cấp chứng chỉ hành nghề môi giới BĐS."
+    },
+    {
+      "id": "8f2ba2ee-6444-4eac-89c1-ccdf3b9bd506",
+      "question": "Trường hợp nào sau đây KHÔNG phải là hành vi bị cấm theo Điều 8 Luật KDBĐS 2023?",
+      "options": [
+        "Sử dụng tiền thu trước của khách hàng mua nhà hình thành trong tương lai để đầu tư vào dự án khác.",
+        "Cung cấp thông tin sai lệch về tiến độ dự án cho khách hàng.",
+        "Yêu cầu khách hàng thanh toán lần đầu 25% giá trị hợp đồng (đã bao gồm đặt cọc).",
+        "Không nộp đủ tiền sử dụng đất cho Nhà nước."
+      ],
+      "correct": 2,
+      "explanation": "Thanh toán lần đầu 25% (dưới 30%) là hợp lệ, không bị cấm."
+    },
+    {
+      "id": "74ac3518-0309-4985-b558-37c190ff161d",
+      "question": "Chủ đầu tư có được thu phí liên quan đến việc chuyển nhượng hợp đồng mua bán nhà ở hình thành trong tương lai không?",
+      "options": [
+        "Có, được thu phí quản lý theo thỏa thuận.",
+        "Có, nhưng không quá 2% giá trị hợp đồng.",
+        "Không, chủ đầu tư không được thu bất kỳ khoản chi phí nào liên quan đến việc này.",
+        "Chỉ được thu phí nếu việc chuyển nhượng làm thay đổi thiết kế."
+      ],
+      "correct": 2,
+      "explanation": "Chủ đầu tư không được thu bất kỳ khoản chi phí nào liên quan đến chuyển nhượng hợp đồng."
+    },
+    {
+      "id": "6a9f1c9d-b6b5-4875-90e8-7a06001ac2f6",
+      "question": "Luật KDBĐS 2023 quy định thời điểm xác lập quyền sở hữu nhà ở, công trình xây dựng đối với bên mua, thuê mua là khi nào (trừ thỏa thuận khác)?",
+      "options": [
+        "Kể từ thời điểm ký hợp đồng.",
+        "Kể từ thời điểm thanh toán đủ 95% giá trị.",
+        "Kể từ thời điểm bên mua, thuê mua đã thanh toán đủ tiền và đã nhận bàn giao nhà ở, công trình.",
+        "Kể từ thời điểm được cấp Giấy chứng nhận."
+      ],
+      "correct": 2,
+      "explanation": "Thời điểm xác lập quyền sở hữu là khi đã thanh toán đủ tiền và nhận bàn giao."
+    },
+    {
+      "id": "a81560a7-3ccf-46e3-8f25-b7f2f3ef44c0",
+      "question": "Chủ đầu tư có trách nhiệm gì sau khi chuyển nhượng quyền sử dụng đất đã có hạ tầng kỹ thuật cho cá nhân tự xây nhà ở?",
+      "options": [
+        "Không còn trách nhiệm gì.",
+        "Hỗ trợ người mua vay vốn ngân hàng.",
+        "Giám sát việc người mua xây dựng nhà ở theo đúng quy hoạch, thiết kế được duyệt.",
+        "Xây dựng phần thô nhà ở cho người mua."
+      ],
+      "correct": 2,
+      "explanation": "Chủ đầu tư có trách nhiệm giám sát việc xây dựng theo đúng quy hoạch, thiết kế được duyệt."
+    },
+    {
+      "id": "daa84dd7-1fdb-493b-8927-74442beff530",
+      "question": "Hành vi nào liên quan đến chứng chỉ hành nghề môi giới BĐS bị nghiêm cấm theo Luật KDBĐS 2023?",
+      "options": [
+        "Thi lấy chứng chỉ hành nghề môi giới BĐS.",
+        "Sử dụng chứng chỉ còn hạn để hành nghề.",
+        "Yêu cầu nhân viên môi giới phải có chứng chỉ.",
+        "Cấp và sử dụng chứng chỉ hành nghề môi giới BĐS không đúng quy định."
+      ],
+      "correct": 3,
+      "explanation": "Cấp và sử dụng chứng chỉ hành nghề môi giới BĐS không đúng quy định là hành vi bị cấm."
+    },
+    {
+      "id": "b0ed2d7b-c247-48ee-be2a-8477c8b28e8f",
+      "question": "Khi chuyển nhượng toàn bộ dự án BĐS, bên nhận chuyển nhượng có phải làm lại hồ sơ dự án, quy hoạch, giấy phép xây dựng không nếu không thay đổi nội dung dự án?",
+      "options": [
+        "Có, phải làm lại toàn bộ thủ tục từ đầu.",
+        "Chỉ cần làm lại giấy phép xây dựng.",
+        "Không, không phải làm lại nếu không có thay đổi nội dung.",
+        "Phải làm lại quy hoạch chi tiết 1/500."
+      ],
+      "correct": 2,
+      "explanation": "Không phải làm lại nếu không có thay đổi nội dung dự án."
+    },
+    {
+      "id": "77a1d673-cd6c-47e5-a2ec-2d376fecfe8a",
+      "question": "Theo Luật KDBĐS 2023, tổ chức, cá nhân kinh doanh BĐS được phép kinh doanh BĐS ở đâu?",
+      "options": [
+        "Chỉ trong phạm vi tỉnh/thành phố nơi đăng ký kinh doanh.",
+        "Trên toàn lãnh thổ Việt Nam.",
+        "Chỉ tại các khu đô thị đã được quy hoạch.",
+        "Ngoài phạm vi khu vực bảo vệ theo quy định của pháp luật về quốc phòng, an ninh."
+      ],
+      "correct": 3,
+      "explanation": "Được kinh doanh BĐS ngoài phạm vi khu vực bảo vệ quốc phòng, an ninh."
+    },
+    {
+      "id": "4e690640-bbb8-419d-8688-5ada50cb952e",
+      "question": "Trường hợp nào chủ đầu tư dự án BĐS KHÔNG được thu tiền đặt cọc theo Luật KDBĐS 2023?",
+      "options": [
+        "Khi nhà ở, công trình xây dựng chưa đủ điều kiện đưa vào kinh doanh.",
+        "Khi đã nhận đủ tiền đặt cọc từ 10 khách hàng đầu tiên.",
+        "Khi dự án chưa hoàn thành giải phóng mặt bằng.",
+        "Khi giá trị đặt cọc dưới 1% giá bán."
+      ],
+      "correct": 0,
+      "explanation": "Không được thu đặt cọc khi nhà ở, công trình chưa đủ điều kiện đưa vào kinh doanh."
+    },
+    {
+      "id": "e35c6849-d149-40db-9866-cad0f005c856",
+      "question": "Mục tiêu chính của việc yêu cầu công khai thông tin BĐS, dự án BĐS theo Luật KDBĐS 2023 là gì?",
+      "options": [
+        "Giúp cơ quan thuế dễ dàng thu thuế hơn.",
+        "Tăng doanh thu cho các công ty môi giới BĐS.",
+        "Đảm bảo tính minh bạch thị trường, giảm bất cân xứng thông tin, bảo vệ người tiêu dùng.",
+        "Hạn chế số lượng dự án BĐS mới được triển khai."
+      ],
+      "correct": 2,
+      "explanation": "Mục tiêu là minh bạch thị trường, bảo vệ người tiêu dùng."
+    },
+    {
+      "id": "0d9066e5-1bd8-427f-86a7-2700edbdd9ec",
+      "question": "Điều kiện \"hoàn thành nghĩa vụ tài chính về đất đai\" đối với BĐS hình thành trong tương lai và quyền sử dụng đất có hạ tầng trước khi đưa vào kinh doanh nhằm mục đích chính là gì?",
+      "options": [
+        "Đảm bảo chủ đầu tư có đủ lợi nhuận từ dự án.",
+        "Đơn giản hóa thủ tục cấp Giấy chứng nhận cho người mua sau này.",
+        "Đảm bảo Nhà nước thu đủ thuế, phí và quyền sử dụng đất của chủ đầu tư đối với dự án là hợp pháp trước khi bán cho khách hàng.",
+        "Khuyến khích chủ đầu tư đẩy nhanh tiến độ xây dựng."
+      ],
+      "correct": 2,
+      "explanation": "Đảm bảo Nhà nước thu đủ thuế, phí và QSDĐ của chủ đầu tư là hợp pháp."
+    },
+    {
+      "id": "b7f34074-3ae5-464e-bdf9-c26678bdd9dd",
+      "question": "Tại sao Luật KDBĐS 2023 lại mở rộng đáng kể các khu vực cấm \"phân lô, bán nền\"?",
+      "options": [
+        "Để tăng giá đất nền tại các khu vực được phép.",
+        "Để khuyến khích người dân mua căn hộ chung cư thay vì đất nền.",
+        "Để kiểm soát chặt chẽ hơn sự phát triển đô thị, khuyến khích các dự án đồng bộ, cải thiện quy hoạch và cảnh quan tại các đô thị lớn và vừa.",
+        "Để tạo điều kiện cho các chủ đầu tư lớn độc quyền thị trường đất nền."
+      ],
+      "correct": 2,
+      "explanation": "Kiểm soát phát triển đô thị, khuyến khích dự án đồng bộ."
+    },
+    {
+      "id": "51924800-25a8-4734-9253-7a75eae1b0e3",
+      "question": "Hệ thống thông tin về nhà ở và thị trường BĐS theo Luật KDBĐS 2023 có vai trò chính là gì?",
+      "options": [
+        "Chỉ để lưu trữ hồ sơ dự án của Bộ Xây dựng.",
+        "Là nơi duy nhất được phép đăng quảng cáo BĐS.",
+        "Là kênh công khai, chính thống các thông tin về doanh nghiệp, dự án, BĐS đưa vào kinh doanh để các bên tra cứu, giám sát.",
+        "Là nơi thực hiện các giao dịch BĐS trực tuyến."
+      ],
+      "correct": 2,
+      "explanation": "Là kênh công khai, chính thống để tra cứu, giám sát."
+    },
+    {
+      "id": "b9edb0e9-17ab-4b5a-8ce0-cf44e8cae409",
+      "question": "Việc cá nhân môi giới BĐS phải hoạt động trong một doanh nghiệp dịch vụ BĐS theo Luật KDBĐS 2023 nhằm mục đích gì?",
+      "options": [
+        "Giảm số lượng môi giới trên thị trường.",
+        "Tăng doanh thu cho các sàn giao dịch BĐS.",
+        "Chuyên nghiệp hóa hoạt động môi giới, tăng trách nhiệm giải trình, dễ quản lý và giám sát hơn.",
+        "Buộc các môi giới phải chia sẻ hoa hồng với doanh nghiệp."
+      ],
+      "correct": 2,
+      "explanation": "Chuyên nghiệp hóa, tăng trách nhiệm giải trình."
+    },
+    {
+      "id": "43f72e7e-1201-4ba3-9aaa-8aaa6bebdc8a",
+      "question": "Loại hình công trình xây dựng nào được Luật KDBĐS 2023 bổ sung, làm rõ là đối tượng được phép kinh doanh?",
+      "options": [
+        "Chỉ nhà ở và văn phòng.",
+        "Bao gồm cả công trình có công năng phục vụ du lịch, lưu trú (như condotel, officetel), giáo dục, y tế, thể thao, văn hóa, thương mại, dịch vụ, công nghiệp, hỗn hợp.",
+        "Chỉ các công trình xây dựng có sẵn, không bao gồm hình thành trong tương lai.",
+        "Chỉ công trình do Nhà nước đầu tư."
+      ],
+      "correct": 1,
+      "explanation": "Bổ sung nhiều loại công trình, bao gồm condotel, officetel..."
+    },
+    {
+      "id": "f9772aae-6c46-41a9-a815-3677df2d0ce6",
+      "question": "Nếu một dự án BĐS đang được thế chấp tại ngân hàng, chủ đầu tư có được phép chuyển nhượng dự án đó không?",
+      "options": [
+        "Không, tuyệt đối cấm chuyển nhượng dự án đang thế chấp.",
+        "Có, nhưng phải được ngân hàng nhận thế chấp đồng ý hoặc phải thực hiện giải chấp trước khi chuyển nhượng.",
+        "Có, không cần sự đồng ý của ngân hàng.",
+        "Chỉ được chuyển nhượng phần dự án không bị thế chấp."
+      ],
+      "correct": 1,
+      "explanation": "Phải được ngân hàng đồng ý hoặc giải chấp trước."
+    },
+    {
+      "id": "14e16e1f-e748-4206-a7d8-9d34964699cd",
+      "question": "Sự khác biệt về yêu cầu công chứng, chứng thực hợp đồng mua bán nhà ở giữa giao dịch có doanh nghiệp kinh doanh bất động sản tham gia và giao dịch chỉ giữa các cá nhân là gì theo Luật KDBĐS 2023?",
+      "options": [
+        "Mọi hợp đồng đều bắt buộc công chứng/chứng thực.",
+        "Giao dịch có doanh nghiệp tham gia thì bắt buộc, giao dịch giữa cá nhân thì không.",
+        "Giao dịch giữa các cá nhân với nhau thì bắt buộc công chứng/chứng thực, giao dịch có doanh nghiệp tham gia thì theo yêu cầu của các bên.",
+        "Không có sự khác biệt, đều không bắt buộc."
+      ],
+      "correct": 2,
+      "explanation": "Giao dịch giữa cá nhân bắt buộc công chứng; có doanh nghiệp tham gia thì theo yêu cầu."
+    },
+    {
+      "id": "b775418f-08de-406d-a790-74d267ba1fe8",
+      "question": "Việc ghi đúng giá giao dịch thực tế trong hợp đồng nhằm mục đích chính nào sau đây?",
+      "options": [
+        "Giúp người mua dễ dàng so sánh giá.",
+        "Chống thất thu thuế và tăng tính minh bạch của dữ liệu thị trường.",
+        "Đảm bảo chủ đầu tư không bán phá giá.",
+        "Là cơ sở để tính phí môi giới."
+      ],
+      "correct": 1,
+      "explanation": "Chống thất thu thuế, tăng minh bạch dữ liệu thị trường."
+    },
+    {
+      "id": "f765643f-599d-47a8-b3a7-8be1cd6c2dce",
+      "question": "Nếu hợp đồng kinh doanh BĐS có công chứng/chứng thực, thời điểm có hiệu lực của hợp đồng là khi nào?",
+      "options": [
+        "Thời điểm bên sau cùng ký vào hợp đồng.",
+        "Thời điểm các bên thỏa thuận trong hợp đồng.",
+        "Thời điểm văn bản công chứng, chứng thực có hiệu lực theo quy định pháp luật về công chứng, chứng thực.",
+        "Sau 7 ngày kể từ ngày công chứng/chứng thực."
+      ],
+      "correct": 2,
+      "explanation": "Thời điểm văn bản công chứng, chứng thực có hiệu lực."
+    },
+    {
+      "id": "15ce3dca-f544-4bf3-8251-65bd7d9b0d4e",
+      "question": "Doanh nghiệp kinh doanh dịch vụ BĐS (môi giới, sàn, tư vấn, quản lý) có bắt buộc phải gửi thông tin về doanh nghiệp đến Sở Xây dựng trước khi hoạt động không?",
+      "options": [
+        "Không, chỉ cần đăng ký kinh doanh là đủ.",
+        "Chỉ sàn giao dịch mới phải thông báo.",
+        "Chỉ doanh nghiệp môi giới mới phải thông báo.",
+        "Có, tất cả các loại hình doanh nghiệp dịch vụ BĐS đều phải thông báo/đăng ký hoạt động với Sở Xây dựng."
+      ],
+      "correct": 3,
+      "explanation": "Tất cả doanh nghiệp dịch vụ BĐS phải thông báo/đăng ký hoạt động với Sở Xây dựng."
+    },
+    {
+      "id": "c5ef24f6-c177-413f-8ccd-03d34a132b94",
+      "question": "Người Việt Nam định cư ở nước ngoài mà KHÔNG phải là công dân Việt Nam được kinh doanh BĐS tại Việt Nam dưới hình thức nào theo Luật KDBĐS 2023?",
+      "options": [
+        "Được kinh doanh mọi hình thức như công dân Việt Nam.",
+        "Chỉ được mua nhà ở để ở, không được kinh doanh.",
+        "Chủ yếu được đầu tư xây dựng dự án để bán/cho thuê/cho thuê mua, thuê nhà/công trình để cho thuê lại, nhận chuyển nhượng dự án.",
+        "Chỉ được kinh doanh dịch vụ BĐS."
+      ],
+      "correct": 2,
+      "explanation": "Chủ yếu được đầu tư xây dựng dự án, thuê để cho thuê lại, nhận chuyển nhượng dự án."
+    },
+    {
+      "id": "a990b183-7a85-4f7c-93a5-4287b152c183",
+      "question": "Đối với nhà chung cư, tòa nhà hỗn hợp có nhà ở hình thành trong tương lai, giấy tờ nghiệm thu nào là điều kiện bắt buộc phải có trước khi đưa vào kinh doanh?",
+      "options": [
+        "Nghiệm thu hoàn thành toàn bộ công trình.",
+        "Nghiệm thu hoàn thành phần thân.",
+        "Nghiệm thu hoàn thành phần móng.",
+        "Nghiệm thu hệ thống phòng cháy chữa cháy."
+      ],
+      "correct": 2,
+      "explanation": "Phải có nghiệm thu hoàn thành phần móng."
+    },
+    {
+      "id": "c45fd8a7-2bb6-40a1-8abe-a83c45b1fcaa",
+      "question": "Cá nhân hành nghề môi giới BĐS được nhận thù lao/hoa hồng từ đâu theo Luật KDBĐS 2023?",
+      "options": [
+        "Trực tiếp từ khách hàng (bên mua/bên bán).",
+        "Từ chủ đầu tư dự án.",
+        "Từ sàn giao dịch BĐS hoặc doanh nghiệp kinh doanh dịch vụ môi giới BĐS nơi cá nhân đó làm việc.",
+        "Từ cơ quan quản lý nhà nước."
+      ],
+      "correct": 2,
+      "explanation": "Nhận từ sàn giao dịch/doanh nghiệp môi giới nơi làm việc."
+    },
+    {
+      "id": "f1a42f58-1d70-4f56-b06e-ad450da8cd05",
+      "question": "Nếu một cá nhân chỉ bán duy nhất 01 căn nhà thuộc sở hữu hợp pháp của mình trong năm, giá trị 10 tỷ đồng, thì có phải thành lập doanh nghiệp kinh doanh bất động sản không?",
+      "options": [
+        "Có, vì giá trị trên 300 triệu đồng.",
+        "Không, vì đây là bán tài sản không nhằm mục đích kinh doanh / dưới mức quy mô nhỏ.",
+        "Có, vì hoạt động bán nhà là kinh doanh BĐS.",
+        "Phải thành lập nếu căn nhà đó nằm trong dự án BĐS."
+      ],
+      "correct": 1,
+      "explanation": "Bán tài sản không nhằm mục đích kinh doanh thì không phải lập doanh nghiệp."
+    },
+    {
+      "id": "89400c25-9062-4927-a510-b5df08e9b42c",
+      "question": "Sàn giao dịch BĐS có trách nhiệm gì đối với hồ sơ pháp lý của BĐS được đưa vào kinh doanh tại sàn?",
+      "options": [
+        "Chỉ cần niêm yết thông tin do chủ đầu tư cung cấp.",
+        "Phải kiểm tra hồ sơ pháp lý, nếu đủ điều kiện mới được giới thiệu cho khách hàng.",
+        "Chỉ chịu trách nhiệm nếu khách hàng khiếu nại.",
+        "Không có trách nhiệm kiểm tra, chỉ là nơi trung gian."
+      ],
+      "correct": 1,
+      "explanation": "Sàn phải kiểm tra hồ sơ pháp lý trước khi giới thiệu."
+    },
+    {
+      "id": "51ac608a-5905-4900-a7ea-2eb3c0a401aa",
+      "question": "Luật KDBĐS 2023 có quy định cụ thể về mức thù lao, hoa hồng tối đa cho dịch vụ môi giới BĐS không?",
+      "options": [
+        "Có, tối đa 2% giá trị giao dịch.",
+        "Có, theo khung giá do UBND cấp tỉnh ban hành.",
+        "Không, mức thù lao/hoa hồng do các bên tự thỏa thuận trong hợp đồng.",
+        "Chỉ quy định mức tối thiểu là 1%."
+      ],
+      "correct": 2,
+      "explanation": "Mức thù lao/hoa hồng do các bên tự thỏa thuận."
+    },
+    {
+      "id": "c8b7e6be-70ab-4067-ba63-ad75fe8462b9",
+      "question": "Việc chuyển nhượng quyền sử dụng đất đã có hạ tầng kỹ thuật trong dự án BĐS phải tuân thủ quy định của luật nào khác ngoài Luật KDBĐS?",
+      "options": [
+        "Chỉ Luật Xây dựng.",
+        "Chỉ Luật Đầu tư.",
+        "Luật Đất đai (về hình thức, mục đích, thời hạn sử dụng đất, đăng ký đất đai).",
+        "Chỉ Bộ luật Dân sự."
+      ],
+      "correct": 2,
+      "explanation": "Tuân thủ Luật Đất đai về hình thức, mục đích, thời hạn, đăng ký đất đai."
+    },
+    {
+      "id": "63c73c7c-482a-4667-b78e-da1c031d5414",
+      "question": "Tổ chức nước ngoài muốn kinh doanh BĐS tại Việt Nam thì phải tuân thủ quy định của luật nào?",
+      "options": [
+        "Chỉ Luật kinh doanh bất động sản.",
+        "Chỉ Luật Đầu tư.",
+        "Cả Luật KDBĐS và Luật Đầu tư, Luật Đất đai và các quy định pháp luật khác có liên quan.",
+        "Chỉ các điều ước quốc tế mà Việt Nam là thành viên."
+      ],
+      "correct": 2,
+      "explanation": "Phải tuân thủ Luật KDBĐS, Luật Đầu tư, Luật Đất đai và các quy định liên quan."
+    },
+    {
+      "id": "867e3842-1a3b-41da-828f-9ded13af9898",
+      "question": "Chủ thể nào KHÔNG phải là đối tượng áp dụng của Luật KDBĐS 2023?",
+      "options": [
+        "Doanh nghiệp môi giới BĐS.",
+        "Cá nhân mua nhà để ở.",
+        "Cơ quan nhà nước thực hiện bán tài sản công theo pháp luật về quản lý, sử dụng tài sản công.",
+        "Chủ đầu tư dự án khu đô thị."
+      ],
+      "correct": 2,
+      "explanation": "Bán tài sản công thuộc pháp luật về quản lý, sử dụng tài sản công."
+    },
+    {
+      "id": "468b1ea4-e3dd-4880-9f22-12395ed657d8",
+      "question": "Việc phân định phần diện tích sở hữu chung, sở hữu riêng trong nhà chung cư, công trình hỗn hợp có cần được thể hiện trong thông tin công khai và hợp đồng mua bán không?",
+      "options": [
+        "Không cần thiết, chỉ cần ghi tổng diện tích căn hộ.",
+        "Chỉ cần công khai bản vẽ thiết kế.",
+        "Có, phải được phân định rõ và công khai trong thông tin, thể hiện trong hợp đồng.",
+        "Chỉ cần thỏa thuận miệng khi bàn giao."
+      ],
+      "correct": 2,
+      "explanation": "Phải phân định rõ và thể hiện trong hợp đồng."
+    },
+    {
+      "id": "dfb63547-0b9d-42ef-ae88-4179b8ef9bfa",
+      "question": "Trình tự, thủ tục đầu tư xây dựng dự án BĐS phải tuân thủ quy định của những luật nào?",
+      "options": [
+        "Chỉ Luật kinh doanh bất động sản.",
+        "Luật KDBĐS và Luật Xây dựng.",
+        "Luật KDBĐS, Luật Quy hoạch, Luật Đầu tư, Luật Đất đai, Luật Xây dựng, Luật Nhà ở và pháp luật có liên quan.",
+        "Chỉ Luật Đầu tư và Luật Đất đai."
+      ],
+      "correct": 2,
+      "explanation": "Phải tuân thủ nhiều luật: KDBĐS, Quy hoạch, Đầu tư, Đất đai, Xây dựng, Nhà ở..."
+    },
+    {
+      "id": "f6f493d9-3314-497e-be27-9b250c627a9c",
+      "question": "Nếu bên mua, thuê mua nhà ở, công trình xây dựng tự thực hiện việc xin cấp Giấy chứng nhận thì tổng số tiền thanh toán trước khi được cấp giấy không vượt quá bao nhiêu % giá trị hợp đồng?",
+      "options": [
+        "70%",
+        "80%",
+        "90%",
+        "95%"
+      ],
+      "correct": 3,
+      "explanation": "Không vượt quá 95% giá trị hợp đồng."
+    },
+    {
+      "id": "f4a18a17-ef7a-45ff-bc7a-504a6cb319bc",
+      "question": "Đâu KHÔNG phải là tác động tích cực được kỳ vọng từ việc áp dụng Luật KDBĐS 2023?",
+      "options": [
+        "Thị trường BĐS minh bạch, ổn định và chuyên nghiệp hơn.",
+        "Quyền lợi của người mua nhà được bảo vệ tốt hơn.",
+        "Giảm thiểu tình trạng đầu cơ, sốt ảo trên thị trường.",
+        "Giảm giá nhà ở trên diện rộng ngay lập tức."
+      ],
+      "correct": 3,
+      "explanation": "Luật không kỳ vọng giảm giá nhà ngay lập tức."
+    },
+    {
+      "id": "f62e043c-ae80-4f89-861b-7c4d09b99d84",
+      "question": "Tại sao việc yêu cầu \"hoàn thành việc đầu tư xây dựng hạ tầng kỹ thuật thiết yếu\" trước khi kinh doanh quyền sử dụng đất lại quan trọng trong việc quản lý phát triển đô thị?",
+      "options": [
+        "Đảm bảo chủ đầu tư thu hồi vốn nhanh hơn.",
+        "Tăng giá trị cho các lô đất nền.",
+        "Ngăn chặn tình trạng hình thành các khu dân cư tự phát thiếu hạ tầng đồng bộ, đảm bảo điều kiện sống cơ bản và kết nối khu vực.",
+        "Giúp việc cấp Giấy chứng nhận cho người mua dễ dàng hơn."
+      ],
+      "correct": 2,
+      "explanation": "Ngăn chặn khu dân cư tự phát thiếu hạ tầng đồng bộ."
+    },
+    {
+      "id": "db2d424d-8f07-4ee2-828a-2919d520390d",
+      "question": "Luật KDBĐS 2023 quy định \"Tổ chức, cá nhân kinh doanh BĐS phải ghi đúng giá giao dịch thực tế vào trong hợp đồng\". Biện pháp này có mối liên hệ chặt chẽ nhất với luật nào khác trong việc thực thi?",
+      "options": [
+        "Bộ luật Dân sự (về hiệu lực hợp đồng).",
+        "Luật Nhà ở (về quản lý nhà ở).",
+        "Luật Quản lý thuế (về cơ sở tính thuế và chống thất thu thuế).",
+        "Luật Xây dựng (về chất lượng công trình)."
+      ],
+      "correct": 2,
+      "explanation": "Liên quan chặt chẽ đến Luật Quản lý thuế."
+    },
+    {
+      "id": "d86a92db-2a07-4efd-ba33-b0507fab93cb",
+      "question": "Yêu cầu về việc sàn giao dịch BĐS phải có \"quy chế hoạt động\" và \"thực hiện các biện pháp phòng chống rửa tiền\" thể hiện sự quan tâm của nhà làm luật đến khía cạnh nào?",
+      "options": [
+        "Chỉ quan tâm đến hiệu quả kinh doanh của sàn.",
+        "Tăng cường tính chuyên nghiệp, minh bạch và ngăn ngừa rủi ro pháp lý, tài chính tiêu cực thông qua hoạt động của sàn.",
+        "Đảm bảo cạnh tranh lành mạnh giữa các sàn.",
+        "Giảm thủ tục hành chính cho các giao dịch qua sàn."
+      ],
+      "correct": 1,
+      "explanation": "Tăng chuyên nghiệp, minh bạch, ngăn ngừa rủi ro."
+    },
+    {
+      "id": "51e26705-59be-44fe-b5de-2530d0178d22",
+      "question": "Việc giảm yêu cầu số lượng người có chứng chỉ môi giới tối thiểu trong doanh nghiệp môi giới từ 02 (Luật KDBĐS 2014) xuống 01 (Luật KDBĐS 2023) có thể được hiểu là:",
+      "options": [
+        "Hạ thấp tiêu chuẩn ngành môi giới, nhằm giúp nhiều người hoạt động môi giới hơn.",
+        "Tạo điều kiện thuận lợi hơn cho việc thành lập và hoạt động của các doanh nghiệp môi giới (đặc biệt là quy mô nhỏ), nhưng vẫn đảm bảo có người chịu trách nhiệm chuyên môn.",
+        "Khuyến khích môi giới hoạt động độc lập trở lại, tăng nguồn thu cho ngân sách.",
+        "Do thiếu hụt nguồn nhân lực môi giới có chứng chỉ."
+      ],
+      "correct": 1,
+      "explanation": "Tạo điều kiện thuận lợi cho DN môi giới quy mô nhỏ."
+    },
+    {
+      "id": "56ae02fb-b72b-43d6-9e77-95acff1dff23",
+      "question": "Điều kiện nào sau đây KHÔNG phải là điều kiện để cá nhân được dự thi sát hạch cấp chứng chỉ hành nghề môi giới BĐS theo Luật KDBĐS 2023?",
+      "options": [
+        "Có năng lực hành vi dân sự đầy đủ.",
+        "Có trình độ tốt nghiệp từ cao đẳng trở lên.",
+        "Có giấy chứng nhận hoàn thành khóa học đào tạo kiến thức hành nghề môi giới BĐS.",
+        "Không đang trong tình trạng bị truy cứu trách nhiệm hình sự hoặc chấp hành án hình sự."
+      ],
+      "correct": 1,
+      "explanation": "Không yêu cầu trình độ cao đẳng trở lên."
+    },
+    {
+      "id": "5e29e745-e70d-4abc-bc05-cd343274a5ea",
+      "question": "Tại sao Luật KDBĐS 2023 lại nhấn mạnh việc \"Tổ chức, cá nhân được kinh doanh BĐS ngoài phạm vi khu vực bảo vệ theo quy định của pháp luật về quốc phòng, an ninh\"?",
+      "options": [
+        "Để khuyến khích đầu tư BĐS vào các khu vực biên giới, hải đảo.",
+        "Để khẳng định chủ quyền quốc gia đối với các khu vực này.",
+        "Để phân định rõ ràng phạm vi được phép kinh doanh BĐS, gắn hoạt động kinh tế với yêu cầu đảm bảo quốc phòng, an ninh quốc gia.",
+        "Để tạo cơ chế đặc thù cho kinh doanh BĐS tại các khu kinh tế quốc phòng."
+      ],
+      "correct": 2,
+      "explanation": "Phân định rõ phạm vi kinh doanh, gắn với quốc phòng an ninh."
+    },
+    {
+      "id": "cb1a93d2-b736-498f-a7be-865da723b063",
+      "question": "Nghĩa vụ nào sau đây KHÔNG thuộc về bên nhận chuyển nhượng dự án BĐS?",
+      "options": [
+        "Kế thừa và thực hiện quyền, nghĩa vụ của chủ đầu tư chuyển nhượng đã chuyển giao.",
+        "Tiếp tục triển khai dự án theo đúng nội dung đã được chấp thuận.",
+        "Chịu trách nhiệm về các vi phạm của chủ đầu tư cũ trước thời điểm chuyển nhượng.",
+        "Thực hiện nghĩa vụ tài chính đối với Nhà nước theo quy định."
+      ],
+      "correct": 2,
+      "explanation": "Bên nhận chuyển nhượng không chịu trách nhiệm về vi phạm của chủ đầu tư cũ trước thời điểm chuyển nhượng."
+    },
+    {
+      "id": "bb526d8e-8f1b-4f33-9cfb-7955a6f76d40",
+      "question": "Việc Luật KDBĐS 2023 không quy định bắt buộc công chứng đối với hợp đồng mua bán BĐS giữa chủ đầu tư và khách hàng cá nhân có thể nhằm mục đích gì?",
+      "options": [
+        "Giảm tính pháp lý của hợp đồng.",
+        "Giảm thủ tục hành chính, tạo sự linh hoạt cho giao dịch có tính chất kinh doanh chuyên nghiệp.",
+        "Khuyến khích giao dịch bằng giấy viết tay.",
+        "Tăng vai trò của sàn giao dịch BĐS."
+      ],
+      "correct": 1,
+      "explanation": "Giảm thủ tục hành chính, tạo sự linh hoạt."
+    },
+    {
+      "id": "3194dd7d-ee2b-4162-9a7a-153dfb9260d3",
+      "question": "Quyền sử dụng đất đã có hạ tầng kỹ thuật trong dự án BĐS chỉ được đưa vào kinh doanh khi:",
+      "options": [
+        "Chủ đầu tư đã bán hết nhà ở hình thành trong tương lai của dự án.",
+        "Đã có văn bản nghiệm thu hạ tầng và đáp ứng các điều kiện khác theo luật định.",
+        "Đã có ít nhất 10% số lô đất được xây dựng nhà ở.",
+        "Dự án đã hoàn thành trên 5 năm."
+      ],
+      "correct": 1,
+      "explanation": "Phải có văn bản nghiệm thu hạ tầng và đáp ứng điều kiện khác."
+    },
+    {
+      "id": "6c260999-26cc-4391-b6f7-2e7308e442bd",
+      "question": "Nếu một cá nhân môi giới BĐS có chứng chỉ hành nghề nhưng làm việc môi giới cho một công ty không đăng ký kinh doanh dịch vụ môi giới BĐS thì:",
+      "options": [
+        "Vẫn hợp pháp vì cá nhân có chứng chỉ.",
+        "Chỉ vi phạm nếu không nộp thuế thu nhập cá nhân.",
+        "Là vi phạm quy định của Luật KDBĐS 2023 (cá nhân phải hành nghề trong doanh nghiệp dịch vụ BĐS).",
+        "Chỉ công ty vi phạm, cá nhân không vi phạm."
+      ],
+      "correct": 2,
+      "explanation": "Vi phạm vì cá nhân phải hành nghề trong doanh nghiệp dịch vụ BĐS."
+    },
+    {
+      "id": "c92e4390-d4fe-4aa1-88ea-a3a970029951",
+      "question": "Việc thu thập thông tin về \"số liệu điều tra, thống kê về nhà ở\", \"số liệu cấp GCN\" trong cơ sở dữ liệu quốc gia về nhà ở nhằm mục đích gì?",
+      "options": [
+        "Chỉ để báo cáo thành tích của ngành xây dựng.",
+        "Cung cấp cái nhìn tổng quan, định lượng về tình hình nhà ở, thị trường và hiệu quả quản lý đất đai, làm cơ sở hoạch định chính sách.",
+        "Xác định các cá nhân sở hữu nhiều nhà đất để áp thuế, tăng thu ngân sách.",
+        "Phục vụ công tác quy hoạch đô thị chi tiết."
+      ],
+      "correct": 1,
+      "explanation": "Cung cấp cái nhìn tổng quan, làm cơ sở hoạch định chính sách."
+    },
+    {
+      "id": "2863cb8f-e9cb-4ebb-b5ce-32be4791a05d",
+      "question": "Thời hạn tối thiểu mà sàn giao dịch BĐS phải đảm bảo về địa điểm hoạt động (ví dụ: hợp đồng thuê địa điểm) theo Nghị định 96/2024/NĐ-CP là bao lâu?",
+      "options": [
+        "03 tháng",
+        "06 tháng",
+        "12 tháng (01 năm)",
+        "Không quy định"
+      ],
+      "correct": 2,
+      "explanation": "Tối thiểu 12 tháng (01 năm)."
+    },
+    {
+      "id": "d4883d0f-8312-4c0b-b699-8d5dfc42144a",
+      "question": "Luật KDBĐS 2023 quy định các hành vi bị cấm liên quan đến việc thu và sử dụng tiền của khách hàng mua BĐS hình thành trong tương lai nhằm giải quyết vấn đề gì tồn tại trước đây?",
+      "options": [
+        "Tình trạng chủ đầu tư bán BĐS với giá quá cao.",
+        "Tình trạng chủ đầu tư huy động vốn trái phép hoặc sử dụng vốn huy động không đúng mục đích, gây rủi ro cho khách hàng và dự án.",
+        "Tình trạng khách hàng chậm thanh toán tiền mua nhà.",
+        "Tình trạng các ngân hàng không muốn cho vay dự án BĐS."
+      ],
+      "correct": 1,
+      "explanation": "Giải quyết tình trạng huy động vốn trái phép, sử dụng sai mục đích."
+    },
+    {
+      "id": "95b1d395-ce4f-4855-9a05-3200921fef57",
+      "question": "Việc Luật KDBĐS 2023 cho phép kinh doanh BĐS là \"phần diện tích sàn xây dựng trong công trình xây dựng có công năng phục vụ mục đích du lịch, lưu trú\" có tác động như thế nào đến thị trường condotel, officetel?",
+      "options": [
+        "Hạn chế sự phát triển của loại hình này.",
+        "Không có tác động gì đáng kể.",
+        "Tạo cơ sở pháp lý rõ ràng hơn cho việc đầu tư, kinh doanh, giao dịch loại hình này, có thể thúc đẩy thị trường phát triển minh bạch hơn.",
+        "Biến các loại hình này thành nhà ở thông thường."
+      ],
+      "correct": 2,
+      "explanation": "Tạo cơ sở pháp lý rõ ràng hơn cho condotel, officetel."
+    },
+    {
+      "id": "5ba009a2-f587-4c91-bd56-52a851d7b8d9",
+      "question": "Nếu Luật Đất đai, Luật Nhà ở có quy định khác với Luật KDBĐS về cùng một vấn đề liên quan đến kinh doanh BĐS, nguyên tắc áp dụng pháp luật là gì?",
+      "options": [
+        "Luôn ưu tiên áp dụng Luật KDBĐS hơn Luật Đất đai, Luật Nhà ở.",
+        "Áp dụng luật được ban hành sau cùng, có thời gian hiệu lực gần nhất.",
+        "Tùy trường hợp cụ thể, ưu tiên áp dụng luật chuyên ngành trực tiếp điều chỉnh vấn đề đó.",
+        "Các bên tự thỏa thuận luật áp dụng."
+      ],
+      "correct": 2,
+      "explanation": "Ưu tiên áp dụng luật chuyên ngành trực tiếp điều chỉnh vấn đề đó."
+    },
+    {
+      "id": "79063b2b-6c8a-4fbf-89e8-0fa887f822e2",
+      "question": "Việc Luật KDBĐS 2023 quy định hợp đồng mẫu và yêu cầu công khai hợp đồng mẫu trước khi áp dụng mang lại lợi ích gì cho người mua BĐS?",
+      "options": [
+        "Giúp người mua có thể tự soạn thảo hợp đồng theo ý mình.",
+        "Biết trước các điều khoản chính, giảm thiểu rủi ro bị cài cắm các điều khoản bất lợi, đảm bảo các quyền và nghĩa vụ cơ bản được quy định rõ ràng.",
+        "Được miễn phí công chứng hợp đồng.",
+        "Có thể yêu cầu chủ đầu tư thay đổi hoàn toàn hợp đồng mẫu."
+      ],
+      "correct": 1,
+      "explanation": "Biết trước điều khoản, giảm rủi ro bị cài cắm điều khoản bất lợi."
+    },
+    {
+      "id": "a62c7a56-4a1e-4251-b132-8032aeec649c",
+      "question": "Thủ tục chuyển nhượng dự án BĐS theo Luật Đầu tư được áp dụng trong trường hợp nào?",
+      "options": [
+        "Chỉ khi dự án có vốn đầu tư trên 5000 tỷ đồng.",
+        "Đối với tất cả các dự án BĐS.",
+        "Đối với dự án BĐS được chấp thuận nhà đầu tư hoặc được cấp Giấy chứng nhận đăng ký đầu tư theo Luật Đầu tư.",
+        "Chỉ khi bên nhận chuyển nhượng là nhà đầu tư nước ngoài."
+      ],
+      "correct": 2,
+      "explanation": "Áp dụng với dự án được chấp thuận nhà đầu tư hoặc có GCN đăng ký đầu tư."
+    },
+    {
+      "id": "553f1e73-2602-40e9-83a1-2ca2be378839",
+      "question": "Cơ sở dữ liệu về thị trường BĐS địa phương KHÔNG bao gồm thông tin nào sau đây?",
+      "options": [
+        "Thông tin về các dự án BĐS trên địa bàn (giao dịch, tồn kho).",
+        "Hoạt động của các tổ chức kinh doanh dịch vụ BĐS tại địa phương.",
+        "Thông tin chi tiết về thu nhập cá nhân của các nhà môi giới BĐS.",
+        "Số lượng chứng chỉ môi giới BĐS được cấp trong kỳ tại địa phương."
+      ],
+      "correct": 2,
+      "explanation": "Không bao gồm thông tin thu nhập cá nhân của môi giới."
+    },
+    {
+      "id": "96ff374a-139b-4848-9c2e-7415df209eea",
+      "question": "Nếu một người Việt Nam định cư ở nước ngoài là công dân Việt Nam, họ có được phép mua nhà ở có sẵn từ một cá nhân khác tại Việt Nam để bán lại không?",
+      "options": [
+        "Không, chỉ được mua để ở.",
+        "Không, chỉ được đầu tư xây dựng dự án mới.",
+        "Có, vì họ được kinh doanh BĐS như công dân Việt Nam trong nước.",
+        "Chỉ được phép nếu thành lập doanh nghiệp tại Việt Nam."
+      ],
+      "correct": 2,
+      "explanation": "Được kinh doanh BĐS như công dân Việt Nam trong nước."
+    },
+    {
+      "id": "12d47871-5c80-41ce-81c7-2c0e3940f36a",
+      "question": "Khi nhận chuyển nhượng Quyền sử dụng đất đã có hạ tầng kỹ thuật, nghĩa vụ nào của bên nhận KHÔNG được nêu rõ trong Điều 30 Luật KDBĐS 2023?",
+      "options": [
+        "Thanh toán tiền đầy đủ, đúng hạn.",
+        "Sử dụng đất đúng mục đích, đúng ranh giới.",
+        "Phải xây dựng nhà ở trong vòng 2 năm kể từ ngày nhận đất.",
+        "Thực hiện nghĩa vụ tài chính đối với Nhà nước."
+      ],
+      "correct": 2,
+      "explanation": "Không có quy định bắt buộc xây nhà trong 2 năm."
+    },
+    {
+      "id": "48eafd12-1c54-4fe4-b036-895f98655835",
+      "question": "Mục đích của việc yêu cầu chủ đầu tư thông báo và nhận được văn bản trả lời chấp thuận của Sở Xây dựng trước khi bán nhà ở hình thành trong tương lai là gì?",
+      "options": [
+        "Để Sở Xây dựng thu phí quản lý.",
+        "Để xác nhận chính thức từ cơ quan quản lý nhà nước rằng nhà ở đó đã đáp ứng đủ các điều kiện pháp lý và kỹ thuật để được phép bán ra thị trường.",
+        "Để Sở Xây dựng giới thiệu khách hàng tiềm năng cho chủ đầu tư.",
+        "Chỉ là thủ tục mang tính hình thức."
+      ],
+      "correct": 1,
+      "explanation": "Xác nhận chính thức từ cơ quan quản lý nhà nước."
+    },
+    {
+      "id": "524fa845-574d-4736-9612-c7d600d13c6d",
+      "question": "Việc Luật KDBĐS 2023 không còn quy định về vốn pháp định tối thiểu (như Luật KDBĐS 2014 từng có) mà thay bằng tỷ lệ vốn chủ sở hữu/tổng mức đầu tư có ý nghĩa gì?",
+      "options": [
+        "Giảm yêu cầu về vốn cho tất cả doanh nghiệp BĐS.",
+        "Tăng yêu cầu về vốn cho tất cả doanh nghiệp BĐS.",
+        "Giúp yêu cầu về vốn trở nên linh hoạt, phù hợp hơn với quy mô và rủi ro của từng dự án cụ thể, thay vì một mức cố định có thể không phù hợp.",
+        "Chuyển trách nhiệm quản lý vốn từ cơ quan nhà nước sang các ngân hàng thương mại."
+      ],
+      "correct": 2,
+      "explanation": "Linh hoạt, phù hợp với quy mô và rủi ro từng dự án."
+    },
+    {
+      "id": "f536cc2b-bd1c-4ce0-adf9-e4e9e10075f4",
+      "question": "Nghĩa vụ chứng minh nhà ở, công trình xây dựng hình thành trong tương lai đủ điều kiện được bán, cho thuê mua thuộc về ai?",
+      "options": [
+        "Người mua, thuê mua.",
+        "Ngân hàng bảo lãnh.",
+        "Chủ đầu tư dự án.",
+        "Cơ quan đăng ký đất đai."
+      ],
+      "correct": 2,
+      "explanation": "Thuộc về chủ đầu tư dự án."
+    },
+    {
+      "id": "9bfa91a9-a0ff-4d82-9d18-1661fb2c2de9",
+      "question": "Cơ quan nào có trách nhiệm chính trong việc xây dựng, quản lý, vận hành Hệ thống thông tin, cơ sở dữ liệu về nhà ở và thị trường BĐS ở cấp Trung ương?",
+      "options": [
+        "Văn phòng Chính phủ.",
+        "Bộ Tài nguyên và Môi trường.",
+        "Bộ Xây dựng.",
+        "Bộ Thông tin và Truyền thông."
+      ],
+      "correct": 2,
+      "explanation": "Bộ Xây dựng."
+    },
+    {
+      "id": "d9248cc8-137e-452e-be8b-e43704afe2ef",
+      "question": "Việc phải kê khai nộp thuế theo quy định của pháp luật có áp dụng đối với cá nhân kinh doanh BĐS quy mô nhỏ không?",
+      "options": [
+        "Không, vì được miễn thành lập doanh nghiệp.",
+        "Chỉ áp dụng nếu có lãi trên 100 triệu đồng/năm.",
+        "Có, mặc dù không phải lập doanh nghiệp nhưng vẫn phải kê khai và nộp thuế.",
+        "Chỉ áp dụng nếu bán BĐS có giá trị trên 1 tỷ đồng."
+      ],
+      "correct": 2,
+      "explanation": "Vẫn phải kê khai và nộp thuế."
+    },
+    {
+      "id": "09276e75-9383-4697-bea7-1f15f729469a",
+      "question": "Đâu là hệ quả pháp lý quan trọng nhất khi một cá nhân môi giới BĐS hoạt động mà không có chứng chỉ hành nghề hoặc không thuộc một doanh nghiệp dịch vụ BĐS?",
+      "options": [
+        "Chỉ bị phạt tiền nếu bị phát hiện.",
+        "Hoạt động đó là bất hợp pháp, vi phạm quy định của Luật KDBĐS, có thể bị xử phạt và các giao dịch do môi giới đó thực hiện có thể bị ảnh hưởng về tính pháp lý.",
+        "Khách hàng có quyền từ chối trả hoa hồng.",
+        "Không có hệ quả gì nếu giao dịch thành công."
+      ],
+      "correct": 1,
+      "explanation": "Hoạt động bất hợp pháp, có thể bị xử phạt."
+    }
+  ]
+}
