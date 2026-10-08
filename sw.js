@@ -7,7 +7,7 @@
  * deployed catalog/set files are always discovered. The app's own
  * localStorage cache is the primary offline store; this SW fallback only
  * covers edge cases (e.g. no localStorage yet but SW saw the file). */
-var APP_VERSION = 'v2.1.0';
+var APP_VERSION = 'v2.2.0';
 var SHELL_CACHE = 'onthi-shell-' + APP_VERSION;
 var DATA_CACHE = 'onthi-data-v1';
 
@@ -63,16 +63,25 @@ self.addEventListener('fetch', function (event) {
   if (event.request.method !== 'GET') return;
   var url = new URL(event.request.url);
 
-  // Navigations: network first, fall back to cached shell offline.
-  // B5: never hot-swap the cached HTML in place — the shell cache stays
-  // immutable per APP_VERSION so HTML/JS/CSS from different deploys cannot
-  // mix. A newer deploy takes over atomically via worker update + reload.
+  // Navigations: cache-first shell (ATOMIC per APP_VERSION).
+  // Batch C root cause: this handler used to be network-first, so right after
+  // a deploy an online launch ran NEW network HTML with OLD cache-first
+  // JS/CSS — a mixed-version shell that broke startup (empty Home +
+  // null-element error in renderHome) until a later reload recovered.
+  // Serving the cached shell keeps HTML+JS+CSS version-compatible as one
+  // atomic unit. A newer deploy takes over atomically via worker update +
+  // explicit "Cập nhật" + reload — never by hot-swapping HTML under old JS.
+  // First-ever visit (nothing cached) falls through to network. Offline
+  // launch keeps working from cache. Content data (data/*.json) stays
+  // network-first below and is unaffected.
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).then(function (res) {
-        return res;
-      }).catch(function () {
-        return caches.match('./index.html').then(function (r) { return r || caches.match('./'); });
+      caches.match('./index.html').then(function (hit) {
+        if (hit) return hit;
+        return caches.match('./').then(function (root) {
+          if (root) return root;
+          return fetch(event.request);
+        });
       })
     );
     return;
