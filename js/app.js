@@ -97,7 +97,32 @@
   }
 
   window.show = show;
-  window.toggleSwitch = function (el) { el.classList.toggle('on'); };
+  // Batch 2 §9: semantic switch — real <button role="switch"> with
+  // programmatic state (aria-checked mirrors .on).
+  window.toggleSwitch = function (el) {
+    el.classList.toggle('on');
+    el.setAttribute('aria-checked', el.classList.contains('on') ? 'true' : 'false');
+  };
+
+  // ---- text size (Batch 2 §2): exactly two modes, persisted in prefs.
+  function applyTextSize() {
+    var prefs = LddStore.getPrefs();
+    var mode = (prefs && prefs.textSize === 'xlarge') ? 'xlarge' : 'large';
+    document.documentElement.setAttribute('data-text-size', mode);
+    [['ts-large', 'large'], ['ts-xlarge', 'xlarge']].forEach(function (pair) {
+      var b = $(pair[0]);
+      if (b) b.setAttribute('aria-pressed', pair[1] === mode ? 'true' : 'false');
+    });
+    return mode;
+  }
+  window.setTextSize = function (mode) {
+    var m = mode === 'xlarge' ? 'xlarge' : 'large';
+    var prefs = LddStore.getPrefs() || {};
+    prefs.textSize = m;
+    LddStore.setPrefs(prefs);
+    applyTextSize();
+    persistSession();
+  };
 
   function show(screenId) {
     document.querySelectorAll('.screen').forEach(function (s) { s.classList.remove('active'); });
@@ -151,6 +176,9 @@
   }
 
   async function initialLoad() {
+    // Batch 2 §2: apply persisted text size before first paint.
+    try { applyTextSize(); } catch (e) {}
+    try { syncChips(); } catch (e2) {}
     // 1. Render whatever is cached immediately (offline-first).
     LddStore.migrateAll(cache, seedIdsOfFirstSet());
     LddStore.pruneStaleIds(cache);
@@ -397,15 +425,26 @@
     if (q.category) { cat.style.display = ''; cat.textContent = q.category; }
     else cat.style.display = 'none';
     var starOn = LddStore.getStars().indexOf(qkey(q)) >= 0;
-    $('study-star').textContent = starOn ? '★' : '☆';
-    $('study-star').classList.toggle('on', starOn);
+    // Batch 2 §8: star keeps its glyph but always carries an accessible
+    // name — "Đã lưu" / "Lưu câu" — plus pressed state.
+    var starBtn = $('study-star');
+    var starIco = $('study-star-ico');
+    var starTxt = $('study-star-txt');
+    if (starIco) starIco.textContent = starOn ? '★' : '☆';
+    else starBtn.textContent = starOn ? '★' : '☆';
+    if (starTxt) starTxt.textContent = starOn ? 'Đã lưu' : 'Lưu câu';
+    starBtn.setAttribute('aria-pressed', starOn ? 'true' : 'false');
+    starBtn.setAttribute('aria-label', starOn ? 'Đã lưu (bỏ lưu câu này)' : 'Lưu câu (đánh dấu câu này)');
+    starBtn.classList.toggle('on', starOn);
 
     var opts = $('study-opts');
     opts.innerHTML = '';
     q.o.forEach(function (text, i) {
       var b = document.createElement('button');
       b.className = 'opt';
-      b.innerHTML = '<span class="letter">' + LETTERS[i] + '</span><span class="otext">' + escapeHtml(text) + '</span>';
+      b.setAttribute('aria-pressed', (answered && chosen === i) ? 'true' : 'false');
+      b.setAttribute('aria-label', 'Đáp án ' + LETTERS[i] + ': ' + text);
+      b.innerHTML = '<span class="letter" aria-hidden="true">' + LETTERS[i] + '</span><span class="otext">' + escapeHtml(text) + '</span>';
       b.onclick = function () { answerStudy(i); };
       opts.appendChild(b);
     });
@@ -424,9 +463,17 @@
     var nodes = $('study-opts').querySelectorAll('.opt');
     nodes.forEach(function (el, i) {
       el.onclick = null;
-      if (i === q.c) el.classList.add('correct');
-      else if (i === chosen) el.classList.add('wrong');
-      else el.classList.add('dim');
+      el.setAttribute('aria-pressed', chosen === i ? 'true' : 'false');
+      el.setAttribute('aria-disabled', 'true');
+      // Batch 2 §6: state = visual style AND text meaning. Non-selected
+      // answers stay fully readable (no .dim fade).
+      if (i === q.c) {
+        el.classList.add('correct');
+        el.insertAdjacentHTML('beforeend', '<span class="tag">✓ Đáp án đúng</span>');
+      } else if (i === chosen) {
+        el.classList.add('wrong');
+        el.insertAdjacentHTML('beforeend', '<span class="tag">✕ Bạn chọn</span>');
+      }
     });
     var ok = chosen === q.c;
     $('study-feedback').innerHTML =
@@ -521,16 +568,24 @@
   }
 
   /* ---------- exam ---------- */
+  // Batch 2 §9: chips expose selection programmatically.
+  function syncChips() {
+    document.querySelectorAll('.chips .chip').forEach(function (x) {
+      x.setAttribute('aria-pressed', x.classList.contains('on') ? 'true' : 'false');
+    });
+  }
   document.addEventListener('click', function (e) {
     var c = e.target.closest && e.target.closest('#exam-count-chips .chip');
     if (c) {
-      document.querySelectorAll('#exam-count-chips .chip').forEach(function (x) { x.classList.remove('on'); });
+      document.querySelectorAll('#exam-count-chips .chip').forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); });
       c.classList.add('on');
+      c.setAttribute('aria-pressed', 'true');
     }
     var t = e.target.closest && e.target.closest('#exam-time-chips .chip');
     if (t) {
-      document.querySelectorAll('#exam-time-chips .chip').forEach(function (x) { x.classList.remove('on'); });
+      document.querySelectorAll('#exam-time-chips .chip').forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); });
       t.classList.add('on');
+      t.setAttribute('aria-pressed', 'true');
     }
   });
 
@@ -597,9 +652,13 @@
     var opts = $('exam-opts');
     opts.innerHTML = '';
     q.o.forEach(function (text, i) {
+      var picked = exam.answers[exam.idx] === i;
       var b = document.createElement('button');
-      b.className = 'opt' + (exam.answers[exam.idx] === i ? ' chosen' : '');
-      b.innerHTML = '<span class="letter">' + LETTERS[i] + '</span><span class="otext">' + escapeHtml(text) + '</span>';
+      b.className = 'opt' + (picked ? ' chosen' : '');
+      b.setAttribute('aria-pressed', picked ? 'true' : 'false');
+      b.setAttribute('aria-label', 'Đáp án ' + LETTERS[i] + ': ' + text + (picked ? ' (đã chọn)' : ''));
+      b.innerHTML = '<span class="letter" aria-hidden="true">' + LETTERS[i] + '</span><span class="otext">' + escapeHtml(text) +
+        (picked ? '</span><span class="tag">✓ Đã chọn</span>' : '</span>');
       b.onclick = function () { selectExam(i); };
       opts.appendChild(b);
     });
@@ -609,6 +668,8 @@
       var cell = document.createElement('button');
       cell.className = 'nav-cell' + (exam.answers[i] >= 0 ? ' done' : '') + (i === exam.idx ? ' cur' : '');
       cell.textContent = i + 1;
+      cell.setAttribute('aria-label', 'Câu ' + (i + 1) + (exam.answers[i] >= 0 ? ' (đã trả lời)' : ' (chưa trả lời)'));
+      if (i === exam.idx) cell.setAttribute('aria-current', 'true');
       cell.onclick = function () { exam.idx = i; renderExam(); persistSession(); window.scrollTo(0, 0); };
       nav.appendChild(cell);
     });
