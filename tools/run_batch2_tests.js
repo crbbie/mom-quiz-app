@@ -74,7 +74,7 @@ function t(name, cond) {
   t('primary button min-height ~60px', /\.btn\{[^}]*min-height:\s*60px/.test(css));
   t('back/action min 48px', /min-width:\s*48px/.test(css) && /min-height:\s*48px/.test(css));
   t('nav cells min 52px', /min-height:\s*52px/.test(css));
-  t('answer gap 14-16px', /\.options\{[^}]*gap:\s*14px/.test(css));
+  t('answer gap 14-16px', /\.options\{[^}]*gap:\s*1[456]px/.test(css));
 }
 
 // ---------- 7. star/save ----------

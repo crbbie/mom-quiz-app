@@ -134,11 +134,15 @@ img{max-width:100%}
 .qmeta .pill{background:#eef2f8;padding:6px 14px;border-radius:20px;font-weight:700;color:var(--ink)}
 .qtext{background:#fff;border-radius:18px;padding:20px;font-size:var(--font-question);font-weight:700;line-height:1.5;box-shadow:0 2px 12px rgba(30,60,110,.06);margin:0 0 20px;overflow-wrap:break-word;min-width:0}
 .qcat{font-size:var(--font-meta);font-weight:700;line-height:1.45;color:var(--accent);margin-bottom:8px;overflow-wrap:break-word}
-.options{display:flex;flex-direction:column;gap:14px}
-.opt{display:flex;align-items:flex-start;gap:14px;width:100%;min-height:72px;text-align:left;background:#fff;border:2px solid #e3e8f0;border-radius:16px;padding:18px 20px;font-size:var(--font-answer);font-weight:600;line-height:1.55;overflow-wrap:break-word;min-width:0}
-.opt .letter{width:38px;height:38px;border-radius:50%;background:#eef2f8;color:var(--ink);font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:var(--font-meta)}
-.opt .otext{flex:1;min-width:0;padding-top:4px;overflow-wrap:break-word}
-.opt .tag{display:inline-block;font-size:var(--font-meta);font-weight:700;line-height:1.4;border-radius:8px;padding:4px 10px;margin-top:10px}
+.options{display:flex;flex-direction:column;gap:16px}
+/* Batch A: answer card is a 2-column grid so the status badge NEVER steals
+ * horizontal width from the answer paragraph.
+ * ROW 1: [letter 36-38px] [answer paragraph, remaining width]
+ * ROW 2 (only when a .tag exists): [status under answer column] */
+.opt{display:grid;grid-template-columns:38px minmax(0,1fr);column-gap:12px;row-gap:0;width:100%;min-height:72px;text-align:left;background:#fff;border:2px solid #e3e8f0;border-radius:16px;padding:16px;font-size:var(--font-answer);font-weight:600;line-height:1.55;overflow-wrap:break-word;min-width:0}
+.opt .letter{grid-column:1;grid-row:1;width:38px;height:38px;border-radius:50%;background:#eef2f8;color:var(--ink);font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:var(--font-meta)}
+.opt .otext{grid-column:2;grid-row:1;min-width:0;padding-top:4px;overflow-wrap:break-word;word-break:break-word}
+.opt .tag{grid-column:2;grid-row:2;justify-self:start;display:inline-block;font-size:var(--font-meta);font-weight:700;line-height:1.4;border-radius:8px;padding:4px 10px;margin-top:10px;max-width:100%;overflow-wrap:break-word}
 .opt.correct{border-color:#15803d;background:#effaf3}
 .opt.correct .letter{background:#15803d;color:#fff}
 .opt.correct .tag{background:#15803d;color:#fff}

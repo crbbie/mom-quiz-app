@@ -643,10 +643,13 @@
         : 'Tiếp theo ›';
       $('study-prev').disabled = study.idx === 0;
     }
-    if (answered) revealStudyAnswer();
+    if (answered) revealStudyAnswer(false);
   }
 
-  function revealStudyAnswer() {
+  // Batch A: only newly-answered questions scroll feedback into view.
+  // Re-renders (star toggles, nav, resume) pass false so reading position
+  // is never yanked unexpectedly.
+  function revealStudyAnswer(scroll) {
     var q = study.list[study.idx];
     var chosen = study.answers[study.idx];
     var nodes = $('study-opts').querySelectorAll('.opt');
@@ -661,7 +664,7 @@
         el.insertAdjacentHTML('beforeend', '<span class="tag">✓ Đáp án đúng</span>');
       } else if (i === chosen) {
         el.classList.add('wrong');
-        el.insertAdjacentHTML('beforeend', '<span class="tag">✕ Bạn chọn</span>');
+        el.insertAdjacentHTML('beforeend', '<span class="tag">✕ Bạn chọn — chưa đúng</span>');
       }
     });
     var ok = chosen === q.c;
@@ -679,6 +682,8 @@
     if (retry) retry.onclick = function () { retrySingleQuestion(); };
     // Batch 3 §3.4: bring feedback into view with a small scroll only.
     // Honor prefers-reduced-motion: no smooth animation then.
+    // Batch A: only when this answer was just given (scroll !== false).
+    if (scroll === false) return;
     try {
       var fb = $('study-feedback').querySelector('.feedback');
       if (fb) {
@@ -705,7 +710,7 @@
       var w2 = LddStore.getWrong();
       if (w2.indexOf(k) < 0) { w2.push(k); LddStore.setWrong(w2); }
     }
-    revealStudyAnswer();
+    revealStudyAnswer(true);
     $('study-next').disabled = false;
     $('study-counter').textContent = score.ok + ' đúng · ' + score.no + ' sai';
     persistSession();
