@@ -7,7 +7,7 @@
  * deployed catalog/set files are always discovered. The app's own
  * localStorage cache is the primary offline store; this SW fallback only
  * covers edge cases (e.g. no localStorage yet but SW saw the file). */
-var APP_VERSION = 'v2.3.0';
+var APP_VERSION = 'v2.3.1';
 var SHELL_CACHE = 'onthi-shell-' + APP_VERSION;
 var DATA_CACHE = 'onthi-data-v1';
 

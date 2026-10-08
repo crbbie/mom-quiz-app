@@ -26,7 +26,7 @@ t('cancel control (Đóng)', html.indexOf('>Đóng</button>') >= 0 && app.indexO
 
 // ---- grid: 4 cols, ~64px, gaps, large numbers ----
 t('grid is 4 columns (not six-column exam CSS)', /\.picker-grid\{[^}]*grid-template-columns:\s*repeat\(4,\s*1fr\)/.test(css));
-t('exam six-column CSS untouched (not reused)', /\.nav-grid\{[^}]*grid-template-columns:\s*repeat\(6,1fr\)/.test(css));
+t('exam inline navigator meets low-vision sizing (4 cols, 64px — pre-release fix)', /\.nav-grid\{[^}]*grid-template-columns:\s*repeat\(4,\s*1fr\)/.test(css) && /\.nav-cell\{[^}]*min-height:\s*64px/.test(css));
 t('targets ~64px (min-height:64px)', /\.picker-cell\{[^}]*min-height:\s*64px/.test(css));
 t('gaps 10-12px', /\.picker-grid\{[^}]*gap:\s*1[012]px/.test(css));
 t('large numbers (font-counter)', /\.picker-cell\{[^}]*font-size:\s*var\(--font-counter\)/.test(css));
