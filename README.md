@@ -108,9 +108,14 @@ are optional. Set-file `id` + `version` must match the catalog entry.
 
 > For any question-bank import or update, QUESTION-IMPORT-GUIDE.md is the canonical source of truth.
 
-1. Put the source material in the repo (or hand it to the coding agent).
+1. Put the source material in the repo (or hand it to the coding agent:
+   "Đây là file đề mới. Đọc hướng dẫn trong repo rồi xử lý.").
 2. Convert it: `python tools/import_questions.py --slug luat-dat-dai --title "…"
-   source.txt -o /tmp/review.json` → **review the output**.
+   --description "…" source.txt -o /tmp/review.json` → **review the output**.
+   Labels accept Vietnamese accents or plain ASCII (`Đáp án:`/`Dap an:`);
+   options map by letter (A–D) even when unordered; multiline
+   question/option/explanation continuations are joined; malformed blocks
+   are reported on stderr (block + reason + preview) and skipped.
 3. Save as `data/<slug>.json` (`luat-dat-dai.json`).
 4. Validate: `python tools/validate_questions.py` (must print OK).
 5. Add the set to `data/catalog.json`; bump catalog `version` (+1) and set
@@ -131,7 +136,9 @@ python tools/import_questions.py --slug kdbds-2023 \
 ```
 
 This keeps old IDs for matching questions (matched by normalized text) and
-mints `<slug>-NNN` IDs only for genuinely new ones. Then: review → replace
+mints `<slug>-NNN` IDs only for genuinely new ones. Same-text/different-content
+matches print an `AMBIGUOUS` warning for manual review (update type C —
+see QUESTION-IMPORT-GUIDE.md). Then: review → replace
 the file → bump **both** the set file `version` and the catalog entry
 `version` (+1) → validate → test → deploy. Deleting a question is safe
 (stale star/wrong refs are ignored, history kept); reordering is safe
@@ -150,10 +157,12 @@ the file → bump **both** the set file `version` and the catalog entry
 ## Validation
 
 `python tools/validate_questions.py` checks: catalog syntax, integer versions,
-unique set IDs, referenced files exist, file↔catalog id+version match, unique
-question IDs (per file and global), exactly 4 non-empty options, `correct`
-0–3, non-empty question text, malformed JSON. Fails non-zero with
-`FILE :: location :: problem` lines.
+`updated_at` dates (YYYY-MM-DD), unique set IDs, referenced files exist,
+file↔catalog id+version match, required metadata (`title`, `description`,
+`explanation` keys), unique question IDs (per file and global), exactly 4
+non-empty options, `correct` 0–3, non-empty question text, malformed JSON.
+Mechanical checks only — it never fact-checks course content. Fails non-zero
+with `FILE :: location :: problem` lines.
 
 ## Known limitations
 

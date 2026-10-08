@@ -8,9 +8,7 @@ Read this document completely whenever a new source file containing questions, a
 
 # 1. Goal
 
-The learner should never need to:
-
-- reinstall the PWA
+The learner should never need to:- reinstall the PWA
 - import files manually
 - log in
 - modify app settings
@@ -67,6 +65,16 @@ Do not assume the file format from its extension alone.
 # 3. Preserve source content
 
 Treat the source file as authoritative.
+
+## Course source of truth (permanent rule)
+
+The original class/course question material is authoritative for this app.
+External sources (websites, current legislation, AI knowledge) must never be
+used to silently modify question wording, answer options, the marked correct
+answer, or explanations. If outside information appears to contradict a
+course question: preserve the course source exactly, mention the discrepancy
+separately, and only change that question with explicit user authorization.
+Do not perform web research to "correct" course material.
 
 Preserve:
 
@@ -230,16 +238,33 @@ D. Đáp án D
 Giải thích: Nội dung giải thích
 ```
 
+Accents are optional everywhere: `Câu`/`Cau`, `Đáp án:`/`Dap an:`,
+`Đáp án đúng:`/`Dap an dung:`/`Answer:`, `Giải thích:`/`Giai thich:`/
+`Lời giải:`/`Explanation:` are all accepted. Source wording is always
+preserved verbatim — only the labels are matched accent-tolerantly.
+
+Options are parsed by LETTER identity (A/B/C/D), not by input order: an
+input ordered B, A, D, C still maps to options `[A, B, C, D]` with the
+correct index resolved against the letter. Duplicate letters, missing
+letters, and invalid answer letters are rejected and reported, never
+silently guessed.
+
+Multiline rule (deterministic): a non-empty line matching no label is a
+continuation — appended with a single space to the question text (no
+options yet), to the most recent option (answer not seen yet), or to the
+explanation (answer already seen). Nothing is silently truncated.
+
 Convert to the repository schema. Use the repo converter — do not
 hand-roll parsing:
 
 ```powershell
 # New set (fresh <slug>-NNN IDs). Output goes to a REVIEW file, never
 # straight into data/:
-python tools/import_questions.py --slug <slug> --title "<Tên bộ đề>" nguon.txt -o $env:TEMP/review.json
+python tools/import_questions.py --slug <slug> --title "<Tên bộ đề>" --description "<Mô tả>" nguon.txt -o $env:TEMP/review.json
 
 # Existing set (--update matches by normalized text and KEEPS old IDs;
-# only genuinely new questions get fresh IDs):
+# only genuinely new questions get fresh IDs; same-text/different-content
+# matches print an AMBIGUOUS warning for manual review):
 python tools/import_questions.py --slug <set-id> --update data/<file>.json moi.txt -o $env:TEMP/review.json
 ```
 
@@ -268,8 +293,10 @@ Flag questions with problems such as:
 
 - missing question text
 - missing correct answer
+- invalid answer line (looks like `Đáp án:` but has no valid A/B/C/D)
 - fewer/more options than supported
 - duplicated answer letters
+- missing answer letters
 - invalid answer letter
 - ambiguous structure
 - broken source extraction
@@ -304,8 +331,9 @@ Do not automatically duplicate a question just because its source number differs
 Do not automatically overwrite a possible duplicate either.
 
 A text match whose options/answer differ from the existing question is an
-**update (type C)**, not an addition — handle it manually per §4C and say so
-in the report.
+**update (type C)**, not an addition — the converter prints an `AMBIGUOUS`
+warning, keeps the old ID, and leaves the content decision to manual review
+per §4C. Say so in the report.
 
 Report uncertain cases.
 
@@ -368,6 +396,12 @@ It must print `OK: …` and exit 0. It checks, at minimum:
 - valid correct-answer index
 - catalog/set IDs match
 - catalog/set versions match
+- required metadata present (`title`, `description`, `updated_at` YYYY-MM-DD
+  on catalog, set entries, and set files; `explanation` key on questions —
+  empty allowed, missing key rejected)
+
+The validator is mechanical only: it never fact-checks course content and
+never judges whether a legal answer is "currently correct".
 
 Not checked by the tool (no history to compare against): accidental ID
 regeneration. Verify manually via the ID-list diff in §13 — old IDs must

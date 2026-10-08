@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -28,40 +28,31 @@
         <span style="flex:1">✨ Có phiên bản mới của ứng dụng.</span>
         <button onclick="applyAppUpdate()">Cập nhật</button>
       </div>
+      <div id="resume-slot"></div>
+      <div id="set-list"></div>
+      <div id="home-nav"></div>
       <div class="sync-line">
         <span class="sync-dot" id="sync-dot"></span>
         <span id="sync-text">Đang tải bộ đề…</span>
         <button onclick="manualSync()">Cập nhật dữ liệu</button>
       </div>
-      <div id="set-list"></div>
-      <div class="grid2" style="margin-top:14px">
-        <button class="tile" onclick="openList('wrong')">
-          <span class="ico">❌</span><b>Câu đã sai</b>
-          <span class="badge warn empty" id="badge-wrong">0</span>
-        </button>
-        <button class="tile" onclick="openList('star')">
-          <span class="ico">⭐</span><b>Câu đánh dấu</b>
-          <span class="badge star empty" id="badge-star">0</span>
-        </button>
-        <button class="tile" onclick="show('history')">
-          <span class="ico">🕘</span><b>Lịch sử</b>
-        </button>
-        <button class="tile" onclick="show('search')">
-          <span class="ico">🔍</span><b>Tìm câu hỏi</b>
-        </button>
-      </div>
       <p class="install-hint" id="install-hint">
         Mẹo: Mở bằng Safari → nút Chia sẻ → <b>Thêm vào Màn hình chính</b><br>để dùng như app, mở là chạy.
       </p>
+      <div class="textsize-row" role="group" aria-label="Cỡ chữ">
+        <span class="ts-label" id="ts-label">Cỡ chữ</span>
+        <button class="ts-btn" id="ts-large" data-ts="large" aria-pressed="true" aria-labelledby="ts-label ts-large" onclick="setTextSize('large')">Lớn</button>
+        <button class="ts-btn" id="ts-xlarge" data-ts="xlarge" aria-pressed="false" aria-labelledby="ts-label ts-xlarge" onclick="setTextSize('xlarge')">Rất lớn</button>
+      </div>
     </div>
   </section>
 
   <!-- ========== STUDY ========== -->
   <section class="screen" id="screen-study">
     <div class="topbar">
-      <button class="back" onclick="exitStudy()">‹</button>
-      <div class="title"><span id="study-title">Ôn tập</span><small id="study-sub">Câu 1 / 1</small></div>
-      <button class="action" id="study-star" onclick="toggleStarCurrent()">☆</button>
+      <button class="back" onclick="exitStudy()" aria-label="Quay lại">‹</button>
+      <div class="title"><span id="study-title">Câu 1 / 1</span><small id="study-sub">Ôn tập</small></div>
+      <button class="action" id="study-star" onclick="toggleStarCurrent()" aria-label="Lưu câu" aria-pressed="false"><span aria-hidden="true" id="study-star-ico">☆</span><span class="sr-only" id="study-star-txt">Lưu câu</span></button>
     </div>
     <div class="body">
       <div class="progress"><div id="study-progress" style="width:0%"></div></div>
@@ -83,7 +74,7 @@
   <!-- ========== STUDY RESULT ========== -->
   <section class="screen" id="screen-study-result">
     <div class="topbar">
-      <button class="back" onclick="show('home')">‹</button>
+      <button class="back" onclick="show('home')" aria-label="Quay lại">‹</button>
       <div class="title">Kết quả ôn tập</div>
     </div>
     <div class="body">
@@ -102,6 +93,7 @@
       </div>
       <div class="bottom-actions">
         <button class="btn ghost" onclick="show('home')">Về trang chủ</button>
+        <button class="btn ghost" id="sr-retry-wrong" style="display:none" onclick="retryStillWrong()">Ôn lại các câu vẫn sai</button>
         <button class="btn primary" onclick="restartStudy()">Ôn lại</button>
       </div>
     </div>
@@ -110,10 +102,11 @@
   <!-- ========== EXAM SETUP ========== -->
   <section class="screen" id="screen-exam-setup">
     <div class="topbar">
-      <button class="back" onclick="show('home')">‹</button>
-      <div class="title"><span id="exam-setup-title">Thi thử</span><small>chọn cấu hình</small></div>
+      <button class="back" onclick="show('home')" aria-label="Quay lại">‹</button>
+      <div class="title"><span id="exam-setup-title">Thi thử</span><small>Chọn bài thi</small></div>
     </div>
     <div class="body">
+      <p class="setup-hint" id="exam-default-hint">Mặc định: 20 câu · 20 phút — nhấn Bắt đầu thi là làm ngay.</p>
       <div class="setup-group">
         <h3>Số câu hỏi</h3>
         <div class="chips" id="exam-count-chips">
@@ -135,22 +128,22 @@
       <div class="setup-group">
         <h3>Tùy chọn</h3>
         <div class="switch-row">
-          <span>🔀 Đảo thứ tự câu hỏi</span>
-          <div class="switch on" id="sw-shuffle-q" onclick="toggleSwitch(this)"></div>
+          <span id="lbl-shuffle-q">🔀 Đảo thứ tự câu hỏi</span>
+          <button class="switch on" id="sw-shuffle-q" role="switch" aria-checked="true" aria-labelledby="lbl-shuffle-q sw-shuffle-q" onclick="toggleSwitch(this)"></button>
         </div>
         <div class="switch-row">
-          <span>🎲 Đảo thứ tự đáp án</span>
-          <div class="switch on" id="sw-shuffle-a" onclick="toggleSwitch(this)"></div>
+          <span id="lbl-shuffle-a">🎲 Đảo thứ tự đáp án</span>
+          <button class="switch on" id="sw-shuffle-a" role="switch" aria-checked="true" aria-labelledby="lbl-shuffle-a sw-shuffle-a" onclick="toggleSwitch(this)"></button>
         </div>
       </div>
-      <button class="btn primary" style="width:100%;margin-top:8px" onclick="startExam()">Bắt đầu thi</button>
+      <button class="btn primary" id="exam-start-btn" style="width:100%;margin-top:8px" onclick="startExam()">Bắt đầu thi</button>
     </div>
   </section>
 
   <!-- ========== EXAM ========== -->
   <section class="screen" id="screen-exam">
     <div class="topbar">
-      <button class="back" onclick="confirmExitExam()">‹</button>
+      <button class="back" onclick="confirmExitExam()" aria-label="Quay lại">‹</button>
       <div class="title">Thi thử<small id="exam-sub">Câu 1 / 20</small></div>
       <div class="timer" id="exam-timer">⏱ 20:00</div>
     </div>
@@ -163,7 +156,7 @@
       <div class="qcat" id="exam-cat" style="display:none"></div>
       <div class="qtext" id="exam-q"></div>
       <div class="options" id="exam-opts"></div>
-      <h3 style="font-size:15px;color:#7b8698;margin:22px 0 10px">Bảng câu hỏi</h3>
+      <h3 class="section-label">Bảng câu hỏi</h3>
       <div class="nav-grid" id="exam-nav"></div>
       <button class="btn danger" style="width:100%;margin-top:10px" onclick="confirmSubmitExam()">Nộp bài</button>
     </div>
@@ -176,7 +169,7 @@
   <!-- ========== EXAM RESULT ========== -->
   <section class="screen" id="screen-exam-result">
     <div class="topbar">
-      <button class="back" onclick="show('home')">‹</button>
+      <button class="back" onclick="show('home')" aria-label="Quay lại">‹</button>
       <div class="title">Kết quả thi thử</div>
     </div>
     <div class="body">
@@ -193,7 +186,7 @@
         <div class="stat no"><b id="er-no">0</b><small>Sai</small></div>
         <div class="stat"><b id="er-pct">0%</b><small>Tỷ lệ</small></div>
       </div>
-      <h3 style="font-size:16px;color:#41506b;margin:20px 0 12px">Chi tiết bài làm</h3>
+      <h3 class="section-label">Chi tiết bài làm</h3>
       <div id="er-review"></div>
       <div class="bottom-actions">
         <button class="btn ghost" onclick="show('home')">Về trang chủ</button>
@@ -205,7 +198,7 @@
   <!-- ========== LIST (wrong / starred) ========== -->
   <section class="screen" id="screen-list">
     <div class="topbar">
-      <button class="back" onclick="show('home')">‹</button>
+      <button class="back" onclick="show('home')" aria-label="Quay lại">‹</button>
       <div class="title"><span id="list-title">Danh sách</span><small id="list-sub"></small></div>
     </div>
     <div class="body">
@@ -216,7 +209,7 @@
   <!-- ========== HISTORY ========== -->
   <section class="screen" id="screen-history">
     <div class="topbar">
-      <button class="back" onclick="show('home')">‹</button>
+      <button class="back" onclick="show('home')" aria-label="Quay lại">‹</button>
       <div class="title">Lịch sử làm bài<small id="hist-sub"></small></div>
     </div>
     <div class="body">
@@ -227,19 +220,30 @@
   <!-- ========== SEARCH ========== -->
   <section class="screen" id="screen-search">
     <div class="topbar">
-      <button class="back" onclick="show('home')">‹</button>
+      <button class="back" onclick="show('home')" aria-label="Quay lại">‹</button>
       <div class="title">Tìm câu hỏi</div>
     </div>
     <div class="body">
       <div class="search-box">
-        <span class="ico">🔍</span>
-        <input id="search-input" placeholder="Nhập từ khóa..." oninput="doSearch()" autocomplete="off">
+        <span class="ico" aria-hidden="true">🔍</span>
+        <label class="sr-only" for="search-input">Tìm câu hỏi</label>
+        <input id="search-input" placeholder="Nhập từ khóa... (gõ không dấu cũng được)" oninput="doSearch()" autocomplete="off" aria-label="Tìm câu hỏi">
       </div>
       <div id="search-results"></div>
     </div>
   </section>
 
   <div class="toast" id="toast"></div>
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-msg">
+      <h2 id="modal-title">Xác nhận</h2>
+      <p id="modal-msg"></p>
+      <div class="modal-actions">
+        <button class="btn ghost" id="modal-safe">Tiếp tục làm bài</button>
+        <button class="btn danger" id="modal-danger">Nộp bài</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="js/store.js"></script>

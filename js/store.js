@@ -84,7 +84,18 @@
     if (arr.length > 50) arr.length = 50;
     write(K.history, arr);
   }
-  function getPrefs() { return read(K.prefs, { shuffleQ: false, shuffleA: false }); }
+  // Batch 2 §2: {shuffleQ, shuffleA, textSize:'large'|'xlarge'}.
+  // Old installs stored only shuffle flags — merge defaults, never crash.
+  function getPrefs() {
+    var p = read(K.prefs, null);
+    var out = { shuffleQ: false, shuffleA: false, textSize: 'large' };
+    if (p && typeof p === 'object') {
+      if (p.shuffleQ === true) out.shuffleQ = true;
+      if (p.shuffleA === true) out.shuffleA = true;
+      if (p.textSize === 'xlarge') out.textSize = 'xlarge';
+    }
+    return out;
+  }
   function setPrefs(p) { write(K.prefs, p); }
   function getSession() { return read(K.session, null); }
   function setSession(s) { write(K.session, s); }

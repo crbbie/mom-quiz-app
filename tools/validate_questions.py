@@ -1,20 +1,36 @@
 """Validate data/catalog.json + all referenced question-set files.
 
+Mechanical/schema checks only: JSON syntax, catalog wiring, id/version
+consistency, unique IDs, non-empty text, exactly 4 non-empty options,
+correct index 0-3, required metadata. It does NOT fact-check course
+content and never judges whether a legal answer is "currently correct" —
+the original class/course material is authoritative (see AGENTS.md).
+
 Usage:  python tools/validate_questions.py
 Exit 0 = valid. Exit 1 = errors printed as FILE :: question :: problem.
 """
 import json
 import os
+import re
 import sys
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(BASE, "data")
+
+DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 errors = []
 
 
 def err(where, msg):
     errors.append("%s :: %s" % (where, msg))
+
+
+def check_date(where, label, value):
+    if value in (None, ""):
+        err(where, "missing '%s' (expected YYYY-MM-DD)" % label)
+    elif not isinstance(value, str) or not DATE_RE.match(value):
+        err(where, "'%s' must be YYYY-MM-DD, got %r" % (label, value))
 
 
 def main():
@@ -31,6 +47,7 @@ def main():
 
     if not isinstance(catalog.get("version"), int):
         err("data/catalog.json", "'version' must be an integer")
+    check_date("data/catalog.json", "updated_at", catalog.get("updated_at"))
     sets = catalog.get("sets")
     if not isinstance(sets, list) or not sets:
         err("data/catalog.json", "'sets' must be a non-empty array")
@@ -51,6 +68,9 @@ def main():
         for field in ("title", "file", "version"):
             if s.get(field) in (None, ""):
                 err(where, "missing '%s' for set '%s'" % (field, sid))
+        if "description" not in s:
+            err(where, "set '%s': missing 'description' key (may be empty, must be present)" % sid)
+        check_date(where, "updated_at for set '%s'" % sid, s.get("updated_at"))
         if not isinstance(s.get("version"), int):
             err(where, "set '%s': 'version' must be an integer" % sid)
             continue
@@ -74,6 +94,12 @@ def main():
         if doc.get("version") != s.get("version"):
             err(s["file"], "version mismatch: file=%r catalog=%r (keep them in sync)"
                 % (doc.get("version"), s.get("version")))
+        for field in ("title", "description", "updated_at"):
+            if doc.get(field) in (None,):
+                err(s["file"], "set file missing '%s' (must be present)" % field)
+        check_date(s["file"], "updated_at", doc.get("updated_at"))
+        if not (doc.get("title") or "").strip():
+            err(s["file"], "set file has empty 'title'")
         qs = doc.get("questions")
         if not isinstance(qs, list) or not qs:
             err(s["file"], "'questions' must be a non-empty array")
@@ -103,6 +129,10 @@ def main():
                 err(qw, "id '%s': all 4 options must be non-empty strings" % qid)
             if q.get("correct") not in (0, 1, 2, 3):
                 err(qw, "id '%s': 'correct' must be 0-3, got %r" % (qid, q.get("correct")))
+            if "explanation" not in q:
+                err(qw, "id '%s': missing 'explanation' key (may be empty, must be present)" % qid)
+            elif q["explanation"] is not None and not isinstance(q.get("explanation"), str):
+                err(qw, "id '%s': 'explanation' must be a string" % qid)
 
     if errors:
         print("VALIDATION FAILED (%d problem(s)):" % len(errors))
