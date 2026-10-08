@@ -93,6 +93,7 @@
       </div>
       <div class="bottom-actions">
         <button class="btn ghost" onclick="show('home')">Về trang chủ</button>
+        <button class="btn ghost" id="sr-retry-wrong" style="display:none" onclick="retryStillWrong()">Ôn lại các câu vẫn sai</button>
         <button class="btn primary" onclick="restartStudy()">Ôn lại</button>
       </div>
     </div>
@@ -226,7 +227,7 @@
       <div class="search-box">
         <span class="ico" aria-hidden="true">🔍</span>
         <label class="sr-only" for="search-input">Tìm câu hỏi</label>
-        <input id="search-input" placeholder="Nhập từ khóa..." oninput="doSearch()" autocomplete="off" aria-label="Tìm câu hỏi">
+        <input id="search-input" placeholder="Nhập từ khóa... (gõ không dấu cũng được)" oninput="doSearch()" autocomplete="off" aria-label="Tìm câu hỏi">
       </div>
       <div id="search-results"></div>
     </div>

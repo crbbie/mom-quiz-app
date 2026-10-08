@@ -37,6 +37,18 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
     });
   }
+  // Batch 4 §4.3: Vietnamese accent-insensitive normalization for SEARCH ONLY.
+  // Unicode NFD → strip combining marks → đ/Đ → d/D → lowercase.
+  // Displayed source text is never mutated.
+  function normalizeVi(s) {
+    return String(s == null ? '' : s)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D')
+      .toLowerCase();
+  }
+  window.normalizeVi = normalizeVi;
   function toast(msg) {
     var t = $('toast');
     t.textContent = msg;
@@ -375,7 +387,7 @@
       if (kept && keptKeys && keptKeys.length && !sessionActive()) {
         var total = keptKeys.length;
         var pos = Math.min((kept.idx || 0) + 1, total);
-        var modeLabel = kept.kind === 'exam' ? 'Thi thử' : 'Ôn tập';
+        var modeLabel = kept.kind === 'exam' ? 'Thi thử' : (kept.isWrongReview ? 'Ôn câu sai' : 'Ôn tập');
         var meta = setTitleOf(kept.setId) + ' · ' + modeLabel + ' · Câu ' + pos + ' / ' + total;
         if (kept.kind === 'exam') {
           var endsAt = kept.endsAt || 0;
@@ -438,7 +450,7 @@
         updateExamStartBtn();
         show('exam-setup');
       };
-      card.querySelector('[data-act="wrong"]').onclick = function () { openList('wrong', s.id); };
+      card.querySelector('[data-act="wrong"]').onclick = function () { window.startWrongStudy(s.id); };
       card.querySelector('[data-act="star"]').onclick = function () { openList('star', s.id); };
       box.appendChild(card);
     });
@@ -467,7 +479,7 @@
     nav.appendChild(grid);
     nav.querySelector('#tile-history').onclick = function () { show('history'); };
     nav.querySelector('#tile-search').onclick = function () { show('search'); };
-    nav.querySelector('#tile-wrong').onclick = function () { openList('wrong'); };
+    nav.querySelector('#tile-wrong').onclick = function () { window.startWrongStudy(null); };
     nav.querySelector('#tile-star').onclick = function () { openList('star'); };
 
     // Hide install hint when already installed as standalone PWA.
@@ -502,14 +514,57 @@
     var prefs = LddStore.getPrefs();
     if (prefs.shuffleQ) list = shuffle(list);
     if (prefs.shuffleA) list = list.map(shuffleOptions);
-    study = { list: list, idx: 0, answers: list.map(function () { return -1; }), transient: false, origin: null };
+    study = { list: list, idx: 0, answers: list.map(function () { return -1; }), transient: false, origin: null, isWrongReview: false, wrongSetId: null };
     activeKind = 'study';
     persistSession();
     updateStudyHeader();
     show('study');
     renderStudy();
   }
-  window.restartStudy = function () { startStudy(activeSetId); };
+  window.restartStudy = function () {
+    if (study.isWrongReview || (study.list.length && study.wrongSnapshot)) { startStudy(activeSetId); return; }
+    startStudy(activeSetId);
+  };
+
+  /* ---------- wrong-question Study session (Batch 4 §4.1/§4.2) ----------
+   * Starts a REAL Study session over a start-of-session snapshot of the
+   * wrong-question queue (stable setId:questionId keys). Answering a
+   * previously-wrong question correctly updates persistent wrong status
+   * (via answerStudy) but never shrinks/reorders the active in-memory list.
+   * Per-set review (setId given) covers only that set; global review covers
+   * all sets with per-question subject context in the header. */
+  window.startWrongStudy = function (setId) {
+    var ids = LddStore.getWrong().filter(function (k) { return LddStore.questionById(cache, k); });
+    if (setId) {
+      ids = ids.filter(function (k) {
+        var q = LddStore.questionById(cache, k);
+        return q && q.setId === setId;
+      });
+    }
+    if (!ids.length) { toast(setId ? 'Bộ đề này chưa có câu nào sai. Tuyệt vời!' : 'Chưa có câu nào sai. Tuyệt vời!'); return; }
+    var list = ids.map(function (k) { return LddStore.questionById(cache, k); });
+    activeSetId = setId || list[0].setId;
+    study = {
+      list: list.slice(), idx: 0,
+      answers: list.map(function () { return -1; }),
+      transient: false, origin: null,
+      isWrongReview: true, wrongSetId: setId || null,
+      wrongSnapshot: ids.slice()
+    };
+    activeKind = 'study';
+    persistSession();
+    updateStudyHeader();
+    show('study');
+    renderStudy();
+  };
+  window.retryStillWrong = function () {
+    var scope = study.wrongSetId || null;
+    // study was cleared at finish; re-derive scope from stored attr on button.
+    var btn = $('sr-retry-wrong');
+    var sid = (btn && btn.getAttribute('data-set')) || null;
+    if (sid === '') sid = null;
+    window.startWrongStudy(sid);
+  };
 
   function qkey(q) { return LddStore.key(q.setId, q.id); }
 
@@ -517,8 +572,13 @@
   function updateStudyHeader() {
     var total = study.list.length || 1;
     $('study-title').textContent = 'Câu ' + (study.idx + 1) + ' / ' + total;
-    var mode = study.transient ? 'Ôn tập nhanh' : 'Ôn tập';
-    $('study-sub').textContent = mode + ' · ' + setTitleOf(activeSetId);
+    var mode = study.transient ? 'Ôn tập nhanh' : (study.isWrongReview ? 'Ôn câu sai' : 'Ôn tập');
+    // Batch 4 §4.2: a global wrong review spans sets — keep visible subject
+    // context per question so mixed queues never confuse the learner.
+    var ctx = study.isWrongReview && study.list[study.idx]
+      ? setTitleOf(study.list[study.idx].setId)
+      : setTitleOf(activeSetId);
+    $('study-sub').textContent = mode + ' · ' + ctx;
   }
   function returnLabel() {
     if (!study.origin) return 'Quay lại';
@@ -678,7 +738,7 @@
   window.retrySingleQuestion = retrySingleQuestion;
   function returnToOrigin() {
     var origin = study.origin;
-    study = { list: [], idx: 0, answers: [], transient: false, origin: null };
+    study = { list: [], idx: 0, answers: [], transient: false, origin: null, isWrongReview: false, wrongSetId: null, wrongSnapshot: null };
     activeKind = null;
     // Never touch the kept session: transient reviews persist nothing.
     if (origin && origin.type === 'search') {
@@ -721,7 +781,7 @@
   window.discardStudy = function () {
     LddStore.clearSession();
     activeKind = null;
-    study = { list: [], idx: 0, answers: [], transient: false, origin: null };
+    study = { list: [], idx: 0, answers: [], transient: false, origin: null, isWrongReview: false, wrongSetId: null, wrongSnapshot: null };
     renderHome();
   };
 
@@ -737,8 +797,26 @@
     $('sr-circle').style.setProperty('--deg', (pct * 3.6) + 'deg');
     $('sr-msg').textContent = pct >= 80 ? 'Xuất sắc! 🎉' : pct >= 60 ? 'Khá tốt! 👍' : 'Cần ôn thêm 💪';
     $('sr-sub').textContent = 'Bạn trả lời đúng ' + score.ok + ' trên ' + total + ' câu';
-    LddStore.pushHistory({ type: 'Ôn tập', setId: activeSetId, score: score.ok, total: total, date: Date.now() });
+    // Batch 4 §4.1: simple result + optional re-review of still-wrong only.
+    var wasWrongReview = !!study.isWrongReview;
+    var wrongScope = study.wrongSetId || null;
+    LddStore.pushHistory({ type: wasWrongReview ? 'Ôn câu sai' : 'Ôn tập', setId: activeSetId, score: score.ok, total: total, date: Date.now() });
     LddStore.clearSession();
+    var stillWrong = 0;
+    if (wasWrongReview) {
+      var all = LddStore.getWrong().filter(function (k) { return LddStore.questionById(cache, k); });
+      if (wrongScope) all = all.filter(function (k) { var q = LddStore.questionById(cache, k); return q && q.setId === wrongScope; });
+      stillWrong = all.length;
+    }
+    var rw = $('sr-retry-wrong');
+    if (rw) {
+      if (wasWrongReview && stillWrong > 0) {
+        rw.style.display = '';
+        rw.textContent = 'Ôn lại các câu vẫn sai (' + stillWrong + ' câu)';
+        rw.setAttribute('data-set', wrongScope || '');
+      } else { rw.style.display = 'none'; rw.setAttribute('data-set', ''); }
+    }
+    study = { list: [], idx: 0, answers: [], transient: false, origin: null, isWrongReview: false, wrongSetId: null, wrongSnapshot: null };
     activeKind = null;
     show('study-result');
   }
@@ -1040,7 +1118,7 @@
   window.doSearch = function () {
     var raw = ($('search-input').value || '');
     lastSearchQuery = raw.trim();
-    var kw = lastSearchQuery.toLowerCase();
+    var kw = normalizeVi(lastSearchQuery);
     var cont = $('search-results');
     cont.innerHTML = '';
     var countEl = document.createElement('p');
@@ -1052,7 +1130,9 @@
     }
     var results = [];
     LddStore.allQuestions(cache).forEach(function (q) {
-      if (q.q.toLowerCase().indexOf(kw) >= 0 || q.o.some(function (o) { return o.toLowerCase().indexOf(kw) >= 0; })) {
+      // Batch 4 §4.3: accent-insensitive match over question + options.
+      // Displayed source text is never mutated — only the compared form.
+      if (normalizeVi(q.q).indexOf(kw) >= 0 || q.o.some(function (o) { return normalizeVi(o).indexOf(kw) >= 0; })) {
         results.push(q);
       }
     });
@@ -1089,7 +1169,8 @@
         LddStore.setSession({
           v: 2, kind: 'study', setId: activeSetId,
           keys: study.list.map(function (q) { return LddStore.key(q.setId, q.id); }),
-          idx: study.idx, answers: study.answers.slice(), list: snapshotList(study.list)
+          idx: study.idx, answers: study.answers.slice(), list: snapshotList(study.list),
+          isWrongReview: !!study.isWrongReview, wrongSetId: study.wrongSetId || null
         });
       } else if (activeKind === 'exam' && exam.list.length) {
         LddStore.setSession({
@@ -1132,7 +1213,7 @@
       var answers = Array.isArray(s.answers) && s.answers.length === list.length
         ? s.answers.map(function (a) { return (a === 0 || a === 1 || a === 2 || a === 3) ? a : -1; })
         : list.map(function () { return -1; });
-      study = { list: list, idx: Math.min(s.idx || 0, list.length - 1), answers: answers, transient: false, origin: null };
+      study = { list: list, idx: Math.min(s.idx || 0, list.length - 1), answers: answers, transient: false, origin: null, isWrongReview: !!s.isWrongReview, wrongSetId: s.wrongSetId || null, wrongSnapshot: null };
       activeKind = 'study';
       $('study-title').textContent = 'Câu ' + (study.idx + 1) + ' / ' + list.length;
       $('study-sub').textContent = 'Ôn tập · ' + setTitleOf(activeSetId);
