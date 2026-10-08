@@ -395,13 +395,17 @@ It must print `OK: …` and exit 0. It checks, at minimum:
 - valid options (exactly 4, non-empty)
 - valid correct-answer index
 - catalog/set IDs match
-- catalog/set versions match
-- required metadata present (`title`, `description`, `updated_at` YYYY-MM-DD
+ - catalog/set versions match
+ - course answer-key locks (every locked question's `correct` still equals
+   the class key — `COURSE ANSWER LOCK FAILED` otherwise; see §12b)
+ - required metadata present (`title`, `description`, `updated_at` YYYY-MM-DD
   on catalog, set entries, and set files; `explanation` key on questions —
   empty allowed, missing key rejected)
 
 The validator is mechanical only: it never fact-checks course content and
-never judges whether a legal answer is "currently correct".
+never judges whether a legal answer is "currently correct". It DOES enforce
+course answer-key locks (see §12b): for a locked Question Set the data
+file must still match the class answer key.
 
 Not checked by the tool (no history to compare against): accidental ID
 regeneration. Verify manually via the ID-list diff in §13 — old IDs must
@@ -412,6 +416,88 @@ If validation fails:
 DO NOT deploy.
 
 Fix valid mechanical issues or report source-content issues requiring human review.
+
+---
+
+# 12b. Course answer-key locks
+
+Course-backed Question Sets are protected by a machine-checkable answer-key
+lock: `tools/fixtures/<set-id>-course-answer-key.json`, mapping each stable
+question ID to the authoritative COURSE correct-answer index, e.g.:
+
+```json
+{
+  "question_set_id": "kdbds-2023",
+  "source": "ĐỀ ÔN TẬP SỐ 1",
+  "answers": {
+    "<stable-question-uuid>": 1
+  }
+}
+```
+
+The lock contains only canonical answer data — never student personal
+information from a saved form. The raw source file does not need to be
+committed.
+
+`python tools/validate_questions.py` enforces every lock mechanically and
+fails with `COURSE ANSWER LOCK FAILED` (naming the question ID plus
+expected vs actual index) on any mismatch. The check answers only "does
+the app still match the class answer key?" — never "is this answer
+current law?" No web research or legal re-validation is involved.
+
+# COURSE ANSWER-KEY LOCK (permanent rule)
+
+For course-backed Question Sets, the source/course answer key is immutable
+unless the user explicitly authorizes a specific answer-key change.
+
+Agents MUST NOT change `correct` answers because:
+
+- legislation changed
+- an external website disagrees
+- web search gives another answer
+- AI believes another answer is more accurate
+- an answer appears outdated
+
+External factual correctness is NOT the authority for these study sets.
+The course/source key is authoritative.
+
+If an external discrepancy is noticed:
+
+1. Do not modify the answer.
+2. Report it separately if relevant.
+3. Preserve the course key.
+4. Only change it after explicit user authorization.
+
+When a machine-readable course answer lock exists, it must pass before
+commit/deploy.
+
+Question wording/options/explanations from course material must not be
+silently rewritten or modernized.
+
+## Scored course-source imports (e.g. Google Forms result HTML)
+
+When the user provides a scored Google Forms HTML or another teacher/course
+answer source, follow this workflow — with NO intermediate "fact-check
+with web" step:
+
+SOURCE FILE
+→ extract course answer key (for a scored form: a correctly answered
+question's key is the option marked `Chính xác`; an incorrectly answered
+question's key is the option shown after `Câu trả lời đúng`; never infer
+answers from subject knowledge)
+→ compare with current stable IDs
+→ preserve IDs
+→ import/update (only genuinely differing `correct` indexes change)
+→ validate against the course lock
+→ report mismatches
+→ deploy only when authorized
+
+If an existing explanation directly contradicts the course correct answer
+and the course source provides no explanation, remove or neutralize only
+the contradictory generated explanation (an empty `explanation` is allowed
+by the schema — the key must stay present). Do NOT author a replacement
+explanation from outside information, and do not touch explanations that
+do not conflict with the course answer.
 
 ---
 

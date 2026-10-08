@@ -1,14 +1,14 @@
 {
-  "version": 1,
-  "updated_at": "2026-10-07",
+  "version": 2,
+  "updated_at": "2026-10-08",
   "sets": [
     {
       "id": "kdbds-2023",
       "title": "Luật Kinh doanh BĐS 2023",
       "description": "Bộ đề Luật Kinh doanh Bất động sản 2023 — 80 câu.",
       "file": "luat-kdbds-2023.json",
-      "version": 1,
-      "updated_at": "2026-10-07",
+      "version": 2,
+      "updated_at": "2026-10-08",
       "published": true
     }
   ]

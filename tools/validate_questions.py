@@ -6,6 +6,11 @@ correct index 0-3, required metadata. It does NOT fact-check course
 content and never judges whether a legal answer is "currently correct" —
 the original class/course material is authoritative (see AGENTS.md).
 
+It DOES enforce course answer-key locks
+(tools/fixtures/*-course-answer-key.json): for a locked Question Set the
+data file's `correct` values must equal the locked class answer key.
+A mismatch fails validation with COURSE ANSWER LOCK FAILED.
+
 Usage:  python tools/validate_questions.py
 Exit 0 = valid. Exit 1 = errors printed as FILE :: question :: problem.
 """
@@ -55,6 +60,7 @@ def main():
 
     seen_set_ids = set()
     seen_qids_global = {}  # qid -> file
+    docs_by_set = {}  # set id -> parsed set file (for course-lock checks)
 
     for i, s in enumerate(sets):
         where = "data/catalog.json sets[%d]" % i
@@ -91,6 +97,7 @@ def main():
         if doc.get("id") != sid:
             err(s["file"], "set id mismatch: file has '%s', catalog has '%s'"
                 % (doc.get("id"), sid))
+        docs_by_set[sid] = doc
         if doc.get("version") != s.get("version"):
             err(s["file"], "version mismatch: file=%r catalog=%r (keep them in sync)"
                 % (doc.get("version"), s.get("version")))
@@ -133,6 +140,52 @@ def main():
                 err(qw, "id '%s': missing 'explanation' key (may be empty, must be present)" % qid)
             elif q["explanation"] is not None and not isinstance(q.get("explanation"), str):
                 err(qw, "id '%s': 'explanation' must be a string" % qid)
+
+    # Course answer-key locks: tools/fixtures/*-course-answer-key.json.
+    # Mechanical only — verifies the app still matches the class/course
+    # answer key. Never fact-checks law, never uses web research.
+    lock_dir = os.path.join(BASE, "tools", "fixtures")
+    try:
+        lock_files = sorted(
+            f for f in os.listdir(lock_dir)
+            if f.endswith("-course-answer-key.json"))
+    except FileNotFoundError:
+        lock_files = []
+    for lf in lock_files:
+        lpath = os.path.join(lock_dir, lf)
+        try:
+            with open(lpath, encoding="utf-8") as f:
+                lock = json.load(f)
+        except json.JSONDecodeError as e:
+            err("course-lock " + lf, "malformed JSON: %s" % e)
+            continue
+        sid = lock.get("question_set_id")
+        answers = lock.get("answers")
+        if not sid or not isinstance(sid, str):
+            err("course-lock " + lf, "missing/empty 'question_set_id'")
+            continue
+        if not isinstance(answers, dict) or not answers:
+            err("course-lock " + lf, "'answers' must be a non-empty object")
+            continue
+        doc = docs_by_set.get(sid)
+        if doc is None:
+            err("course-lock " + lf,
+                "locked set '%s' was not loaded (missing or invalid file)" % sid)
+            continue
+        by_id = {}
+        for q in doc.get("questions", []):
+            if isinstance(q, dict) and q.get("id"):
+                by_id[q["id"]] = q.get("correct")
+        for qid, expected in answers.items():
+            if qid not in by_id:
+                err("course-lock " + lf,
+                    "COURSE ANSWER LOCK FAILED :: Question %s :: "
+                    "locked id not found in data file" % (qid,))
+            elif by_id[qid] != expected:
+                err("course-lock " + lf,
+                    "COURSE ANSWER LOCK FAILED :: Question %s :: "
+                    "expected correct index: %r, actual correct index: %r"
+                    % (qid, expected, by_id[qid]))
 
     if errors:
         print("VALIDATION FAILED (%d problem(s)):" % len(errors))

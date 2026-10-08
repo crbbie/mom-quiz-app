@@ -26,3 +26,35 @@ used to silently modify question wording, answer options, the marked correct
 answer, or explanations. If outside information appears to contradict a
 course question: preserve the course source exactly, mention the discrepancy
 separately, and only change that question with explicit user authorization.
+
+# COURSE ANSWER-KEY LOCK (permanent rule)
+
+For course-backed Question Sets, the source/course answer key is immutable
+unless the user explicitly authorizes a specific answer-key change.
+
+Agents MUST NOT change `correct` answers because:
+
+- legislation changed
+- an external website disagrees
+- web search gives another answer
+- AI believes another answer is more accurate
+- an answer appears outdated
+
+External factual correctness is NOT the authority for these study sets.
+
+The course/source key is authoritative.
+
+If an external discrepancy is noticed:
+
+1. Do not modify the answer.
+2. Report it separately if relevant.
+3. Preserve the course key.
+4. Only change it after explicit user authorization.
+
+When a machine-readable course answer lock exists
+(`tools/fixtures/*-course-answer-key.json`), it must pass before
+commit/deploy: `python tools/validate_questions.py` enforces the lock
+mechanically and fails with `COURSE ANSWER LOCK FAILED` on any mismatch.
+
+Question wording/options/explanations from course material must not be
+silently rewritten or modernized.

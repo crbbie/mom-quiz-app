@@ -2,8 +2,8 @@
   "id": "kdbds-2023",
   "title": "Luật Kinh doanh BĐS 2023",
   "description": "Bộ đề Luật Kinh doanh Bất động sản 2023 — 80 câu.",
-  "version": 1,
-  "updated_at": "2026-10-07",
+  "version": 2,
+  "updated_at": "2026-10-08",
   "questions": [
     {
       "id": "bd9eb282-4418-43d3-a849-08ec9b1f1cdb",
@@ -14,8 +14,8 @@
         "28/11/2023",
         "01/01/2015"
       ],
-      "correct": 0,
-      "explanation": "Luật KDBĐS 2023 (số 29/2023/QH15) có hiệu lực thi hành từ ngày 01/01/2025."
+      "correct": 1,
+      "explanation": ""
     },
     {
       "id": "c6938b8e-1d10-47f4-9a6d-d45e8723e6bd",
