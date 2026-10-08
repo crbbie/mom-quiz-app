@@ -60,6 +60,7 @@
         <span class="pill" id="study-pill">Câu 1</span>
         <span id="study-counter">0 đúng · 0 sai</span>
       </div>
+      <button class="btn ghost picker-open" id="study-picker-btn" onclick="openQuestionPicker()">📋 Danh sách câu</button>
       <div class="qcat" id="study-cat" style="display:none"></div>
       <div class="qtext" id="study-q"></div>
       <div class="options" id="study-opts"></div>
@@ -153,6 +154,7 @@
         <span class="pill" id="exam-pill">Câu 1</span>
         <span id="exam-counter">0/20 đã trả lời</span>
       </div>
+      <button class="btn ghost picker-open" id="exam-picker-btn" onclick="openQuestionPicker()">📋 Danh sách câu</button>
       <div class="qcat" id="exam-cat" style="display:none"></div>
       <div class="qtext" id="exam-q"></div>
       <div class="options" id="exam-opts"></div>
@@ -234,6 +236,17 @@
   </section>
 
   <div class="toast" id="toast"></div>
+  <div class="picker-overlay" id="picker-overlay" hidden>
+    <div class="picker-sheet" role="dialog" aria-modal="true" aria-labelledby="picker-title">
+      <div class="picker-head">
+        <button class="back" onclick="closeQuestionPicker()" aria-label="Đóng danh sách câu">‹</button>
+        <div class="title"><span id="picker-title">Danh sách câu</span><small id="picker-sub"></small></div>
+        <button class="btn ghost small picker-close" onclick="closeQuestionPicker()">Đóng</button>
+      </div>
+      <div class="picker-legend" id="picker-legend"></div>
+      <div class="picker-grid" id="picker-grid"></div>
+    </div>
+  </div>
   <div class="modal-overlay" id="modal-overlay" hidden>
     <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-msg">
       <h2 id="modal-title">Xác nhận</h2>

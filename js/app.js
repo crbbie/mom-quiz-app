@@ -687,6 +687,8 @@
     });
     $('study-feedback').innerHTML = '';
     $('study-next').disabled = !answered;
+    // Batch D: picker only for real sessions, not single-question reviews.
+    if ($('study-picker-btn')) $('study-picker-btn').style.display = study.transient ? 'none' : '';
     if (study.transient) {
       // Batch 3 §3.6: single-question review never starts all 80 questions.
       $('study-next').textContent = answered ? returnLabel() : returnLabel();
@@ -785,12 +787,36 @@
     // Batch 3 §3.6: transient single-question review returns to its origin.
     if (study.transient) { returnToOrigin(); return; }
     if (study.answers[study.idx] === undefined || study.answers[study.idx] < 0) return;
-    if (study.idx === study.list.length - 1) { finishStudy(); return; }
+    // Batch D: reaching the final question never implies completion — there
+    // may be unanswered questions elsewhere via picker jumps.
+    if (study.idx === study.list.length - 1) { confirmFinishStudy(); return; }
     study.idx++;
     renderStudy();
     persistSession();
     window.scrollTo(0, 0);
   };
+  // Batch D: finish via explicit confirmation when questions remain
+  // unanswered; otherwise finish directly.
+  function confirmFinishStudy() {
+    var missing = [];
+    for (var i = 0; i < study.list.length; i++) {
+      if (study.answers[i] === undefined || study.answers[i] < 0) missing.push(i);
+    }
+    if (!missing.length) { finishStudy(); return; }
+    showModal({
+      title: 'Còn câu chưa trả lời?',
+      msg: 'Còn ' + missing.length + ' câu chưa trả lời. Bạn có thể quay lại làm tiếp, hoặc xem kết quả luôn.',
+      safeLabel: 'Quay lại làm tiếp',
+      dangerLabel: 'Xem kết quả',
+      onSafe: function () {
+        study.idx = missing[0];
+        renderStudy();
+        persistSession();
+        window.scrollTo(0, 0);
+      },
+      onDanger: function () { finishStudy(); }
+    });
+  }
   window.studyPrev = function () {
     if (study.transient) return;
     if (study.idx === 0) return;
@@ -858,6 +884,7 @@
   function finishStudy() {
     var total = study.list.length;
     var score = recountStudy();
+    var unans = total - score.ok - score.no;
     var pct = total ? Math.round(score.ok / total * 100) : 0;
     $('sr-num').textContent = score.ok;
     $('sr-den').textContent = '/ ' + total;
@@ -866,7 +893,8 @@
     $('sr-pct').textContent = pct + '%';
     $('sr-circle').style.setProperty('--deg', (pct * 3.6) + 'deg');
     $('sr-msg').textContent = pct >= 80 ? 'Xuất sắc! 🎉' : pct >= 60 ? 'Khá tốt! 👍' : 'Cần ôn thêm 💪';
-    $('sr-sub').textContent = 'Bạn trả lời đúng ' + score.ok + ' trên ' + total + ' câu';
+    $('sr-sub').textContent = 'Bạn trả lời đúng ' + score.ok + ' trên ' + total + ' câu' +
+      (unans > 0 ? ' · ' + unans + ' câu chưa trả lời' : '');
     // Batch 4 §4.1: simple result + optional re-review of still-wrong only.
     var wasWrongReview = !!study.isWrongReview;
     var wrongScope = study.wrongSetId || null;
@@ -1126,6 +1154,118 @@
     LddStore.clearSession();
     activeKind = null;
     show('exam-result');
+  }
+
+  /* ---------- shared "Danh sách câu" picker (Batch D) ----------
+   * Full-screen question grid used by Study, Exam and (Batch E) View Answer.
+   * 4 columns, ~64px targets, text+style states (never color alone), full
+   * accessible labels. Jump preserves answers/score/shuffled mapping: only
+   * the position index changes, then the normal render + persist path runs.
+   * Cancelling changes nothing, so the reading position is preserved.
+   * Reopening scrolls the current question into view. */
+  var pickerCtx = null;
+  window.openQuestionPicker = function () {
+    if ($('screen-exam') && $('screen-exam').classList.contains('active') && exam.list.length && !exam.submitted) { openExamPicker(); return; }
+    if (typeof view !== 'undefined' && view && view.active) { openViewPicker(); return; }
+    openStudyPicker();
+  };
+  window.closeQuestionPicker = function () {
+    if ($('picker-overlay')) $('picker-overlay').hidden = true;
+    pickerCtx = null;
+  };
+  function renderPicker(opts) {
+    // opts: { sub, legend, total, cur, cls(i), mark(i), label(i), pick(i) }
+    pickerCtx = opts;
+    $('picker-title').textContent = 'Danh sách câu';
+    $('picker-sub').textContent = opts.sub || '';
+    $('picker-legend').innerHTML = opts.legend || '';
+    var g = $('picker-grid');
+    g.innerHTML = '';
+    for (var i = 0; i < opts.total; i++) {
+      (function (i) {
+        var c = document.createElement('button');
+        c.className = 'picker-cell ' + (opts.cls(i) || '');
+        c.setAttribute('aria-label', opts.label(i));
+        if (i === opts.cur) c.setAttribute('aria-current', 'true');
+        c.innerHTML = '<span class="pn" aria-hidden="true">' + (i + 1) + '</span>' + (opts.mark(i) || '');
+        c.onclick = function () {
+          window.closeQuestionPicker();
+          opts.pick(i);
+        };
+        g.appendChild(c);
+      })(i);
+    }
+    $('picker-overlay').hidden = false;
+    var cur = g.querySelector('.picker-cell.cur');
+    if (cur && typeof cur.scrollIntoView === 'function') {
+      setTimeout(function () { try { cur.scrollIntoView({ block: 'nearest' }); } catch (e) {} }, 50);
+    }
+  }
+  function studyCellState(i) {
+    var a = study.answers[i];
+    if (a === undefined || a < 0) return '';
+    return a === study.list[i].c ? 'ok' : 'bad';
+  }
+  function openStudyPicker() {
+    if (!study.list.length || study.transient) return;
+    var wrongMode = !!study.isWrongReview;
+    var sub = wrongMode
+      ? 'Ôn câu sai · vị trí trong buổi ôn này (' + study.list.length + ' câu)'
+      : 'Ôn tập · ' + setTitleOf(activeSetId);
+    renderPicker({
+      sub: sub,
+      legend: '<span>◉ Đang làm</span><span>✓ Đã trả lời</span><span>✕ Trả lời sai</span><span>○ Chưa trả lời</span>',
+      total: study.list.length,
+      cur: study.idx,
+      cls: function (i) {
+        var s = (i === study.idx ? 'cur' : '') + (studyCellState(i) ? ' ' + studyCellState(i) : '');
+        return s.trim();
+      },
+      mark: function (i) {
+        var st = studyCellState(i);
+        if (st === 'ok') return '<span class="ps" aria-hidden="true">✓</span>';
+        if (st === 'bad') return '<span class="ps" aria-hidden="true">✕</span>';
+        return '';
+      },
+      label: function (i) {
+        var st = studyCellState(i);
+        return 'Câu ' + (i + 1) + ', ' + (i === study.idx ? 'đang làm, ' : '') +
+          (st === '' ? 'chưa trả lời' : (st === 'ok' ? 'đã trả lời đúng' : 'đã trả lời sai'));
+      },
+      pick: function (i) {
+        study.idx = i;
+        renderStudy();
+        persistSession();
+        window.scrollTo(0, 0);
+      }
+    });
+  }
+  function openExamPicker() {
+    if (!exam.list.length || exam.submitted) return;
+    renderPicker({
+      sub: 'Thi thử · ' + setTitleOf(activeSetId),
+      legend: '<span>◉ Đang làm</span><span>✓ Đã trả lời</span><span>○ Chưa trả lời</span>',
+      total: exam.list.length,
+      cur: exam.idx,
+      cls: function (i) {
+        var s = i === exam.idx ? 'cur' : '';
+        if (exam.answers[i] >= 0) s += ' ok';
+        return s.trim();
+      },
+      mark: function (i) {
+        return exam.answers[i] >= 0 ? '<span class="ps" aria-hidden="true">✓</span>' : '';
+      },
+      label: function (i) {
+        return 'Câu ' + (i + 1) + ', ' + (i === exam.idx ? 'đang làm, ' : '') +
+          (exam.answers[i] >= 0 ? 'đã trả lời' : 'chưa trả lời');
+      },
+      pick: function (i) {
+        exam.idx = i;
+        renderExam();
+        persistSession();
+        window.scrollTo(0, 0);
+      }
+    });
   }
 
   /* ---------- wrong / star / history / search (composite keys) ---------- */
