@@ -12,7 +12,8 @@
     wrong: 'ldd_wrong_v2',      // ["setId:questionId"]
     history: 'ldd_history_v1',  // [{type,setId,score,total,date,time}] (snapshots, kept)
     prefs: 'ldd_prefs_v1',      // {shuffleQ,shuffleA}
-    session: 'ldd_session_v1'   // {kind,setId,keys:[...]} unfinished study/exam
+    session: 'ldd_session_v1',  // {kind,setId,keys:[...]} unfinished study/exam
+    viewPos: 'ldd_viewpos_v1'   // {"setId":"setId:questionId"} last-viewed answer per set (Batch E, never the quiz slot)
   };
 
   // Previous keys (bare question UUIDs, Supabase era) — migrated once.
@@ -100,6 +101,10 @@
   function getSession() { return read(K.session, null); }
   function setSession(s) { write(K.session, s); }
   function clearSession() { try { localStorage.removeItem(K.session); } catch (e) {} }
+  // Batch E: separate last-viewed answer position per set. Never shares the
+  // quiz-session slot, so viewing can never overwrite unfinished quiz work.
+  function getViewPos() { return read(K.viewPos, {}); }
+  function setViewPos(m) { write(K.viewPos, m); }
 
   // Drop star/wrong refs whose questions no longer exist. History snapshots kept.
   function pruneStaleIds(cache) {
@@ -202,6 +207,7 @@
     getHistory: getHistory, pushHistory: pushHistory,
     getPrefs: getPrefs, setPrefs: setPrefs,
     getSession: getSession, setSession: setSession, clearSession: clearSession,
+    getViewPos: getViewPos, setViewPos: setViewPos,
     pruneStaleIds: pruneStaleIds, migrateAll: migrateAll
   };
 })();

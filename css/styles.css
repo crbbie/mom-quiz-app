@@ -93,7 +93,16 @@ img{max-width:100%}
 .set-actions .btn{padding:15px}
 /* Batch 3: home hierarchy — primary study action is full-width and dominant */
 .set-actions .btn.study-primary{grid-column:1/-1;padding:20px;font-size:var(--font-button)}
+/* Batch E: home hierarchy — study primary, then Xem đáp án, then exam.
+ * All three stack vertically full-width on mobile (never one narrow row). */
+.set-actions .btn.view-secondary{grid-column:1/-1}
 .set-actions .btn.exam-secondary{grid-column:1/-1}
+.view-resume-hint{grid-column:1/-1;font-size:var(--font-meta);font-weight:600;line-height:1.5;color:var(--ink-2);padding:0 4px 2px;overflow-wrap:break-word}
+/* Batch E: read-only answer card reuses the Batch A grid (letter + paragraph
+ * rows, badge never steals width). Completion state is simple, no score. */
+.view-done{background:#fff;border:1px solid #e8edf5;border-radius:16px;padding:20px;margin-top:20px;text-align:center;font-size:var(--font-important);font-weight:500;line-height:1.55}
+.view-done p{margin:0 0 14px}
+.view-done .btn{width:100%}
 .set-sub-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;grid-column:1/-1;margin-top:2px}
 .set-sub-actions .btn{padding:14px;min-height:56px;font-size:var(--font-important)}
 .home-section-label{font-size:var(--font-important);font-weight:700;line-height:1.4;color:var(--ink);margin:22px 4px 10px}

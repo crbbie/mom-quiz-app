@@ -100,6 +100,30 @@
     </div>
   </section>
 
+  <!-- ========== VIEW ANSWER (read-only) ========== -->
+  <section class="screen" id="screen-view">
+    <div class="topbar">
+      <button class="back" id="view-back" onclick="exitView()" aria-label="Quay lại">‹</button>
+      <div class="title"><span id="view-title">Câu 1 / 1</span><small id="view-sub">Xem đáp án</small></div>
+      <button class="action" id="view-star" onclick="toggleViewStar()" aria-label="Lưu câu" aria-pressed="false"><span aria-hidden="true" id="view-star-ico">☆</span><span class="sr-only" id="view-star-txt">Lưu câu</span></button>
+    </div>
+    <div class="body">
+      <button class="btn ghost picker-open" onclick="openQuestionPicker()">📋 Danh sách câu</button>
+      <div class="qcat" id="view-cat" style="display:none"></div>
+      <div class="qtext" id="view-q"></div>
+      <div class="options" id="view-ans"></div>
+      <div id="view-exp"></div>
+      <div class="view-done" id="view-done" hidden>
+        <p>Đã xem hết <b id="view-done-n">0</b> câu trong bộ đề này.</p>
+        <button class="btn ghost" onclick="exitViewToHome()">Về bộ đề</button>
+      </div>
+    </div>
+    <div class="bottom-actions">
+      <button class="btn ghost" id="view-prev" onclick="viewPrev()">‹ Câu trước</button>
+      <button class="btn primary" id="view-next" onclick="viewNext()">Câu tiếp ›</button>
+    </div>
+  </section>
+
   <!-- ========== EXAM SETUP ========== -->
   <section class="screen" id="screen-exam-setup">
     <div class="topbar">

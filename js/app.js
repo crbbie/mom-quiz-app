@@ -13,6 +13,11 @@
 
   var study = { list: [], idx: 0, answers: [], transient: false, origin: null };
   var exam = { list: [], idx: 0, answers: [], timeLeft: 0, totalTime: 0, endsAt: 0, timerId: null, submitted: false };
+  // Batch E: read-only answer viewing. Fully separate from quiz state —
+  // viewing never touches study/exam answers, wrong membership, history or
+  // the unfinished-session slot. Only the per-set view position (its own
+  // storage slot) plus explicit star taps may change.
+  var view = { active: false, setId: null, list: [], idx: 0, origin: null };
   // Batch B §3: result context recorded at finish (study is cleared there),
   // so "Ôn lại" can retry the still-wrong scope instead of the full set.
   var lastResult = null;
@@ -473,6 +478,20 @@
       var nw = wrongCountFor(s.id);
       var ns = starCountFor(s.id);
       var upd = s.updated_at ? fmtDate(Date.parse(s.updated_at)) : '';
+      // Batch E: small resume hint for answer viewing (never a large card).
+      var viewHint = '';
+      try {
+        var vk = (LddStore.getViewPos() || {})[s.id];
+        if (vk) {
+          var vlist = questionsOf(s.id);
+          for (var vi = 0; vi < vlist.length; vi++) {
+            if (LddStore.key(vlist[vi].setId, vlist[vi].id) === vk && vi > 0) {
+              viewHint = '<div class="view-resume-hint">👁️ Tiếp tục xem từ câu ' + (vi + 1) + '</div>';
+              break;
+            }
+          }
+        }
+      } catch (eV) {}
       var card = document.createElement('div');
       card.className = 'set-card';
       card.innerHTML =
@@ -481,13 +500,16 @@
         '<div class="set-meta">' + n + ' câu' + (upd ? ' · cập nhật ' + escapeHtml(upd) : '') + '</div>' +
         '<div class="set-actions">' +
         '<button class="btn primary study-primary" data-act="study">📖 Bắt đầu ôn tập</button>' +
+        '<button class="btn ghost view-secondary" data-act="view">👁️ Xem đáp án</button>' +
         '<button class="btn ghost exam-secondary" data-act="exam">📝 Thi thử</button>' +
+        viewHint +
         '<div class="set-sub-actions">' +
         '<button class="btn ghost" data-act="wrong">❌ Ôn câu sai · ' + nw + ' câu</button>' +
         '<button class="btn ghost" data-act="star">⭐ Câu đã lưu (' + ns + ')</button>' +
         '</div>' +
         '</div>';
       card.querySelector('[data-act="study"]').onclick = function () { startStudy(s.id); };
+      card.querySelector('[data-act="view"]').onclick = function () { startView(s.id); };
       card.querySelector('[data-act="exam"]').onclick = function () {
         activeSetId = s.id;
         $('exam-setup-title').textContent = 'Thi thử — ' + s.title;
@@ -1268,6 +1290,163 @@
     });
   }
 
+  /* ---------- "Xem đáp án" read-only mode (Batch E) ----------
+   * Separate learner mode: read study material without answering a quiz.
+   * NOT Study, NOT Exam. Isolation is structural: this section never calls
+   * answerStudy/selectExam/submitExam, never writes wrong membership, exam
+   * scores, history or the unfinished-session slot, and never starts quiz
+   * sessions. The displayed correct answer comes DIRECTLY from the course
+   * data (q.o[q.c]) — never inferred or recalculated. Only an explicit star
+   * tap may change Starred; the per-set view position uses its own slot. */
+  function viewResumeIndex(setId, list) {
+    try {
+      var k = (LddStore.getViewPos() || {})[setId];
+      if (k) {
+        for (var i = 0; i < list.length; i++) {
+          if (LddStore.key(list[i].setId, list[i].id) === k) return i;
+        }
+      }
+    } catch (e) {}
+    return 0;
+  }
+  window.startView = function (setId) {
+    var list = questionsOf(setId || activeSetId);
+    if (!list.length) { toast('Bộ đề này chưa có câu hỏi'); return; }
+    var idx = viewResumeIndex(setId || activeSetId, list);
+    openViewAt(list[idx].setId, list[idx].id, { type: 'home', setId: list[idx].setId });
+  };
+  function openViewAt(setId, qid, origin) {
+    var list = questionsOf(setId);
+    if (!list.length) { toast('Bộ đề này chưa có câu hỏi'); return; }
+    var idx = 0;
+    for (var i = 0; i < list.length; i++) if (list[i].id === qid) { idx = i; break; }
+    activeSetId = setId;
+    view = { active: true, setId: setId, list: list, idx: idx, origin: origin || { type: 'home', setId: setId } };
+    // Isolation: deliberately no persistSession() — viewing must never
+    // overwrite an unfinished Study/Exam session.
+    show('view');
+    renderView();
+  }
+  window.openViewAt = openViewAt;
+  function renderView() {
+    var q = view.list[view.idx];
+    if (!q) return;
+    var total = view.list.length;
+    $('view-title').textContent = 'Câu ' + (view.idx + 1) + ' / ' + total;
+    $('view-sub').textContent = 'Xem đáp án · ' + setTitleOf(view.setId);
+    var org = view.origin || {};
+    $('view-back').setAttribute('aria-label',
+      org.type === 'search' ? 'Quay lại tìm kiếm' : (org.type === 'star' ? 'Quay lại câu đã lưu' : 'Quay lại'));
+    var cat = $('view-cat');
+    if (q.category) { cat.style.display = ''; cat.textContent = q.category; }
+    else cat.style.display = 'none';
+    $('view-q').textContent = q.q;
+    // Correct answer DIRECTLY from course data — never inferred.
+    var ans = $('view-ans');
+    ans.innerHTML = '';
+    var d = document.createElement('div');
+    d.className = 'opt correct';
+    d.setAttribute('role', 'note');
+    d.setAttribute('aria-label', 'Đáp án đúng ' + LETTERS[q.c] + ': ' + q.o[q.c]);
+    d.innerHTML = '<span class="letter" aria-hidden="true">' + LETTERS[q.c] + '</span><span class="otext">' +
+      escapeHtml(q.o[q.c]) + '</span><span class="tag">✓ Đáp án đúng</span>';
+    ans.appendChild(d);
+    // ONLY the existing explanation from data, when present.
+    var exp = $('view-exp');
+    if (q.e) {
+      exp.innerHTML = '<div class="feedback ok"><div class="head">Giải thích</div><div class="exp">' +
+        escapeHtml(q.e) + '</div></div>';
+    } else {
+      exp.innerHTML = '';
+    }
+    var on = LddStore.getStars().indexOf(qkey(q)) >= 0;
+    var starBtn = $('view-star');
+    var starIco = $('view-star-ico');
+    var starTxt = $('view-star-txt');
+    if (starIco) starIco.textContent = on ? '★' : '☆';
+    if (starTxt) starTxt.textContent = on ? 'Đã lưu' : 'Lưu câu';
+    starBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    starBtn.setAttribute('aria-label', on ? 'Đã lưu (bỏ lưu câu này)' : 'Lưu câu (đánh dấu câu này)');
+    starBtn.classList.toggle('on', on);
+    $('view-prev').disabled = view.idx === 0;
+    $('view-next').disabled = view.idx === total - 1;
+    // Simple completion state at the last question — no score/results.
+    var done = $('view-done');
+    if (view.idx === total - 1) {
+      done.hidden = false;
+      $('view-done-n').textContent = total;
+    } else {
+      done.hidden = true;
+    }
+    // Separate per-set position slot — never the quiz-session slot.
+    try {
+      var m = LddStore.getViewPos() || {};
+      m[view.setId] = LddStore.key(q.setId, q.id);
+      LddStore.setViewPos(m);
+    } catch (e2) {}
+  }
+  window.viewPrev = function () {
+    if (!view.active || view.idx === 0) return;
+    view.idx--;
+    renderView();
+    window.scrollTo(0, 0);
+  };
+  window.viewNext = function () {
+    if (!view.active || view.idx === view.list.length - 1) return;
+    view.idx++;
+    renderView();
+    window.scrollTo(0, 0);
+  };
+  // Explicit star taps are the ONLY quiz-adjacent write allowed in viewing.
+  window.toggleViewStar = function () {
+    var q = view.list[view.idx];
+    if (!q) return;
+    var s = LddStore.getStars();
+    var k = qkey(q);
+    var pos = s.indexOf(k);
+    if (pos >= 0) { s.splice(pos, 1); toast('Đã bỏ đánh dấu'); }
+    else { s.push(k); toast('⭐ Đã đánh dấu câu này'); }
+    LddStore.setStars(s);
+    renderView();
+  };
+  window.exitView = function () {
+    var o = (view && view.origin) || { type: 'home' };
+    view = { active: false, setId: null, list: [], idx: 0, origin: null };
+    if (o.type === 'search') {
+      lastSearchQuery = o.query || lastSearchQuery;
+      lastSearchScroll = o.scroll || 0;
+      var inp = $('search-input');
+      if (inp) inp.value = lastSearchQuery;
+      show('search');
+    } else if (o.type === 'star') {
+      lastListScroll = o.scroll || 0;
+      openList('star', o.setId || undefined, true);
+    } else {
+      show('home');
+    }
+  };
+  window.exitViewToHome = function () {
+    view = { active: false, setId: null, list: [], idx: 0, origin: null };
+    show('home');
+  };
+  function openViewPicker() {
+    if (!view || !view.active || !view.list.length) return;
+    renderPicker({
+      sub: 'Xem đáp án · ' + setTitleOf(view.setId),
+      legend: '<span>◉ Đang xem</span>',
+      total: view.list.length,
+      cur: view.idx,
+      cls: function (i) { return i === view.idx ? 'cur' : ''; },
+      mark: function () { return ''; },
+      label: function (i) { return 'Câu ' + (i + 1) + (i === view.idx ? ', đang xem' : ''); },
+      pick: function (i) {
+        view.idx = i;
+        renderView();
+        window.scrollTo(0, 0);
+      }
+    });
+  }
+
   /* ---------- wrong / star / history / search (composite keys) ---------- */
   window.openList = function (type, setId, keepScroll) {
     if (!keepScroll) lastListScroll = 0;
@@ -1282,7 +1461,9 @@
     ids = ids.filter(function (k) { return LddStore.questionById(cache, k); });
     var scope = setId ? ' · ' + setTitleOf(setId) : '';
     $('list-title').textContent = type === 'wrong' ? '❌ Câu đã sai' : '⭐ Câu đã đánh dấu';
-    $('list-sub').textContent = ids.length + ' câu' + scope;
+    // Batch E: starred taps open answer VIEWING — say so. Wrong taps stay
+    // PRACTICE (transient quiz), unchanged.
+    $('list-sub').textContent = ids.length + ' câu' + (type === 'star' ? ' · chạm để xem đáp án' : '') + scope;
     var cont = $('list-content');
     cont.innerHTML = '';
     if (!ids.length) {
@@ -1300,10 +1481,13 @@
       b.innerHTML = '<span class="ltxt"><b>' + escapeHtml(setTitleOf(q.setId)) + '</b><br>' + escapeHtml(q.q) + '</span>';
       b.onclick = function () {
         lastListScroll = window.scrollY || 0;
-        // Batch B §4: preserve the LIST scope (setId may be undefined for a
-        // global list). Passing q.setId here would narrow a global list to
-        // one set on return — keep the original scope instead.
-        openSingleQuestion(k, { type: type, setId: setId || null });
+        if (type === 'star') {
+          // Batch E: saved questions open in read-only answer viewing.
+          openViewAt(q.setId, q.id, { type: type, setId: setId || null, scroll: window.scrollY || 0 });
+        } else {
+          // Wrong-question taps stay PRACTICE (transient single-question quiz).
+          openSingleQuestion(k, { type: type, setId: setId || null });
+        }
       };
       cont.appendChild(b);
     });
@@ -1381,7 +1565,9 @@
       b.innerHTML = '<span class="ltxt"><b>' + escapeHtml(setTitleOf(q.setId)) + '</b><br>' + escapeHtml(q.q) + '</span>';
       b.onclick = function () {
         lastSearchScroll = window.scrollY || 0;
-        openSingleQuestion(LddStore.key(q.setId, q.id), { type: 'search', query: lastSearchQuery });
+        // Batch E: search results open directly in read-only answer viewing.
+        // Back restores query + result list + scroll via exitView.
+        openViewAt(q.setId, q.id, { type: 'search', query: lastSearchQuery, scroll: window.scrollY || 0 });
       };
       cont.appendChild(b);
     });
