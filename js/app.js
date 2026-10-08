@@ -12,7 +12,10 @@
   var activeSetId = null;
 
   var study = { list: [], idx: 0, answers: [], transient: false, origin: null };
-  var exam = { list: [], idx: 0, answers: [], timeLeft: 0, totalTime: 0, endsAt: 0, timerId: null };
+  var exam = { list: [], idx: 0, answers: [], timeLeft: 0, totalTime: 0, endsAt: 0, timerId: null, submitted: false };
+  // Batch B §3: result context recorded at finish (study is cleared there),
+  // so "Ôn lại" can retry the still-wrong scope instead of the full set.
+  var lastResult = null;
   // Batch 3 §3.6: origin context for single-question reviews
   // { type:'wrong'|'star'|'search', query?:string } + scroll memory.
   var lastSearchQuery = '';
@@ -75,6 +78,47 @@
   function sessionActive() {
     return ($('screen-study') && $('screen-study').classList.contains('active') && study.list.length > 0) ||
            ($('screen-exam') && $('screen-exam').classList.contains('active') && exam.list.length > 0);
+  }
+  // Batch B §1: never silently replace an unfinished session. Returns the
+  // kept session when one with real content exists, else null.
+  function keptSession() {
+    try {
+      var s = LddStore.getSession();
+      var keys = sessionKeys(s);
+      if (s && keys && keys.length) return s;
+    } catch (e) {}
+    return null;
+  }
+  function describeSession(s) {
+    var keys = sessionKeys(s) || [];
+    var total = keys.length;
+    var pos = Math.min((s.idx || 0) + 1, total);
+    var mode = s.kind === 'exam' ? 'Thi thử' : (s.isWrongReview ? 'Ôn câu sai' : 'Ôn tập');
+    return setTitleOf(s.setId) + ' · ' + mode + ' · Câu ' + pos + ' / ' + total;
+  }
+  function sameStudySession(s, setId, isWrong, wrongScope) {
+    if (!s || s.kind !== 'study') return false;
+    if ((s.setId || null) !== (setId || null)) return false;
+    if (!!s.isWrongReview !== !!isWrong) return false;
+    if ((s.wrongSetId || null) !== (wrongScope || null)) return false;
+    return true;
+  }
+  // proceed() starts the requested new session. If a DIFFERENT unfinished
+  // session exists, ask in-app: safe choice resumes it ("Tiếp tục bài đang
+  // làm"), destructive choice clearly replaces it. Resuming the same session
+  // (resumeSession) never passes through here, so it never nags.
+  function guardReplaceSession(kind, setId, isWrong, wrongScope, proceed) {
+    var kept = keptSession();
+    if (!kept) { proceed(); return; }
+    if (kind === 'study' && sameStudySession(kept, setId, isWrong, wrongScope)) { proceed(); return; }
+    showModal({
+      title: 'Bài đang làm dở?',
+      msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Bắt đầu bài mới sẽ xóa bài đang làm dở này.',
+      safeLabel: 'Tiếp tục bài đang làm',
+      dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
+      onSafe: function () { window.resumeSession(); },
+      onDanger: function () { proceed(); }
+    });
   }
 
   // ---- session snapshot helpers (B1): persist the EXACT displayed option
@@ -505,12 +549,15 @@
 
   window.startStudy = startStudy;
   function startStudy(setId) {
-    var list = questionsOf(setId || activeSetId);
-    if (!setId && !activeSetId && cache.sets.length) {
-      list = questionsOf(cache.sets[0].id);
-    }
+    var target = setId || activeSetId || (cache.sets[0] && cache.sets[0].id);
+    guardReplaceSession('study', target, false, null, function () {
+      startStudyNow(target);
+    });
+  }
+  function startStudyNow(target) {
+    var list = questionsOf(target);
     if (!list.length) { toast('Bộ đề này chưa có câu hỏi'); return; }
-    activeSetId = setId || activeSetId || (cache.sets[0] && cache.sets[0].id);
+    activeSetId = target;
     var prefs = LddStore.getPrefs();
     if (prefs.shuffleQ) list = shuffle(list);
     if (prefs.shuffleA) list = list.map(shuffleOptions);
@@ -522,8 +569,11 @@
     renderStudy();
   }
   window.restartStudy = function () {
-    if (study.isWrongReview || (study.list.length && study.wrongSnapshot)) { startStudy(activeSetId); return; }
-    startStudy(activeSetId);
+    // Batch B §3: after a wrong-session finish, "Ôn lại" retries the
+    // still-wrong queue — never the full 80-question set. (study was cleared
+    // at finish, so the scope comes from the recorded result, not live state.)
+    if (lastResult && lastResult.wasWrongReview) { window.startWrongStudy(lastResult.wrongSetId); return; }
+    startStudyNow(activeSetId || (cache.sets[0] && cache.sets[0].id));
   };
 
   /* ---------- wrong-question Study session (Batch 4 §4.1/§4.2) ----------
@@ -542,6 +592,13 @@
       });
     }
     if (!ids.length) { toast(setId ? 'Bộ đề này chưa có câu nào sai. Tuyệt vời!' : 'Chưa có câu nào sai. Tuyệt vời!'); return; }
+    var probe = ids.map(function (k) { return LddStore.questionById(cache, k); });
+    var target = setId || (probe[0] && probe[0].setId);
+    guardReplaceSession('study', target, true, setId || null, function () {
+      startWrongStudyNow(setId, ids);
+    });
+  };
+  function startWrongStudyNow(setId, ids) {
     var list = ids.map(function (k) { return LddStore.questionById(cache, k); });
     activeSetId = setId || list[0].setId;
     study = {
@@ -711,6 +768,14 @@
       if (w2.indexOf(k) < 0) { w2.push(k); LddStore.setWrong(w2); }
     }
     revealStudyAnswer(true);
+    // Batch B §2: after answering the LAST question the button must read
+    // "Hoàn thành" immediately (renderStudy is not re-run after answering,
+    // so the label has to update here).
+    if (!study.transient && study.idx === study.list.length - 1) {
+      $('study-next').textContent = 'Hoàn thành ✓';
+    } else if (!study.transient) {
+      $('study-next').textContent = 'Tiếp theo ›';
+    }
     $('study-next').disabled = false;
     $('study-counter').textContent = score.ok + ' đúng · ' + score.no + ' sai';
     persistSession();
@@ -823,6 +888,7 @@
     }
     study = { list: [], idx: 0, answers: [], transient: false, origin: null, isWrongReview: false, wrongSetId: null, wrongSnapshot: null };
     activeKind = null;
+    lastResult = { wasWrongReview: wasWrongReview, wrongSetId: wrongScope };
     show('study-result');
   }
 
@@ -865,6 +931,11 @@
   });
 
   window.startExam = function () {
+    guardReplaceSession('exam', activeSetId, false, null, function () {
+      startExamNow();
+    });
+  };
+  function startExamNow() {
     var count = parseInt(document.querySelector('#exam-count-chips .chip.on').dataset.v, 10);
     var minutes = parseInt(document.querySelector('#exam-time-chips .chip.on').dataset.v, 10);
     var shuffleQ = $('sw-shuffle-q').classList.contains('on');
@@ -876,7 +947,7 @@
     var list = pool.slice(0, n);
     if (shuffleA) list = list.map(shuffleOptions);
     var total = minutes * 60;
-    exam = { list: list, idx: 0, answers: new Array(list.length).fill(-1), totalTime: total, timeLeft: total, endsAt: Date.now() + total * 1000, timerId: null };
+    exam = { list: list, idx: 0, answers: new Array(list.length).fill(-1), totalTime: total, timeLeft: total, endsAt: Date.now() + total * 1000, timerId: null, submitted: false };
     activeKind = 'exam';
     persistSession();
     show('exam');
@@ -987,6 +1058,9 @@
     });
   };
   window.confirmSubmitExam = function () {
+    // Batch B §5: after a timeout auto-submit, the submit dialog is gone and
+    // further taps must be ignored — one exam yields one history entry.
+    if (exam.submitted || !exam.list.length) return;
     var blank = exam.answers.filter(function (a) { return a < 0; }).length;
     showModal({
       title: 'Nộp bài thi?',
@@ -1001,6 +1075,13 @@
   };
 
   function submitExam() {
+    // Batch B §5: single-submission guard. Timeout auto-submit and a stale
+    // open submit/exit dialog can race — the first call wins, later calls
+    // (repeated taps, stale dialog actions) are ignored so history is
+    // recorded exactly once.
+    if (exam.submitted) return;
+    exam.submitted = true;
+    hideModal();
     clearInterval(exam.timerId);
     var correct = 0;
     var details = [];
@@ -1079,7 +1160,10 @@
       b.innerHTML = '<span class="ltxt"><b>' + escapeHtml(setTitleOf(q.setId)) + '</b><br>' + escapeHtml(q.q) + '</span>';
       b.onclick = function () {
         lastListScroll = window.scrollY || 0;
-        openSingleQuestion(k, { type: type, setId: setId || q.setId });
+        // Batch B §4: preserve the LIST scope (setId may be undefined for a
+        // global list). Passing q.setId here would narrow a global list to
+        // one set on return — keep the original scope instead.
+        openSingleQuestion(k, { type: type, setId: setId || null });
       };
       cont.appendChild(b);
     });
@@ -1235,7 +1319,7 @@
       exam = {
         list: list, idx: Math.min(s.idx || 0, list.length - 1),
         answers: (Array.isArray(s.answers) && s.answers.length === list.length) ? s.answers : new Array(list.length).fill(-1),
-        totalTime: total, timeLeft: 0, endsAt: endsAt, timerId: null
+        totalTime: total, timeLeft: 0, endsAt: endsAt, timerId: null, submitted: false
       };
       activeKind = 'exam';
       show('exam');
@@ -1247,7 +1331,7 @@
     exam = {
       list: list, idx: Math.min(s.idx || 0, list.length - 1),
       answers: (Array.isArray(s.answers) && s.answers.length === list.length) ? s.answers : new Array(list.length).fill(-1),
-      totalTime: total, timeLeft: 0, endsAt: endsAt || (Date.now() + total * 1000), timerId: null
+      totalTime: total, timeLeft: 0, endsAt: endsAt || (Date.now() + total * 1000), timerId: null, submitted: false
     };
     exam.timeLeft = examRemaining();
     activeKind = 'exam';
