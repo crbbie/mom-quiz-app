@@ -17,3 +17,12 @@ There is no backend, no database, no login, no admin UI, no build step.
   print `OK`) before committing/deploying. Do not deploy unless asked.
 
 `QUESTION-IMPORT-GUIDE.md is the canonical source of truth for question-bank imports and updates.`
+
+## Course source of truth (permanent rule)
+
+The original class/course question material is authoritative for this app.
+External sources (websites, current legislation, AI knowledge) must never be
+used to silently modify question wording, answer options, the marked correct
+answer, or explanations. If outside information appears to contradict a
+course question: preserve the course source exactly, mention the discrepancy
+separately, and only change that question with explicit user authorization.
