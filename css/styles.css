@@ -91,6 +91,25 @@ img{max-width:100%}
 .set-card .set-meta{font-size:var(--font-meta);font-weight:600;line-height:1.45;color:var(--ink-2);margin-bottom:14px}
 .set-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .set-actions .btn{padding:15px}
+/* Batch 3: home hierarchy — primary study action is full-width and dominant */
+.set-actions .btn.study-primary{grid-column:1/-1;padding:20px;font-size:var(--font-button)}
+.set-actions .btn.exam-secondary{grid-column:1/-1}
+.set-sub-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;grid-column:1/-1;margin-top:2px}
+.set-sub-actions .btn{padding:14px;min-height:56px;font-size:var(--font-important)}
+.home-section-label{font-size:var(--font-important);font-weight:700;line-height:1.4;color:var(--ink);margin:22px 4px 10px}
+/* Resume card: most prominent, first on Home */
+.resume-card{border:2px solid var(--accent);background:#eef5ff}
+.resume-card .resume-meta{font-size:var(--font-important);font-weight:600;line-height:1.55;color:var(--ink);margin:0 0 14px;overflow-wrap:break-word}
+.setup-hint{background:#eef5ff;border:1px solid #bfd6f5;border-radius:14px;padding:14px 16px;margin:0 0 16px;font-size:var(--font-important);font-weight:600;line-height:1.55;color:#0f4aa8;overflow-wrap:break-word}
+/* Confirm modal: safe choice visually obvious, destructive secondary */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,30,55,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:200}
+.modal-overlay[hidden]{display:none}
+.modal{background:#fff;border-radius:20px;padding:24px;max-width:480px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.modal h2{margin:0 0 10px;font-size:var(--font-set-title);font-weight:800;line-height:1.35}
+.modal p{margin:0 0 18px;font-size:var(--font-explanation);font-weight:500;line-height:1.6;color:var(--ink);overflow-wrap:break-word}
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap}
+.modal-actions .btn.ghost{flex:2 1 220px;border:2px solid var(--accent);color:#0f4aa8}
+.modal-actions .btn.danger{flex:1 1 140px}
 
 .menu-btn{display:flex;align-items:center;gap:16px;width:100%;background:#fff;border-radius:20px;padding:20px 18px;margin-bottom:14px;text-align:left;box-shadow:0 2px 10px rgba(30,60,110,.06);border:1px solid #e8edf5}
 .menu-btn .ico{font-size:30px;flex-shrink:0;width:44px;text-align:center}
@@ -231,12 +250,17 @@ img{max-width:100%}
 /* Install hint */
 .install-hint{text-align:center;color:var(--ink-2);font-size:var(--font-meta);font-weight:500;margin-top:20px;line-height:1.6}
 
-/* Landscape with short viewport: keep reading area usable (Batch 2 §14) */
+/* Landscape with short viewport: keep reading area usable (Batch 2 §14, Batch 3 §3.12).
+ * Keep large text; let header/footer flow instead of eating the viewport. */
 @media (max-height:500px){
   .body{padding-top:12px}
   .hero{padding-bottom:8px}
   .result-hero{padding:8px 0 4px}
   .empty-state{padding:24px 20px}
+  .topbar{position:static;padding-top:calc(10px + env(safe-area-inset-top))}
+  .bottom-actions{position:static;border-top:1px solid #e3e8f0}
+  .qtext{margin-bottom:12px}
+  .feedback{margin-top:14px}
 }
 
 /* Reduced motion (Batch 2 §11): state changes stay, motion goes */

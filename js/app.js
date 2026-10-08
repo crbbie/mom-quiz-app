@@ -11,8 +11,13 @@
   var cache = LddStore.getCache();
   var activeSetId = null;
 
-  var study = { list: [], idx: 0, answers: [], transient: false };
+  var study = { list: [], idx: 0, answers: [], transient: false, origin: null };
   var exam = { list: [], idx: 0, answers: [], timeLeft: 0, totalTime: 0, endsAt: 0, timerId: null };
+  // Batch 3 §3.6: origin context for single-question reviews
+  // { type:'wrong'|'star'|'search', query?:string } + scroll memory.
+  var lastSearchQuery = '';
+  var lastListScroll = 0;
+  var lastSearchScroll = 0;
   // DOM-independent session tracking (B7): 'study' | 'exam' | null.
   // persistSession() uses this, never screen visibility, so start/answer/nav
   // always save even before show() runs.
@@ -125,14 +130,45 @@
   };
 
   function show(screenId) {
+    // Batch 3 §3.6/§3.11: preserve list/search scroll + query across returns.
+    try {
+      var cur = document.querySelector('.screen.active');
+      if (cur && cur.id === 'screen-list') lastListScroll = window.scrollY || 0;
+      if (cur && cur.id === 'screen-search') lastSearchScroll = window.scrollY || 0;
+    } catch (e0) {}
     document.querySelectorAll('.screen').forEach(function (s) { s.classList.remove('active'); });
     var el = $('screen-' + screenId);
     if (el) el.classList.add('active');
     window.scrollTo(0, 0);
     if (screenId === 'home') renderHome();
     if (screenId === 'history') renderHistory();
-    if (screenId === 'search') { setTimeout(function () { $('search-input').focus(); }, 100); doSearch(); }
+    if (screenId === 'search') {
+      var inp = $('search-input');
+      if (inp && lastSearchQuery && !inp.value) inp.value = lastSearchQuery;
+      doSearch();
+      if (lastSearchScroll) { setTimeout(function () { window.scrollTo(0, lastSearchScroll); }, 50); }
+    }
+    if (screenId === 'list' && lastListScroll) {
+      setTimeout(function () { window.scrollTo(0, lastListScroll); }, 50);
+    }
   }
+
+  /* ---------- modal confirm (Batch 3 §3.2/§3.9: explicit, safe-choice-first) ---------- */
+  function showModal(opts) {
+    // opts: { title, msg, safeLabel, dangerLabel, onSafe, onDanger, dangerIsPrimary?:false }
+    $('modal-title').textContent = opts.title || 'Xác nhận';
+    $('modal-msg').textContent = opts.msg || '';
+    var safe = $('modal-safe'), danger = $('modal-danger');
+    safe.textContent = opts.safeLabel || 'Tiếp tục làm bài';
+    danger.textContent = opts.dangerLabel || 'Nộp bài';
+    danger.style.display = opts.hideDanger ? 'none' : '';
+    safe.onclick = function () { hideModal(); if (opts.onSafe) opts.onSafe(); };
+    danger.onclick = function () { hideModal(); if (opts.onDanger) opts.onDanger(); };
+    $('modal-overlay').hidden = false;
+    setTimeout(function () { try { safe.focus(); } catch (e) {} }, 50);
+  }
+  function hideModal() { $('modal-overlay').hidden = true; }
+  window.hideModal = hideModal;
 
   /* ---------- static content sync ---------- */
   function setSyncStatus(mode, text) {
@@ -179,6 +215,7 @@
     // Batch 2 §2: apply persisted text size before first paint.
     try { applyTextSize(); } catch (e) {}
     try { syncChips(); } catch (e2) {}
+    try { updateExamStartBtn(); } catch (e3) {}
     // 1. Render whatever is cached immediately (offline-first).
     LddStore.migrateAll(cache, seedIdsOfFirstSet());
     LddStore.pruneStaleIds(cache);
@@ -301,17 +338,70 @@
   window.manualSync = function () { syncContent(true); };
   window.addEventListener('online', function () { syncContent(false); });
 
-  /* ---------- home ---------- */
+  /* ---------- home (Batch 3 §3.1/§3.2 hierarchy) ----------
+   * Order: 1. Resume (only when one exists) 2. Question Set/subject
+   * 3. Large primary "Bắt đầu ôn tập" 4. Secondary "Thi thử"
+   * 5. Prominent "Ôn câu sai · N câu" 6. "Câu đã lưu" 7. "Lịch sử"
+   * 8. "Tìm kiếm" 9. Sync/offline info last. */
+  function wrongCountFor(setId) {
+    var all = LddStore.getWrong();
+    var count = 0;
+    for (var i = 0; i < all.length; i++) {
+      var q = LddStore.questionById(cache, all[i]);
+      if (q && (!setId || q.setId === setId)) count++;
+    }
+    return count;
+  }
+  function starCountFor(setId) {
+    var all = LddStore.getStars();
+    var count = 0;
+    for (var j = 0; j < all.length; j++) {
+      var s = LddStore.questionById(cache, all[j]);
+      if (s && (!setId || s.setId === setId)) count++;
+    }
+    return count;
+  }
   function renderHome() {
     cache = LddStore.getCache();
-    var stars = LddStore.getStars(), wrong = LddStore.getWrong();
-    var bw = $('badge-wrong');
-    bw.textContent = wrong.length;
-    bw.classList.toggle('empty', wrong.length === 0);
-    var bs = $('badge-star');
-    bs.textContent = stars.length;
-    bs.classList.toggle('empty', stars.length === 0);
+    var wrongTotal = wrongCountFor(null);
+    var starTotal = starCountFor(null);
 
+    // 1. Resume card (visible, contextual) — rendered first, only when one exists.
+    var slot = $('resume-slot');
+    slot.innerHTML = '';
+    try {
+      var kept = LddStore.getSession();
+      var keptKeys = sessionKeys(kept);
+      if (kept && keptKeys && keptKeys.length && !sessionActive()) {
+        var total = keptKeys.length;
+        var pos = Math.min((kept.idx || 0) + 1, total);
+        var modeLabel = kept.kind === 'exam' ? 'Thi thử' : 'Ôn tập';
+        var meta = setTitleOf(kept.setId) + ' · ' + modeLabel + ' · Câu ' + pos + ' / ' + total;
+        if (kept.kind === 'exam') {
+          var endsAt = kept.endsAt || 0;
+          var left = endsAt ? Math.max(0, Math.round((endsAt - Date.now()) / 1000)) : (kept.timeLeft | 0);
+          if (left > 0 && endsAt) {
+            var mm = Math.floor(left / 60), ss = left % 60;
+            meta += ' · còn ' + String(mm).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
+          }
+        }
+        var rc = document.createElement('div');
+        rc.className = 'set-card resume-card';
+        rc.id = 'resume-card';
+        rc.innerHTML =
+          '<h2>⏸️ Bài đang làm dở</h2>' +
+          '<p class="resume-meta" id="resume-meta">' + escapeHtml(meta) + '</p>' +
+          '<div class="set-actions">' +
+          '<button class="btn primary" id="resume-continue" data-act="resume">▶️ Tiếp tục</button>' +
+          '<button class="btn ghost" id="resume-discard" data-act="drop">🗑️ Bỏ bài</button>' +
+          '</div>';
+        rc.querySelector('[data-act="resume"]').onclick = function () { window.resumeSession(); };
+        rc.querySelector('[data-act="drop"]').onclick = function () { window.discardSession(); };
+        slot.appendChild(rc);
+      }
+    } catch (e2) {}
+
+    // 2-6. Per-set blocks in learner priority order.
     var box = $('set-list');
     box.innerHTML = '';
     if (!cache.sets.length) {
@@ -321,31 +411,11 @@
                 : 'Chưa có dữ liệu offline.<br>Vui lòng kết nối mạng rồi mở lại app để tải bộ đề lần đầu.') +
         '</p></div>';
       setSyncStatus('off', online ? 'Chưa có dữ liệu' : 'Ngoại tuyến — cần mạng cho lần đầu');
-      return;
     }
-    // B3: kept unfinished session — minimal "Tiếp tục / Bỏ bài" affordance
-    // reusing existing card/button styles (no visual redesign).
-    try {
-      var kept = LddStore.getSession();
-      var keptKeys = sessionKeys(kept);
-      if (kept && keptKeys && keptKeys.length && !sessionActive()) {
-        var klabel = kept.kind === 'exam' ? 'bài thi' : 'bài ôn tập';
-        var rc = document.createElement('div');
-        rc.className = 'set-card';
-        rc.innerHTML =
-          '<h2>⏸️ Bài đang làm dở</h2>' +
-          '<p class="set-desc">Bạn còn ' + klabel + ' chưa xong. Thoát thường sẽ lưu và về đây.</p>' +
-          '<div class="set-actions">' +
-          '<button class="btn primary" data-act="resume">▶️ Tiếp tục</button>' +
-          '<button class="btn ghost" data-act="drop">🗑️ Bỏ bài</button>' +
-          '</div>';
-        rc.querySelector('[data-act="resume"]').onclick = function () { window.resumeSession(); };
-        rc.querySelector('[data-act="drop"]').onclick = function () { window.discardSession(); };
-        box.appendChild(rc);
-      }
-    } catch (e2) {}
     cache.sets.forEach(function (s) {
       var n = questionsOf(s.id).length;
+      var nw = wrongCountFor(s.id);
+      var ns = starCountFor(s.id);
       var upd = s.updated_at ? fmtDate(Date.parse(s.updated_at)) : '';
       var card = document.createElement('div');
       card.className = 'set-card';
@@ -354,17 +424,51 @@
         (s.description ? '<p class="set-desc">' + escapeHtml(s.description) + '</p>' : '') +
         '<div class="set-meta">' + n + ' câu' + (upd ? ' · cập nhật ' + escapeHtml(upd) : '') + '</div>' +
         '<div class="set-actions">' +
-        '<button class="btn primary" data-act="study">📖 Ôn tập</button>' +
-        '<button class="btn ghost" data-act="exam">📝 Thi thử</button>' +
+        '<button class="btn primary study-primary" data-act="study">📖 Bắt đầu ôn tập</button>' +
+        '<button class="btn ghost exam-secondary" data-act="exam">📝 Thi thử</button>' +
+        '<div class="set-sub-actions">' +
+        '<button class="btn ghost" data-act="wrong">❌ Ôn câu sai · ' + nw + ' câu</button>' +
+        '<button class="btn ghost" data-act="star">⭐ Câu đã lưu (' + ns + ')</button>' +
+        '</div>' +
         '</div>';
       card.querySelector('[data-act="study"]').onclick = function () { startStudy(s.id); };
       card.querySelector('[data-act="exam"]').onclick = function () {
         activeSetId = s.id;
         $('exam-setup-title').textContent = 'Thi thử — ' + s.title;
+        updateExamStartBtn();
         show('exam-setup');
       };
+      card.querySelector('[data-act="wrong"]').onclick = function () { openList('wrong', s.id); };
+      card.querySelector('[data-act="star"]').onclick = function () { openList('star', s.id); };
       box.appendChild(card);
     });
+
+    // 7-8. Global History / Search (secondary to per-set actions).
+    var nav = $('home-nav');
+    nav.innerHTML = '';
+    var hLabel = document.createElement('h3');
+    hLabel.className = 'home-section-label';
+    hLabel.textContent = 'Xem thêm';
+    nav.appendChild(hLabel);
+    var grid = document.createElement('div');
+    grid.className = 'grid2';
+    grid.innerHTML =
+      '<button class="tile" id="tile-history"><span class="ico">🕘</span><b>Lịch sử</b></button>' +
+      '<button class="tile" id="tile-search"><span class="ico">🔍</span><b>Tìm kiếm</b></button>';
+    // Global review tiles (all sets) for older-learner clarity.
+    var grid2 = document.createElement('div');
+    grid2.className = 'grid2';
+    grid2.innerHTML =
+      '<button class="tile full" id="tile-wrong"><span class="ico">❌</span><b>Ôn câu sai · ' + wrongTotal + ' câu</b>' +
+      '<span class="badge warn' + (wrongTotal ? '' : ' empty') + '" id="badge-wrong">' + wrongTotal + '</span></button>' +
+      '<button class="tile" id="tile-star"><span class="ico">⭐</span><b>Câu đã lưu</b>' +
+      '<span class="badge star' + (starTotal ? '' : ' empty') + '" id="badge-star">' + starTotal + '</span></button>';
+    nav.appendChild(grid2);
+    nav.appendChild(grid);
+    nav.querySelector('#tile-history').onclick = function () { show('history'); };
+    nav.querySelector('#tile-search').onclick = function () { show('search'); };
+    nav.querySelector('#tile-wrong').onclick = function () { openList('wrong'); };
+    nav.querySelector('#tile-star').onclick = function () { openList('star'); };
 
     // Hide install hint when already installed as standalone PWA.
     try {
@@ -398,16 +502,32 @@
     var prefs = LddStore.getPrefs();
     if (prefs.shuffleQ) list = shuffle(list);
     if (prefs.shuffleA) list = list.map(shuffleOptions);
-    study = { list: list, idx: 0, answers: list.map(function () { return -1; }), transient: false };
+    study = { list: list, idx: 0, answers: list.map(function () { return -1; }), transient: false, origin: null };
     activeKind = 'study';
     persistSession();
-    $('study-title').textContent = 'Ôn tập — ' + setTitleOf(activeSetId);
+    updateStudyHeader();
     show('study');
     renderStudy();
   }
   window.restartStudy = function () { startStudy(activeSetId); };
 
   function qkey(q) { return LddStore.key(q.setId, q.id); }
+
+  // Batch 3 §3.3: "Câu X / Y" is the clearest context; subject is secondary.
+  function updateStudyHeader() {
+    var total = study.list.length || 1;
+    $('study-title').textContent = 'Câu ' + (study.idx + 1) + ' / ' + total;
+    var mode = study.transient ? 'Ôn tập nhanh' : 'Ôn tập';
+    $('study-sub').textContent = mode + ' · ' + setTitleOf(activeSetId);
+  }
+  function returnLabel() {
+    if (!study.origin) return 'Quay lại';
+    if (study.origin.type === 'wrong') return 'Quay lại câu sai';
+    if (study.origin.type === 'star') return 'Quay lại câu đã lưu';
+    if (study.origin.type === 'search') return 'Quay lại tìm kiếm';
+    if (study.origin.type === 'list') return 'Quay lại danh sách';
+    return 'Quay lại';
+  }
 
   function renderStudy() {
     var q = study.list[study.idx];
@@ -416,7 +536,7 @@
     var chosen = study.answers[study.idx];
     var answered = chosen !== undefined && chosen >= 0;
     var score = recountStudy();
-    $('study-sub').textContent = 'Câu ' + (study.idx + 1) + ' / ' + total;
+    updateStudyHeader();
     $('study-pill').textContent = 'Câu ' + (study.idx + 1);
     $('study-counter').textContent = score.ok + ' đúng · ' + score.no + ' sai';
     $('study-progress').style.width = (study.idx / total * 100) + '%';
@@ -450,10 +570,19 @@
     });
     $('study-feedback').innerHTML = '';
     $('study-next').disabled = !answered;
-    $('study-next').textContent = answered
-      ? (study.idx === total - 1 ? 'Hoàn thành ✓' : 'Tiếp theo ›')
-      : 'Tiếp theo ›';
-    $('study-prev').disabled = study.idx === 0;
+    if (study.transient) {
+      // Batch 3 §3.6: single-question review never starts all 80 questions.
+      $('study-next').textContent = answered ? returnLabel() : returnLabel();
+      $('study-next').disabled = false;
+      $('study-prev').disabled = true;
+      $('study-prev').style.display = 'none';
+    } else {
+      $('study-prev').style.display = '';
+      $('study-next').textContent = answered
+        ? (study.idx === total - 1 ? 'Hoàn thành ✓' : 'Tiếp theo ›')
+        : 'Tiếp theo ›';
+      $('study-prev').disabled = study.idx === 0;
+    }
     if (answered) revealStudyAnswer();
   }
 
@@ -476,11 +605,29 @@
       }
     });
     var ok = chosen === q.c;
-    $('study-feedback').innerHTML =
-      '<div class="feedback ' + (ok ? 'ok' : 'no') + '">' +
+    var html = '<div class="feedback ' + (ok ? 'ok' : 'no') + '">' +
       '<div class="head">' + (ok ? '✓ Chính xác!' : '✗ Chưa đúng') + '</div>' +
       '<div class="exp"><b>Đáp án đúng: ' + LETTERS[q.c] + '.</b> ' + escapeHtml(q.o[q.c]) +
-      (q.e ? '<br><br>💡 ' + escapeHtml(q.e) : '') + '</div></div>';
+      (q.e ? '<br><br>💡 ' + escapeHtml(q.e) : '') + '</div>';
+    if (study.transient) {
+      html += '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">' +
+        '<button class="btn ghost small" id="study-retry" style="flex:1 1 200px">🔁 Thử lại câu này</button></div>';
+    }
+    html += '</div>';
+    $('study-feedback').innerHTML = html;
+    var retry = $('study-retry');
+    if (retry) retry.onclick = function () { retrySingleQuestion(); };
+    // Batch 3 §3.4: bring feedback into view with a small scroll only.
+    // Honor prefers-reduced-motion: no smooth animation then.
+    try {
+      var fb = $('study-feedback').querySelector('.feedback');
+      if (fb) {
+        var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (typeof fb.scrollIntoView === 'function') {
+          fb.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' });
+        }
+      }
+    } catch (e) {}
   }
 
   window.answerStudy = answerStudy;
@@ -505,6 +652,8 @@
   }
 
   window.studyNext = function () {
+    // Batch 3 §3.6: transient single-question review returns to its origin.
+    if (study.transient) { returnToOrigin(); return; }
     if (study.answers[study.idx] === undefined || study.answers[study.idx] < 0) return;
     if (study.idx === study.list.length - 1) { finishStudy(); return; }
     study.idx++;
@@ -513,12 +662,37 @@
     window.scrollTo(0, 0);
   };
   window.studyPrev = function () {
+    if (study.transient) return;
     if (study.idx === 0) return;
     study.idx--;
     renderStudy();
     persistSession();
     window.scrollTo(0, 0);
   };
+  function retrySingleQuestion() {
+    if (!study.transient) return;
+    study.answers[study.idx] = -1;
+    renderStudy();
+    window.scrollTo(0, 0);
+  }
+  window.retrySingleQuestion = retrySingleQuestion;
+  function returnToOrigin() {
+    var origin = study.origin;
+    study = { list: [], idx: 0, answers: [], transient: false, origin: null };
+    activeKind = null;
+    // Never touch the kept session: transient reviews persist nothing.
+    if (origin && origin.type === 'search') {
+      lastSearchQuery = origin.query || lastSearchQuery;
+      var inp = $('search-input');
+      if (inp) inp.value = lastSearchQuery;
+      show('search');
+    } else if (origin && (origin.type === 'wrong' || origin.type === 'star')) {
+      openList(origin.type === 'wrong' ? 'wrong' : 'star', origin.setId, true);
+    } else {
+      show('home');
+    }
+  }
+  window.returnToOrigin = returnToOrigin;
   window.toggleStarCurrent = function () {
     var q = study.list[study.idx];
     if (!q) return;
@@ -531,6 +705,8 @@
     renderStudy();
   };
   window.exitStudy = function () {
+    // Batch 3 §3.6/§3.11: transient review exits back to its origin list.
+    if (study.transient) { returnToOrigin(); return; }
     // B3: normal exit = "Lưu và về trang chủ" — KEEP the unfinished session.
     // Only explicit discard (Bỏ bài on the home resume card), finish, or a
     // fresh restart may replace it. Transient single-question reviews persist
@@ -545,7 +721,7 @@
   window.discardStudy = function () {
     LddStore.clearSession();
     activeKind = null;
-    study = { list: [], idx: 0, answers: [], transient: false };
+    study = { list: [], idx: 0, answers: [], transient: false, origin: null };
     renderHome();
   };
 
@@ -568,6 +744,20 @@
   }
 
   /* ---------- exam ---------- */
+  // Batch 3 §3.7: default path obvious — button echoes current selection.
+  function updateExamStartBtn() {
+    try {
+      var c = document.querySelector('#exam-count-chips .chip.on');
+      var t = document.querySelector('#exam-time-chips .chip.on');
+      var n = c ? c.textContent.trim() : '20 câu';
+      var m = t ? t.textContent.trim() : '20 phút';
+      var b = $('exam-start-btn');
+      if (b) b.textContent = 'Bắt đầu thi · ' + n + ' · ' + m;
+      var hint = $('exam-default-hint');
+      if (hint) hint.textContent = 'Mặc định: 20 câu · 20 phút — nhấn Bắt đầu thi là làm ngay. Đang chọn: ' + n + ' · ' + m + '.';
+    } catch (e) {}
+  }
+  window.updateExamStartBtn = updateExamStartBtn;
   // Batch 2 §9: chips expose selection programmatically.
   function syncChips() {
     document.querySelectorAll('.chips .chip').forEach(function (x) {
@@ -580,12 +770,14 @@
       document.querySelectorAll('#exam-count-chips .chip').forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); });
       c.classList.add('on');
       c.setAttribute('aria-pressed', 'true');
+      updateExamStartBtn();
     }
     var t = e.target.closest && e.target.closest('#exam-time-chips .chip');
     if (t) {
       document.querySelectorAll('#exam-time-chips .chip').forEach(function (x) { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); });
       t.classList.add('on');
       t.setAttribute('aria-pressed', 'true');
+      updateExamStartBtn();
     }
   });
 
@@ -643,7 +835,7 @@
     $('exam-sub').textContent = 'Câu ' + (exam.idx + 1) + ' / ' + total;
     $('exam-pill').textContent = 'Câu ' + (exam.idx + 1);
     var answeredCount = exam.answers.filter(function (a) { return a >= 0; }).length;
-    $('exam-counter').textContent = answeredCount + '/' + total + ' đã trả lời';
+    $('exam-counter').textContent = 'Đã trả lời ' + answeredCount + ' / ' + total;
     $('exam-progress').style.width = (exam.idx / total * 100) + '%';
     $('exam-q').textContent = q.q;
     var cat = $('exam-cat');
@@ -696,16 +888,33 @@
     window.scrollTo(0, 0);
   };
   window.confirmExitExam = function () {
-    if (confirm('Thoát bài thi? Kết quả sẽ không được lưu.')) {
-      clearInterval(exam.timerId);
-      LddStore.clearSession();
-      activeKind = null;
-      show('home');
-    }
+    showModal({
+      title: 'Thoát bài thi?',
+      msg: 'Bài thi chưa nộp sẽ không được chấm. Bài làm dở vẫn được giữ để tiếp tục.',
+      safeLabel: 'Ở lại làm bài',
+      dangerLabel: 'Thoát (giữ bài dở)',
+      onSafe: function () {},
+      onDanger: function () {
+        clearInterval(exam.timerId);
+        // Keep the session so Home offers Tiếp tục; do not delete progress.
+        try { persistSession(); } catch (e) {}
+        activeKind = null;
+        show('home');
+      }
+    });
   };
   window.confirmSubmitExam = function () {
     var blank = exam.answers.filter(function (a) { return a < 0; }).length;
-    if (confirm(blank > 0 ? 'Còn ' + blank + ' câu chưa trả lời. Vẫn nộp bài?' : 'Nộp bài thi?')) submitExam();
+    showModal({
+      title: 'Nộp bài thi?',
+      msg: blank > 0
+        ? 'Còn ' + blank + ' câu chưa trả lời. Bạn có thể quay lại kiểm tra trước khi nộp.'
+        : 'Bạn đã trả lời hết. Nộp bài để xem kết quả?',
+      safeLabel: 'Tiếp tục làm bài',
+      dangerLabel: 'Nộp bài',
+      onSafe: function () {},
+      onDanger: function () { submitExam(); }
+    });
   };
 
   function submitExam() {
@@ -745,7 +954,8 @@
       var chosenText = d.chosen >= 0 ? LETTERS[d.chosen] + '. ' + escapeHtml(d.q.o[d.chosen]) : '(chưa trả lời)';
       div.innerHTML = '<div class="rq">Câu ' + (i + 1) + ': ' + escapeHtml(d.q.q) + '</div>' +
         '<div class="ra">Đáp án đúng: <b>' + LETTERS[d.q.c] + '. ' + escapeHtml(d.q.o[d.q.c]) + '</b><br>' +
-        (d.ok ? '✓ Bạn chọn đúng' : '✗ Bạn chọn: <span class="wrong-ans">' + chosenText + '</span>') + '</div>';
+        (d.ok ? '✓ Bạn chọn đúng' : (d.chosen >= 0 ? '✗ Bạn chọn: <span class="wrong-ans">' + chosenText + '</span>' : '✗ Bạn chưa trả lời')) +
+        (d.q.e ? '<br><br>💡 ' + escapeHtml(d.q.e) : '') + '</div>';
       rev.appendChild(div);
     });
     LddStore.pushHistory({ type: 'Thi thử', setId: activeSetId, score: correct, total: total, date: Date.now(), time: usedTime });
@@ -755,12 +965,20 @@
   }
 
   /* ---------- wrong / star / history / search (composite keys) ---------- */
-  window.openList = function (type) {
+  window.openList = function (type, setId, keepScroll) {
+    if (!keepScroll) lastListScroll = 0;
     var ids = type === 'wrong' ? LddStore.getWrong() : LddStore.getStars();
+    if (setId) {
+      ids = ids.filter(function (k) {
+        var q = LddStore.questionById(cache, k);
+        return q && q.setId === setId;
+      });
+    }
     // ignore stale keys whose questions were removed from newer content
     ids = ids.filter(function (k) { return LddStore.questionById(cache, k); });
+    var scope = setId ? ' · ' + setTitleOf(setId) : '';
     $('list-title').textContent = type === 'wrong' ? '❌ Câu đã sai' : '⭐ Câu đã đánh dấu';
-    $('list-sub').textContent = ids.length + ' câu';
+    $('list-sub').textContent = ids.length + ' câu' + scope;
     var cont = $('list-content');
     cont.innerHTML = '';
     if (!ids.length) {
@@ -774,24 +992,29 @@
       if (!q) return;
       var b = document.createElement('button');
       b.className = 'list-item';
+      b.setAttribute('aria-label', escapeHtml(q.q));
       b.innerHTML = '<span class="ltxt"><b>' + escapeHtml(setTitleOf(q.setId)) + '</b><br>' + escapeHtml(q.q) + '</span>';
-      b.onclick = function () { openSingleQuestion(k); };
+      b.onclick = function () {
+        lastListScroll = window.scrollY || 0;
+        openSingleQuestion(k, { type: type, setId: setId || q.setId });
+      };
       cont.appendChild(b);
     });
     show('list');
   };
 
-  function openSingleQuestion(k) {
+  function openSingleQuestion(k, origin) {
     var q = LddStore.questionById(cache, k);
     if (!q) { toast('Câu này đã bị gỡ khỏi bộ đề'); return; }
     activeSetId = q.setId;
     // Transient review: in-memory only, never overwrites a kept session.
-    study = { list: [q], idx: 0, answers: [-1], transient: true };
+    study = { list: [q], idx: 0, answers: [-1], transient: true, origin: origin || { type: 'list' } };
     activeKind = 'study';
-    $('study-title').textContent = 'Ôn tập — ' + setTitleOf(activeSetId);
+    updateStudyHeader();
     show('study');
     renderStudy();
   }
+  window.openSingleQuestion = openSingleQuestion;
 
   function renderHistory() {
     var cont = $('hist-content');
@@ -815,9 +1038,14 @@
   }
 
   window.doSearch = function () {
-    var kw = ($('search-input').value || '').trim().toLowerCase();
+    var raw = ($('search-input').value || '');
+    lastSearchQuery = raw.trim();
+    var kw = lastSearchQuery.toLowerCase();
     var cont = $('search-results');
     cont.innerHTML = '';
+    var countEl = document.createElement('p');
+    countEl.className = 'set-meta';
+    countEl.id = 'search-count';
     if (!kw) {
       cont.innerHTML = '<div class="empty-state"><div class="big">🔍</div><p>Nhập từ khóa để tìm câu hỏi</p></div>';
       return;
@@ -830,14 +1058,22 @@
     });
     results = results.slice(0, 100);
     if (!results.length) {
-      cont.innerHTML = '<div class="empty-state"><div class="big">😕</div><p>Không tìm thấy câu hỏi nào</p></div>';
+      cont.innerHTML = '<div class="empty-state"><div class="big">😕</div><p>Không tìm thấy câu hỏi nào cho “' + escapeHtml(lastSearchQuery) + '”</p></div>';
       return;
     }
+    var info = document.createElement('p');
+    info.className = 'set-meta';
+    info.id = 'search-count';
+    info.textContent = 'Tìm thấy ' + results.length + ' câu cho “' + lastSearchQuery + '”';
+    cont.appendChild(info);
     results.forEach(function (q) {
       var b = document.createElement('button');
       b.className = 'list-item';
       b.innerHTML = '<span class="ltxt"><b>' + escapeHtml(setTitleOf(q.setId)) + '</b><br>' + escapeHtml(q.q) + '</span>';
-      b.onclick = function () { openSingleQuestion(LddStore.key(q.setId, q.id)); };
+      b.onclick = function () {
+        lastSearchScroll = window.scrollY || 0;
+        openSingleQuestion(LddStore.key(q.setId, q.id), { type: 'search', query: lastSearchQuery });
+      };
       cont.appendChild(b);
     });
   };
@@ -896,9 +1132,10 @@
       var answers = Array.isArray(s.answers) && s.answers.length === list.length
         ? s.answers.map(function (a) { return (a === 0 || a === 1 || a === 2 || a === 3) ? a : -1; })
         : list.map(function () { return -1; });
-      study = { list: list, idx: Math.min(s.idx || 0, list.length - 1), answers: answers, transient: false };
+      study = { list: list, idx: Math.min(s.idx || 0, list.length - 1), answers: answers, transient: false, origin: null };
       activeKind = 'study';
-      $('study-title').textContent = 'Ôn tập — ' + setTitleOf(activeSetId);
+      $('study-title').textContent = 'Câu ' + (study.idx + 1) + ' / ' + list.length;
+      $('study-sub').textContent = 'Ôn tập · ' + setTitleOf(activeSetId);
       show('study');
       renderStudy();
       return true;
@@ -937,29 +1174,36 @@
   window.resumeSession = function () {
     var s = LddStore.getSession();
     if (s) restoreSessionNow(s);
-    renderHome();
+    else renderHome();
   };
 
   window.discardSession = function () {
-    LddStore.clearSession();
-    activeKind = null;
-    renderHome();
+    showModal({
+      title: 'Bỏ bài đang làm dở?',
+      msg: 'Bài làm dở sẽ bị xóa khỏi máy. Chỉ bỏ khi bạn chắc chắn muốn làm lại từ đầu.',
+      safeLabel: 'Giữ lại bài',
+      dangerLabel: 'Bỏ bài',
+      onSafe: function () {},
+      onDanger: function () {
+        LddStore.clearSession();
+        activeKind = null;
+        renderHome();
+      }
+    });
   };
 
   function offerResume() {
+    // Batch 3 §3.2: no vague browser confirm. The Home resume card
+    // (renderHome) is the visible resume affordance with full context.
+    // Only drop silently-vanished sessions here.
     var s = LddStore.getSession();
     var keys = sessionKeys(s);
     if (!s || !keys || !keys.length) return;
-    // If the referenced questions vanished from newer content, drop silently.
     var probe = Array.isArray(s.list) && s.list.length === keys.length
       ? s.list.every(validSnapshot)
       : keys.every(function (k) { return LddStore.questionById(cache, k); });
-    if (!probe) { LddStore.clearSession(); return; }
-    var label = s.kind === 'exam' ? 'bài thi' : 'bài ôn';
-    setTimeout(function () {
-      if (!confirm('Bạn còn ' + label + ' đang làm dở. Tiếp tục?')) { LddStore.clearSession(); renderHome(); return; }
-      restoreSessionNow(LddStore.getSession());
-    }, 600);
+    if (!probe) { LddStore.clearSession(); renderHome(); return; }
+    renderHome();
   }
 
   /* ---------- service worker: APP VERSION update flow ----------
