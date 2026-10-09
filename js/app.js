@@ -148,7 +148,33 @@
   // Keep "Tiếp tục bài đang làm" wired directly to resumeSession(), never here.
   // All other persisted data (stars, wrong list, history, preferences) is untouched.
   function guardReplaceSession(kind, setId, isWrong, wrongScope, proceed) {
-    proceed();
+    var kept = keptSession();
+    if (!kept) { proceed(); return; }
+    var isSame = (kind === 'study' && sameStudySession(kept, setId, isWrong, wrongScope)) ||
+                 (kind === 'exam' && sameExamSession(kept, setId));
+    if (isSame) {
+      showModal({
+        title: 'Bài này đang làm dở?',
+        msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Muốn tiếp tục bài đó hay làm lại từ đầu?',
+        safeLabel: 'Tiếp tục bài đang làm',
+        dangerLabel: 'Làm lại từ đầu',
+        cancelLabel: 'Để sau',
+        onSafe: function () { window.resumeSession(); },
+        onDanger: function () { proceed(); },
+        onCancel: function () {}
+      });
+      return;
+    }
+    showModal({
+      title: 'Bài đang làm dở?',
+      msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Bắt đầu bài mới sẽ xóa bài đang làm dở này.',
+      safeLabel: 'Tiếp tục bài đang làm',
+      dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
+      cancelLabel: 'Để sau',
+      onSafe: function () { window.resumeSession(); },
+      onDanger: function () { proceed(); },
+      onCancel: function () {}
+    });
   }
 
   // Progress counts actual answers, not the current question position.
