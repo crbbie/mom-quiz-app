@@ -258,6 +258,14 @@
       if (cur && cur.id === 'screen-list') lastListScroll = window.scrollY || 0;
       if (cur && cur.id === 'screen-search') lastSearchScroll = window.scrollY || 0;
     } catch (e0) {}
+    // Answer-view fix: a pending anchor-scroll timer must never fire on a
+    // newly shown screen. Clear it whenever we navigate away from viewing.
+    try {
+      if (screenId !== 'view' && typeof viewPlaceTimer !== 'undefined' && viewPlaceTimer) {
+        clearTimeout(viewPlaceTimer);
+        viewPlaceTimer = null;
+      }
+    } catch (eT) {}
     document.querySelectorAll('.screen').forEach(function (s) { s.classList.remove('active'); });
     var el = $('screen-' + screenId);
     if (el) el.classList.add('active');
@@ -606,28 +614,11 @@
           : 'Ngoại tuyến — cần mạng cho lần mở đầu tiên.';
         setSyncStatus('off', navigator.onLine ? 'Chưa có dữ liệu' : 'Ngoại tuyến — cần mạng cho lần đầu');
       } else {
+        // Home → Xem đáp án always starts at the first card of the scope;
+        // no resume hint is shown (the saved view position is only updated
+        // silently while reading, never used to jump on open).
         var nq = questionsOf(setObj.id).length;
-        var vh = '';
-        try {
-          var vk = (LddStore.getViewPos() || {})[setObj.id];
-          if (vk) {
-            var vl = questionsOf(setObj.id);
-            for (var vi = 0; vi < vl.length; vi++) {
-              if (LddStore.key(vl[vi].setId, vl[vi].id) === vk && vi > 0) {
-                vh = ' · Tiếp tục xem từ câu ' + (vi + 1);
-                break;
-              }
-            }
-          }
-        } catch (eV) {}
-        desc.innerHTML = '';
-        desc.appendChild(document.createTextNode(setObj.description || (nq + ' câu hỏi trong bộ đề này.')));
-        if (vh) {
-          var vhs = document.createElement('span');
-          vhs.className = 'view-resume-hint';
-          vhs.textContent = vh;
-          desc.appendChild(vhs);
-        }
+        desc.textContent = setObj.description || (nq + ' câu hỏi trong bộ đề này.');
       }
     }
 
@@ -641,9 +632,13 @@
       st.className = 'set-tools';
       st.innerHTML =
         '<button class="btn ghost small" data-act="wrong">Ôn câu sai · ' + nw + ' câu</button>' +
+        '<button class="btn ghost small" data-act="wronglist">Quản lý</button>' +
         '<button class="btn ghost small" data-act="star">Câu đã lưu (' + ns + ')</button>';
       st.querySelector('[data-act="wrong"]').onclick = (function (sid) {
         return function () { window.startWrongStudy(sid); };
+      })(setObj.id);
+      st.querySelector('[data-act="wronglist"]').onclick = (function (sid) {
+        return function () { openList('wrong', sid); };
       })(setObj.id);
       st.querySelector('[data-act="star"]').onclick = (function (sid) {
         return function () { openList('star', sid); };
@@ -704,6 +699,8 @@
         '<button class="tool-row wrong" id="tile-wrong"><span class="tool-ico" aria-hidden="true">✖</span>' +
         '<span class="tool-txt"><b>Ôn câu sai · ' + wrongTotal + ' câu</b></span>' +
         '<span class="count-badge">' + wrongTotal + '</span><span class="tool-go" aria-hidden="true">›</span></button>' +
+        '<button class="tool-row manage" id="tile-wrong-manage"><span class="tool-ico" aria-hidden="true">🗂</span>' +
+        '<span class="tool-txt"><b>Quản lý câu sai</b><small>Xem danh sách, xóa từng câu hoặc tất cả</small></span><span class="tool-go" aria-hidden="true">›</span></button>' +
         '<div class="tool-grid">' +
         '<button class="tool-row" id="tile-star"><span class="tool-ico" aria-hidden="true">⭐</span>' +
         '<span class="tool-txt"><b>Câu đã lưu</b><small>' + starTotal + ' câu quan trọng</small></span><span class="tool-go" aria-hidden="true">›</span></button>' +
@@ -714,6 +711,7 @@
         '<span class="tool-txt"><b>Tìm kiếm</b><small>Tra cứu nhanh</small></span><span class="tool-go" aria-hidden="true">›</span></button>';
       tools.appendChild(wrap);
       tools.querySelector('#tile-wrong').onclick = function () { window.startWrongStudy(null); };
+      tools.querySelector('#tile-wrong-manage').onclick = function () { openList('wrong'); };
       tools.querySelector('#tile-star').onclick = function () { openList('star'); };
       tools.querySelector('#tile-history').onclick = function () { show('history'); };
       tools.querySelector('#tile-search').onclick = function () { show('search'); };
@@ -1498,13 +1496,35 @@
     var sid = setId || activeSetId;
     var list = questionsOf(sid);
     if (!list.length) { toast('Bộ đề này chưa có câu hỏi'); return; }
-    var idx = viewResumeIndex(sid, list);
-    openViewAt(list[idx].setId, list[idx].id, { type: 'home', setId: list[idx].setId });
+    // Home entry always starts at the first card of the scope — never read
+    // the saved view position to pick the opening question.
+    openViewAt(list[0].setId, list[0].id, { type: 'home', setId: list[0].setId });
   };
+  // Instant (non-animated) scrolling that wins over html{scroll-behavior:smooth}.
+  function scrollTopInstant() {
+    try { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); }
+    catch (e) {
+      try { window.scrollTo(0, 0); } catch (e2) {}
+    }
+  }
+  function scrollCardInstant(card) {
+    try {
+      if (card && typeof card.scrollIntoView === 'function') {
+        card.scrollIntoView({ block: 'start', behavior: 'auto' });
+        return;
+      }
+    } catch (e) {}
+    try { window.scrollTo(0, (card && card.offsetTop) || 0); } catch (e2) {}
+  }
   function openViewAt(setId, qid, origin) {
+    // A stale anchor timer from a previous open must never scroll the new screen.
+    if (viewPlaceTimer) { clearTimeout(viewPlaceTimer); viewPlaceTimer = null; }
     var full = questionsOf(setId);
     if (!full.length) { toast('Bộ đề này chưa có câu hỏi'); return; }
     var org = origin || { type: 'home', setId: setId };
+    // Only a user-chosen destination (search / saved-question tap) may
+    // scroll to an anchor card. Home always opens at the top (first card).
+    var wantAnchor = org.type === 'search' || org.type === 'star';
     // Search/star origins always open the full set scope so a hidden topic
     // filter can never swallow the chosen question.
     var anchorKey = LddStore.key(setId, qid);
@@ -1523,7 +1543,15 @@
     // overwrite an unfinished Study/Exam session.
     show('view');
     renderView();
-    placeViewAnchor(true);
+    if (wantAnchor) {
+      ensureAnchorRendered();
+      placeViewAnchor(true);
+    } else {
+      // Home entry: stay at the very top (first card). show('view') already
+      // scrolled to top; re-assert instantly after the DOM was built so a
+      // restored smooth-scroll position can never linger.
+      scrollTopInstant();
+    }
   }
   window.openViewAt = openViewAt;
   // Topic filter applies ONLY to home-origin answer viewing of the combined set.
@@ -1646,27 +1674,43 @@
     qt.textContent = q.q;
     card.appendChild(qt);
 
-    // Correct answer DIRECTLY from course data — never inferred.
+    // All four options VERBATIM from course data, in A–D order. Only the
+    // index stored in q.c is marked as the correct answer — never inferred
+    // from wording (covers combined options like "Cả A và C đúng" without
+    // parsing text or touching the answer key). Read-only: no quiz handlers.
     var ans = document.createElement('div');
     ans.className = 'options';
-    var d = document.createElement('div');
-    d.className = 'opt correct';
-    d.setAttribute('role', 'note');
-    d.setAttribute('aria-label', 'Đáp án đúng ' + LETTERS[q.c] + ': ' + q.o[q.c]);
-    var letter = document.createElement('span');
-    letter.className = 'letter';
-    letter.setAttribute('aria-hidden', 'true');
-    letter.textContent = LETTERS[q.c];
-    var otext = document.createElement('span');
-    otext.className = 'otext';
-    otext.textContent = q.o[q.c];
-    var tag = document.createElement('span');
-    tag.className = 'tag';
-    tag.textContent = '✓ Đáp án đúng';
-    d.appendChild(letter);
-    d.appendChild(otext);
-    d.appendChild(tag);
-    ans.appendChild(d);
+    ans.setAttribute('role', 'list');
+    ans.setAttribute('aria-label', 'Các phương án (đáp án đúng là ' + LETTERS[q.c] + ')');
+    for (var oi = 0; oi < q.o.length; oi++) {
+      (function (i) {
+        var isRight = (i === q.c);
+        var d = document.createElement('div');
+        d.className = 'opt' + (isRight ? ' correct' : '');
+        d.setAttribute('role', 'listitem');
+        if (isRight) {
+          d.setAttribute('aria-label', 'Đáp án đúng ' + LETTERS[i] + ': ' + q.o[i]);
+        } else {
+          d.setAttribute('aria-label', 'Phương án ' + LETTERS[i] + ': ' + q.o[i]);
+        }
+        var letter = document.createElement('span');
+        letter.className = 'letter';
+        letter.setAttribute('aria-hidden', 'true');
+        letter.textContent = LETTERS[i];
+        var otext = document.createElement('span');
+        otext.className = 'otext';
+        otext.textContent = q.o[i];
+        d.appendChild(letter);
+        d.appendChild(otext);
+        if (isRight) {
+          var tag = document.createElement('span');
+          tag.className = 'tag';
+          tag.textContent = '✓ Đáp án đúng';
+          d.appendChild(tag);
+        }
+        ans.appendChild(d);
+      })(oi);
+    }
     card.appendChild(ans);
 
     // ONLY the existing explanation from data, when present.
@@ -1747,7 +1791,10 @@
     return null;
   }
   // Position the anchor card in view exactly once per open/filter change —
-  // never while the learner is reading.
+  // never while the learner is reading. Only called for user-chosen
+  // destinations (search/star taps, deliberate topic-filter changes); the
+  // Home entry never calls this. Always instant (behavior:'auto') so
+  // html{scroll-behavior:smooth} cannot turn it into an animation.
   function placeViewAnchor() {
     if (!view.active) return;
     if (viewPlaceTimer) { clearTimeout(viewPlaceTimer); viewPlaceTimer = null; }
@@ -1756,10 +1803,7 @@
       if (!view.active || !view.anchorKey) return;
       var card = viewCardByKey(view.anchorKey);
       if (!card) return;
-      try {
-        if (typeof card.scrollIntoView === 'function') card.scrollIntoView({ block: 'start' });
-        else window.scrollTo(0, card.offsetTop || 0);
-      } catch (e) {}
+      scrollCardInstant(card);
     }, 60);
   }
   // The card currently at the top of the viewport (below the sticky bar).
@@ -1904,8 +1948,60 @@
   };
 
   /* ---------- wrong / star / history / search (composite keys) ---------- */
+  // Currently rendered management list — kept so a delete can re-render the
+  // same scope (type + setId) without losing the learner's place.
+  var listState = { type: 'star', setId: null };
+  function renderListActions(type, setId, ids) {
+    var bar = $('list-actions');
+    if (!bar) return;
+    bar.innerHTML = '';
+    // The saved-question list keeps its own behavior: no delete controls.
+    if (type !== 'wrong') return;
+    if (!ids.length) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'manage-bar';
+    function dangerBtn(label, aria, onclick) {
+      var b = document.createElement('button');
+      b.className = 'btn danger-soft manage-btn';
+      b.textContent = label;
+      b.setAttribute('aria-label', aria);
+      b.onclick = onclick;
+      wrap.appendChild(b);
+      return b;
+    }
+    if (setId) {
+      (function (nScope) {
+        dangerBtn('Xóa câu sai bộ đề này (' + nScope + ')',
+          'Xóa ' + nScope + ' câu sai của ' + setTitleOf(setId),
+          function () { confirmClearWrong(setId); });
+      })(ids.length);
+      var totalAll = 0;
+      try { totalAll = LddStore.getWrong().length; } catch (eT) {}
+      if (totalAll > ids.length) {
+        (function (nAll) {
+          dangerBtn('Xóa tất cả câu sai (' + nAll + ')',
+            'Xóa tất cả ' + nAll + ' câu sai',
+            function () { confirmClearWrong(null); });
+        })(totalAll);
+      }
+    } else {
+      (function (nAll2) {
+        dangerBtn('Xóa tất cả câu sai (' + nAll2 + ')',
+          'Xóa tất cả ' + nAll2 + ' câu sai',
+          function () { confirmClearWrong(null); });
+      })(ids.length);
+    }
+    bar.appendChild(wrap);
+  }
   window.openList = function (type, setId, keepScroll) {
     if (!keepScroll) lastListScroll = 0;
+    listState = { type: type, setId: setId || null };
+    renderList(type, setId);
+  };
+  function renderList(type, setId) {
+    type = type || listState.type;
+    setId = (setId === undefined) ? listState.setId : (setId || null);
+    listState = { type: type, setId: setId };
     var ids = type === 'wrong' ? LddStore.getWrong() : LddStore.getStars();
     if (setId) {
       ids = ids.filter(function (k) {
@@ -1920,6 +2016,7 @@
     // Batch E: starred taps open answer VIEWING — say so. Wrong taps stay
     // PRACTICE (transient quiz), unchanged.
     $('list-sub').textContent = ids.length + ' câu' + (type === 'star' ? ' · chạm để xem đáp án' : '') + scope;
+    renderListActions(type, setId, ids);
     var cont = $('list-content');
     cont.innerHTML = '';
     if (!ids.length) {
@@ -1931,24 +2028,94 @@
     ids.forEach(function (k) {
       var q = LddStore.questionById(cache, k);
       if (!q) return;
-      var b = document.createElement('button');
-      b.className = 'list-item';
-      b.setAttribute('aria-label', escapeHtml(q.q));
-      b.innerHTML = '<span class="ltxt"><b>' + escapeHtml(setTitleOf(q.setId)) + '</b><br>' + escapeHtml(q.q) + '</span>';
-      b.onclick = function () {
-        lastListScroll = window.scrollY || 0;
-        if (type === 'star') {
-          // Batch E: saved questions open in read-only answer viewing.
-          openViewAt(q.setId, q.id, { type: type, setId: setId || null, scroll: window.scrollY || 0 });
-        } else {
+      if (type === 'wrong') {
+        // Row container: the open button and the delete button are siblings
+        // (never nested) so a delete tap cannot also open the question.
+        var row = document.createElement('div');
+        row.className = 'list-row';
+        row.setAttribute('data-key', k);
+        var b = document.createElement('button');
+        b.className = 'list-item list-open';
+        b.setAttribute('aria-label', 'Ôn câu ' + escapeHtml(q.q));
+        b.innerHTML = '<span class="ltxt"><b>' + escapeHtml(setTitleOf(q.setId)) + '</b><br>' + escapeHtml(q.q) + '</span>';
+        b.onclick = function () {
+          lastListScroll = window.scrollY || 0;
           // Wrong-question taps stay PRACTICE (transient single-question quiz).
           openSingleQuestion(k, { type: type, setId: setId || null });
-        }
-      };
-      cont.appendChild(b);
+        };
+        var del = document.createElement('button');
+        del.className = 'icon-del';
+        del.textContent = '✕';
+        del.setAttribute('aria-label', 'Xóa câu sai: ' + q.q);
+        del.setAttribute('title', 'Xóa khỏi danh sách câu sai');
+        del.onclick = function () { deleteWrongKey(k); };
+        row.appendChild(b);
+        row.appendChild(del);
+        cont.appendChild(row);
+      } else {
+        var b2 = document.createElement('button');
+        b2.className = 'list-item';
+        b2.setAttribute('aria-label', escapeHtml(q.q));
+        b2.innerHTML = '<span class="ltxt"><b>' + escapeHtml(setTitleOf(q.setId)) + '</b><br>' + escapeHtml(q.q) + '</span>';
+        b2.onclick = function () {
+          lastListScroll = window.scrollY || 0;
+          // Batch E: saved questions open in read-only answer viewing.
+          openViewAt(q.setId, q.id, { type: type, setId: setId || null, scroll: window.scrollY || 0 });
+        };
+        cont.appendChild(b2);
+      }
     });
     show('list');
-  };
+  }
+  // Immediate single delete (no confirm): removes ONLY the exact composite
+  // key, re-renders the same scope and syncs Home counts. Never touches the
+  // session slot or the in-memory study list of an open wrong-review session.
+  function deleteWrongKey(k) {
+    var q = LddStore.questionById(cache, k);
+    LddStore.removeWrong(k);
+    try { renderHome(); } catch (eH) {}
+    renderList(listState.type, listState.setId);
+    toast(q ? 'Đã xóa câu sai khỏi danh sách' : 'Đã xóa');
+  }
+  window.deleteWrongKey = deleteWrongKey;
+  // Scoped or global wrong-clear behind ONE confirm dialog. Cancel writes
+  // nothing. Only ldd_wrong_v2 is written — session/stars/history untouched.
+  function confirmClearWrong(setId) {
+    var all = [];
+    try { all = LddStore.getWrong(); } catch (eG) {}
+    var inScope = setId
+      ? all.filter(function (k) {
+          var q = LddStore.questionById(cache, k);
+          return q && q.setId === setId;
+        })
+      : all.slice();
+    if (!inScope.length) { toast('Không có gì để xóa'); return; }
+    var scopeLabel = setId ? 'của ' + setTitleOf(setId) : 'trên tất cả bộ đề';
+    showModal({
+      title: 'Xóa câu sai?',
+      msg: 'Sẽ xóa ' + inScope.length + ' câu sai ' + scopeLabel + '. Câu hỏi trong bộ đề vẫn giữ nguyên; chỉ trạng thái “đã sai” bị xóa.',
+      safeLabel: 'Giữ lại',
+      dangerLabel: 'Xóa ' + inScope.length + ' câu',
+      cancelLabel: 'Hủy',
+      hideCancel: false,
+      onSafe: function () {},
+      onCancel: function () {},
+      onDanger: function () {
+        if (setId) {
+          var drop = {};
+          inScope.forEach(function (k) { drop[k] = true; });
+          var kept = all.filter(function (k) { return !drop[k]; });
+          LddStore.setWrong(kept);
+        } else {
+          LddStore.clearWrong();
+        }
+        try { renderHome(); } catch (eH2) {}
+        renderList(listState.type, listState.setId);
+        toast('Đã xóa ' + inScope.length + ' câu sai');
+      }
+    });
+  }
+  window.confirmClearWrong = confirmClearWrong;
 
   function openSingleQuestion(k, origin) {
     var q = LddStore.questionById(cache, k);
@@ -1967,22 +2134,84 @@
     var cont = $('hist-content');
     var h = LddStore.getHistory();
     $('hist-sub').textContent = h.length + ' bài';
+    var bar = $('hist-actions');
+    if (bar) {
+      bar.innerHTML = '';
+      if (h.length) {
+        var wrap = document.createElement('div');
+        wrap.className = 'manage-bar';
+        var clearBtn = document.createElement('button');
+        clearBtn.className = 'btn danger-soft manage-btn';
+        clearBtn.textContent = 'Xóa tất cả lịch sử (' + h.length + ')';
+        clearBtn.setAttribute('aria-label', 'Xóa tất cả ' + h.length + ' bản ghi lịch sử');
+        clearBtn.onclick = function () { confirmClearHistory(); };
+        wrap.appendChild(clearBtn);
+        bar.appendChild(wrap);
+      }
+    }
     cont.innerHTML = '';
     if (!h.length) {
       cont.innerHTML = '<div class="empty-state"><div class="big">🕘</div><p>Chưa có lịch sử làm bài.</p></div>';
       return;
     }
-    h.forEach(function (e) {
+    h.forEach(function (e, idx) {
       var pct = e.total ? Math.round(e.score / e.total * 100) : 0;
+      var row = document.createElement('div');
+      row.className = 'hist-row';
       var div = document.createElement('div');
-      div.className = 'hist-item';
+      div.className = 'hist-item hist-main';
       div.innerHTML = '<div class="h-left"><b>' + escapeHtml(e.type) +
         (e.setId ? ' · ' + escapeHtml(setTitleOf(e.setId)) : '') +
         (e.time ? ' · ' + fmtTime(e.time) : '') + '</b><small>' + fmtDate(e.date) + '</small></div>' +
         '<div class="h-score ' + (pct >= 80 ? 'high' : pct < 50 ? 'low' : '') + '">' + e.score + '/' + e.total + '</div>';
-      cont.appendChild(div);
+      var del = document.createElement('button');
+      del.className = 'icon-del';
+      del.textContent = '✕';
+      // Position-based identity: duplicate scores/dates never collide.
+      del.setAttribute('aria-label', 'Xóa bản ghi lịch sử thứ ' + (idx + 1) + ': ' + e.type + ' ' + e.score + '/' + e.total);
+      del.setAttribute('title', 'Xóa bản ghi này');
+      (function (pos) {
+        del.onclick = function () { deleteHistoryAt(pos); };
+      })(idx);
+      row.appendChild(div);
+      row.appendChild(del);
+      cont.appendChild(row);
     });
   }
+  // Immediate single delete by rendered position — removes exactly one
+  // record even when several share type/score/date. Only ldd_history_v1
+  // is written; wrong/stars/session/prefs/viewPos/cache untouched.
+  function deleteHistoryAt(idx) {
+    var removed = LddStore.removeHistoryAt(idx);
+    renderHistory();
+    try { renderHome(); } catch (eH3) {}
+    toast(removed ? 'Đã xóa bản ghi lịch sử' : 'Không xóa được bản ghi này');
+  }
+  window.deleteHistoryAt = deleteHistoryAt;
+  // Full history clear behind ONE confirm dialog. Cancel writes nothing.
+  function confirmClearHistory() {
+    var h = [];
+    try { h = LddStore.getHistory(); } catch (eG2) {}
+    if (!h.length) { toast('Không có gì để xóa'); return; }
+    var n = h.length;
+    showModal({
+      title: 'Xóa lịch sử?',
+      msg: 'Sẽ xóa tất cả ' + n + ' bản ghi lịch sử làm bài trên máy này. Câu đã lưu, câu sai và bài đang làm dở không bị ảnh hưởng.',
+      safeLabel: 'Giữ lại',
+      dangerLabel: 'Xóa ' + n + ' bản ghi',
+      cancelLabel: 'Hủy',
+      hideCancel: false,
+      onSafe: function () {},
+      onCancel: function () {},
+      onDanger: function () {
+        LddStore.clearHistory();
+        renderHistory();
+        try { renderHome(); } catch (eH4) {}
+        toast('Đã xóa ' + n + ' bản ghi lịch sử');
+      }
+    });
+  }
+  window.confirmClearHistory = confirmClearHistory;
 
   window.doSearch = function () {
     var raw = ($('search-input').value || '');

@@ -78,10 +78,37 @@
   function setStars(a) { write(K.stars, a); }
   function getWrong() { return read(K.wrong, []); }
   function setWrong(a) { write(K.wrong, a); }
+  // Delete exactly one wrong key by exact composite-key match.
+  function removeWrong(k) {
+    var arr = read(K.wrong, []);
+    var out = arr.filter(function (x) { return x !== k; });
+    if (out.length !== arr.length) write(K.wrong, out);
+    return arr.length - out.length;
+  }
+  function clearWrong() { write(K.wrong, []); }
   function getHistory() { return read(K.history, []); }
-  function pushHistory(h) {
+  function setHistory(a) { write(K.history, Array.isArray(a) ? a.slice(0, 50) : []); }
+  // Delete exactly one history record BY POSITION (the snapshot rendered at
+  // tap time). Records may share type/setId/score/date, so field matching
+  // could hit several rows — splice(index, 1) removes only the chosen one.
+  function removeHistoryAt(idx) {
     var arr = read(K.history, []);
-    arr.unshift(h);
+    if (idx < 0 || idx >= arr.length) return null;
+    var removed = arr.splice(idx, 1)[0];
+    write(K.history, arr);
+    return removed;
+  }
+  function clearHistory() { write(K.history, []); }
+  function pushHistory(h) {
+    var rec = (h && typeof h === 'object') ? h : {};
+    // Stable per-record id for new entries; legacy records without one keep
+    // working (position-based delete covers both).
+    if (typeof rec.id !== 'string' || !rec.id) {
+      try { rec.id = 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+      catch (e) { rec.id = 'h' + Date.now(); }
+    }
+    var arr = read(K.history, []);
+    arr.unshift(rec);
     if (arr.length > 50) arr.length = 50;
     write(K.history, arr);
   }
@@ -204,7 +231,9 @@
     allQuestions: allQuestions, questionById: questionById,
     getStars: getStars, setStars: setStars,
     getWrong: getWrong, setWrong: setWrong,
-    getHistory: getHistory, pushHistory: pushHistory,
+    removeWrong: removeWrong, clearWrong: clearWrong,
+    getHistory: getHistory, setHistory: setHistory,
+    removeHistoryAt: removeHistoryAt, clearHistory: clearHistory, pushHistory: pushHistory,
     getPrefs: getPrefs, setPrefs: setPrefs,
     getSession: getSession, setSession: setSession, clearSession: clearSession,
     getViewPos: getViewPos, setViewPos: setViewPos,

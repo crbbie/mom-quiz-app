@@ -28,7 +28,8 @@ t('home order: study before view before exam', (() => {
 })());
 t('view action is a clear mode row (full width by layout)', html.indexOf('data-mode="view"') >= 0 && /\.mode-list\{[^}]*flex-direction:\s*column/.test(css));
 t('modes always stack vertically (never cramped side-by-side)', /\.mode-list\{[^}]*flex-direction:\s*column/.test(css));
-t('resume hint small (Tiếp tục xem từ câu N, no large card)', app.indexOf('Tiếp tục xem từ câu ') >= 0 && app.indexOf('view-resume-hint') >= 0);
+t('home entry always starts at Q1 (no resume promise)', vb.indexOf('Home entry always starts at the first card') >= 0);
+t('no resume hint promising old behavior (Tiếp tục xem từ câu N removed)', app.indexOf('Tiếp tục xem từ câu ') < 0);
 
 // ---- view screen: continuous-scroll answer review ----
 t('view screen exists (screen-view)', html.indexOf('id="screen-view"') >= 0);
@@ -53,7 +54,9 @@ t('no single-question prev/next (continuous scroll needs none)', html.indexOf('i
 t('no single-question picker in review (study/exam pickers untouched)', vb.indexOf('openViewPicker') < 0 && app.indexOf('function openViewPicker') < 0 && app.indexOf('openStudyPicker') >= 0 && app.indexOf('openExamPicker') >= 0);
 
 // ---- read-only isolation ----
-t('correct comes DIRECTLY from data (q.o[q.c])', vb.indexOf('q.o[q.c]') >= 0);
+t('all four options rendered verbatim (loop over q.o)', /for\s*\(.*oi.*q\.o\.length/.test(vb) || vb.indexOf('q.o[i]') >= 0);
+t('only options[correct] marked (i === q.c)', vb.indexOf('i === q.c') >= 0);
+t('exactly one .correct per card (className opt + correct)', vb.indexOf("'opt' + (isRight ? ' correct' : '')") >= 0);
 t('no inference/recalc (no search inside view section)', vb.toLowerCase().indexOf('fetch(') < 0 && vb.indexOf('normalizeVi') < 0);
 // ---- explanation guard ----
 t('explanation only when present (non-empty q.e check)', /typeof q\.e === 'string' && q\.e\.trim\(\)/.test(vb));
@@ -76,8 +79,10 @@ t('star tap updates only its own card (no full renderView rebuild)', (() => {
 // ---- viewing position ----
 t('separate position slot (ldd_viewpos_v1)', store.indexOf('ldd_viewpos_v1') >= 0);
 t('position keyed per set (getViewPos/setViewPos)', store.indexOf('getViewPos') >= 0 && store.indexOf('setViewPos') >= 0);
-t('first visit opens Q1 (viewResumeIndex defaults 0)', vb.indexOf('return 0;') >= 0);
-t('later visits resume saved key (stable setId:qid match)', vb.indexOf('LddStore.key(list[i].setId, list[i].id) === k') >= 0);
+t('home entry ignores saved position (always opens Q1)', /openViewAt\(list\[0\]\.setId, list\[0\]\.id/.test(vb));
+t('only search/star destinations anchor-scroll (home never)', vb.indexOf("var wantAnchor = org.type === 'search' || org.type === 'star'") >= 0);
+t('anchor scroll is instant (behavior auto, no animation)', vb.indexOf("behavior: 'auto'") >= 0);
+t('stale anchor timers cleared on open + on show() away from view', vb.indexOf('A stale anchor timer') >= 0);
 
 // ---- picker: review no longer paginates, study/exam pickers intact ----
 t('study/exam pickers intact (openStudyPicker/openExamPicker via renderPicker)', app.indexOf('function openStudyPicker') >= 0 && app.indexOf('function openExamPicker') >= 0);
