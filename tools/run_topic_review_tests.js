@@ -20,5 +20,5 @@ assert(html.includes('id="view-topic-filter"') && html.includes('id="view-topic-
 assert(app.includes('window.changeViewTopic') && app.includes('view.list = next;'), 'Filtered answer navigation missing');
 assert(app.includes("(!view.origin || view.origin.type === 'home')"), 'Single-question review must remain unfiltered');
 assert(app.includes('function guardReplaceSession') && app.includes('proceed();'), 'New session replacement handler missing');
-assert(app.includes('window.resumeSession') && app.includes('resume-continue'), 'Continue session action missing');
+assert(app.includes('window.resumeSession') && app.includes('data-act="resume"'), 'Continue session action missing');
 console.log('OK: 111 IDs unique, 20+20+25+46 topic partition, review filter and session guards checked');
