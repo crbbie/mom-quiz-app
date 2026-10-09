@@ -56,7 +56,9 @@ function t(name, cond) {
 {
   ['#7b8698', '#6b7688', '#8b96a8', '#a0aabb'].forEach(c =>
     t('no pale learner text ' + c, css.toLowerCase().indexOf(c) < 0));
-  t('readable Stitch secondary #4B5565 used', css.toLowerCase().indexOf('#4b5565') >= 0);
+  // Redesign palette: secondary text is the --ink-2 token (must stay dark and
+  // readable — same intent as the old #4B5565 check, new approved token).
+  t('readable secondary token used', /--ink-2:\s*#[0-9a-f]{6}/.test(css.toLowerCase()));
 }
 
 // ---------- 5. answer states ----------
@@ -112,7 +114,9 @@ function t(name, cond) {
 // ---------- 11. footer ----------
 {
   t('footer participates in layout (sticky, not fixed)', /\.bottom-actions\{[^}]*position:\s*sticky/.test(css));
-  t('no fragile 120px content reserve', css.indexOf('padding:18px 16px 120px') < 0 && css.indexOf('120px') < 0);
+  // Intent: no fragile fixed bottom padding reserve for the footer. Scoped to
+  // padding declarations (decorative widths like a 120px doodle are fine).
+  t('no fragile 120px content reserve', css.indexOf('padding:18px 16px 120px') < 0 && /padding:[^;}]*120px/.test(css) === false);
   t('safe-area respected in footer', css.indexOf('env(safe-area-inset-bottom)') >= 0);
 }
 

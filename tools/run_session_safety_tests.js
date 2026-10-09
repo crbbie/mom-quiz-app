@@ -33,8 +33,10 @@ function fnBody(src, sig) {
   t('guard exists and detects kept session first', g.indexOf('keptSession()') >= 0);
   const ss = app.indexOf('window.startStudy = startStudy');
   t('startStudy routes through guard', app.indexOf('guardReplaceSession', ss - 2000) >= 0 || app.slice(ss, ss + 400).indexOf('guardReplaceSession') >= 0);
-  t('startExam routes through guard', app.slice(app.indexOf('window.startExam'), app.indexOf('window.startExam') + 300).indexOf('guardReplaceSession') >= 0);
-  t('startWrongStudy routes through guard', app.slice(app.indexOf('window.startWrongStudy'), app.indexOf('window.startWrongStudy') + 3000).indexOf('guardReplaceSession') >= 0);
+  // Precise definition match (new home wrappers like startSelectedExam share a
+  // name prefix but are separate functions — intent: definitions route via guard).
+  t('startExam routes through guard', app.slice(app.indexOf('window.startExam = function'), app.indexOf('window.startExam = function') + 300).indexOf('guardReplaceSession') >= 0);
+  t('startWrongStudy routes through guard', app.slice(app.indexOf('window.startWrongStudy = function'), app.indexOf('window.startWrongStudy = function') + 3000).indexOf('guardReplaceSession') >= 0);
 }
 
 // ---------- 2. same unfinished quiz offers resume (never silent restart) ----------

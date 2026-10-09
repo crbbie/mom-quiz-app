@@ -18,15 +18,16 @@ const vb = viewBody();
 // doc comment names the forbidden calls to explain the boundary).
 const vcode = vb.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/.*$/gm, '$1');
 
-// ---- home hierarchy ----
+// ---- home hierarchy (redesigned approved layout: mode rows in static HTML,
+// study first; rows always stack vertically full-width; view hint stays small) ----
 t('home order: study before view before exam', (() => {
-  const r = app.indexOf('Bắt đầu ôn tập');
-  const v = app.indexOf('Xem đáp án', r);
-  const e = app.indexOf('Thi thử', v);
+  const r = html.indexOf('data-mode="study"');
+  const v = html.indexOf('data-mode="view"', r);
+  const e = html.indexOf('data-mode="exam"', v);
   return r > 0 && v > r && e > v;
 })());
-t('view action is clear secondary (view-secondary, full width)', app.indexOf('view-secondary') >= 0 && /\.set-actions \.btn\.view-secondary\{[^}]*grid-column:\s*1\/-1/.test(css));
-t('mobile stacks vertically (all three full-width)', /\.set-actions \.btn\.(study-primary|view-secondary|exam-secondary)\{[^}]*grid-column:\s*1\/-1/.test(css));
+t('view action is a clear mode row (full width by layout)', html.indexOf('data-mode="view"') >= 0 && /\.mode-list\{[^}]*flex-direction:\s*column/.test(css));
+t('modes always stack vertically (never cramped side-by-side)', /\.mode-list\{[^}]*flex-direction:\s*column/.test(css));
 t('resume hint small (Tiếp tục xem từ câu N, no large card)', app.indexOf('Tiếp tục xem từ câu ') >= 0 && app.indexOf('view-resume-hint') >= 0);
 
 // ---- view screen ----
