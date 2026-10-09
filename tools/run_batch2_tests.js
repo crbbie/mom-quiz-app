@@ -56,7 +56,7 @@ function t(name, cond) {
 {
   ['#7b8698', '#6b7688', '#8b96a8', '#a0aabb'].forEach(c =>
     t('no pale learner text ' + c, css.toLowerCase().indexOf(c) < 0));
-  t('readable secondary #41506b used', css.indexOf('#41506b') >= 0);
+  t('readable Stitch secondary #4B5565 used', css.toLowerCase().indexOf('#4b5565') >= 0);
 }
 
 // ---------- 5. answer states ----------
