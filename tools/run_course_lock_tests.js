@@ -105,5 +105,53 @@ function withMutatedData(mut, fn) {
   t('unlocked set untouched by course lock', okDoc && okDoc.id === 'zz-unlocked');
 }
 
+// ---------- 5. second locked set: chuyen-de-4-7-9-10 (111 questions) ----------
+{
+  const DATA2 = 'data/chuyen-de-4-7-9-10.json';
+  const LOCK2 = 'tools/fixtures/chuyen-de-4-7-9-10-course-answer-key.json';
+  const doc2 = JSON.parse(fs.readFileSync(DATA2, 'utf8'));
+  const lock2 = JSON.parse(fs.readFileSync(LOCK2, 'utf8'));
+  t('new lock targets chuyen-de-4-7-9-10', lock2.question_set_id === 'chuyen-de-4-7-9-10');
+  t('new lock names the course source', typeof lock2.source === 'string' && lock2.source.length > 0);
+  t('new lock has exactly 111 entries', lock2.answers && Object.keys(lock2.answers).length === 111);
+  t('new lock values are all 0-3', Object.values(lock2.answers).every(v => v === 0 || v === 1 || v === 2 || v === 3));
+  t('new set has 111 questions', doc2.questions.length === 111);
+  t('new set every question has 4 options + 1 index 0-3',
+    doc2.questions.every(q => Array.isArray(q.options) && q.options.length === 4 && q.correct >= 0 && q.correct <= 3));
+  const byId2 = {};
+  doc2.questions.forEach(q => { byId2[q.id] = q.correct; });
+  const dataIds2 = Object.keys(byId2).sort();
+  const lockIds2 = Object.keys(lock2.answers).sort();
+  t('new lock keys == new data IDs exactly (111/111)',
+    dataIds2.length === 111 && lockIds2.length === 111 && dataIds2.every((id, i) => id === lockIds2[i]));
+  t('new locked answer key passes (0 mismatches)', lockIds2.every(id => byId2[id] === lock2.answers[id]));
+  t('new IDs do not collide with old set', doc2.questions.every(q => !(q.id in byId0())));
+  function byId0() {
+    const m = {};
+    doc.questions.forEach(q => { m[q.id] = 1; });
+    return m;
+  }
+  const dist = [0, 0, 0, 0];
+  doc2.questions.forEach(q => { dist[q.correct]++; });
+  t('new answer distribution is course-extracted 14/39/39/19',
+    dist[0] === 14 && dist[1] === 39 && dist[2] === 39 && dist[3] === 19);
+  // mutation of the new set must fail the canonical validator, then restore
+  const orig2 = fs.readFileSync(DATA2, 'utf8');
+  const d2 = JSON.parse(orig2);
+  d2.questions[0].correct = (d2.questions[0].correct + 1) % 4;
+  fs.writeFileSync(DATA2, JSON.stringify(d2, null, 2) + '\n', 'utf8');
+  let r2;
+  try {
+    r2 = runValidator();
+  } finally {
+    fs.writeFileSync(DATA2, orig2, 'utf8');
+  }
+  t('new-set index change fails validation', r2.status !== 0);
+  t('new-set failure is a course-lock failure naming the question',
+    /COURSE ANSWER LOCK FAILED/.test(r2.out) && r2.out.indexOf(doc2.questions[0].id) >= 0);
+  const r3 = runValidator();
+  t('validator green after new-set restore (2 sets, 191 questions)', r3.status === 0 && /2 set\(s\), 191 question\(s\)/.test(r3.out));
+}
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

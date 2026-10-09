@@ -1,0 +1,1341 @@
+{
+  "id": "chuyen-de-4-7-9-10",
+  "title": "Ôn tập Chuyên đề 4, 7, 9, 10",
+  "description": "111 câu — Chuyên đề 4, 7, 9, 10.",
+  "version": 1,
+  "updated_at": "2026-10-09",
+  "questions": [
+    {
+      "id": "b1a2c930-6f9b-4fba-8336-fd2985c57dd5",
+      "question": "Theo Luật Đầu tư 2025, \"đầu tư kinh doanh\" được hiểu là gì?",
+      "options": [
+        "Việc tổ chức huy động vốn để thực hiện dự án đầu tư xây dựng.",
+        "Việc sử dụng vốn để mua tài sản phục vụ nhu cầu của tổ chức, cá nhân.",
+        "Việc sử dụng vốn để thực hiện mọi hoạt động đầu tư có phát sinh lợi nhuận.",
+        "Việc nhà đầu tư bỏ vốn đầu tư để thực hiện hoạt động kinh doanh."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "fe3bd3cd-6a58-492f-98d7-192a682736ac",
+      "question": "Nội dung đề xuất dự án đầu tư xây dựng nhà ở, khu đô thị bao gồm những gì theo Nghị định số 96/2026/NĐ-CP của Chính phủ quy định chi tiết và hướng dẫn thi hành một số điều của Luật Đầu tư?",
+      "options": [
+        "Trường hợp pháp luật về xây dựng quy định lập báo cáo nghiên cứu tiền khả thi, nhà đầu tư hoặc cơ quan nhà nước có thẩm quyền được nộp hoặc sử dụng báo cáo nghiên cứu tiền khả thi thay cho đề xuất dự án đầu tư, trong đó đề xuất sơ bộ phân hạng tầng đối với nhà đầu tư giữ lại để đầu tư kinh doanh, phân hạng tầng đô thị mà nhà đầu tư có trách nhiệm bàn giao hoặc đề xuất bàn giao cho địa phương;",
+        "Thông tin về tài liệu chứng minh quyền sử dụng đất để cơ quan nhà nước có thẩm quyền tra cứu trên cơ sở dữ liệu hoặc bản sao hợp lệ Quyết định giao đất hoặc bản sao Giấy chứng nhận quyền sử dụng đất, hợp đồng cho thuê quyền sử dụng đất hoặc bản sao Giấy chứng nhận quyền sử dụng đất, Giấy chứng nhận quyền sở hữu nhà ở và quyền sử dụng đất ở và Giấy chứng nhận quyền sử dụng đất, quyền sở hữu nhà và tài sản khác gắn liền với đất trong trường hợp đề xuất chấp thuận chủ trương đầu tư đồng thời với chấp thuận nhà đầu tư đối với nhà đầu tư có quyền sử dụng đất theo quy định.",
+        "Thuyết minh việc đáp ứng mục tiêu, định hướng phát triển đô thị, chương trình, kế hoạch phát triển nhà ở; dự kiến phân chia dự án thành phần (nếu có); sơ bộ phương án phân kỳ đầu tư bảo đảm yêu cầu đồng bộ (nếu có).",
+        "Cả A và C đúng"
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "99e4d135-0b60-4995-894d-84a51752b21e",
+      "question": "Theo quy định của Luật Đất đai năm 2024, trường hợp nào sau đây Nhà nước thực hiện thu hồi đất để giao đất, cho thuê đất thông qua đấu thầu lựa chọn nhà đầu tư thực hiện dự án có sử dụng đất?",
+      "options": [
+        "Dự án sử dụng quỹ đất đủ điều kiện tổ chức đấu giá quyền sử dụng đất.",
+        "Dự án khu đô thị và các dự án khác thuộc diện đấu thầu lựa chọn nhà đầu tư theo quy định của pháp luật",
+        "Tất cả các dự án nhà ở thương mại, không phân biệt điều kiện sử dụng đất.",
+        "Các dự án mà nhà đầu tư đã có quyền sử dụng đất hợp pháp."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "f11dea7d-79b1-426e-a8ef-320ceed1d554",
+      "question": "Theo Luật Đầu tư 2025, trường hợp nào sau đây về nguyên tắc nhà đầu tư phải thực hiện biện pháp bảo đảm thực hiện dự án đầu tư?",
+      "options": [
+        "Mọi dự án đầu tư có tổng vốn đầu tư từ 100 tỷ đồng trở lên.",
+        "Mọi dự án đầu tư kinh doanh bất động sản có xây dựng công trình.",
+        "Dự án đầu tư có đề nghị Nhà nước giao đất, cho thuê đất hoặc cho phép chuyển mục đích sử dụng đất, trừ các trường hợp được pháp luật loại trừ.",
+        "Chỉ dự án đầu tư của nhà đầu tư nước ngoài có sử dụng đất."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "ab9b56e7-6876-4696-8471-7c1c4a1cecc3",
+      "question": "Thời hạn hoạt động thông thường của dự án đầu tư ngoài khu kinh tế theo Luật Đầu tư 2025 là bao lâu?",
+      "options": [
+        "30 năm.",
+        "50 năm.",
+        "70 năm trong mọi trường hợp.",
+        "Luôn bằng thời hạn sử dụng đất của dự án."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "2a180678-65f7-48a3-a2ce-fb4adfd05209",
+      "question": "Nội dung nào dưới đây được xem là hoạt động đầu tư kinh doanh bất động sản?",
+      "options": [
+        "Xây dựng nhà ở để bán, cho thuê hoặc thực hiện cho thuê mua theo quy định.",
+        "Đầu tư xây dựng công trình thương mại, dịch vụ nhằm mục đích cho thuê khai thác.",
+        "Đầu tư hạ tầng kỹ thuật khu đô thị để thực hiện chuyển nhượng hoặc cho thuê quyền sử dụng.",
+        "Bao gồm các hoạt động nêu trên, với điều kiện từng hoạt động đáp ứng quy định pháp luật về đất đai, nhà ở, xây dựng và kinh doanh bất động sản."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "3cbeeafb-8f07-41c5-b4e0-cbf7f61fde21",
+      "question": "Báo cáo nghiên cứu tiền khả thi đầu tư xây dựng được lập trong giai đoạn nào của dự án?",
+      "options": [
+        "Giai đoạn chuẩn bị đầu tư nhằm phục vụ quyết định chủ trương đầu tư xây dựng.",
+        "Giai đoạn triển khai thi công và tổ chức thực hiện dự án đầu tư xây dựng.",
+        "Giai đoạn kết thúc đầu tư và nghiệm thu hoàn thành công trình đưa vào sử dụng.",
+        "Giai đoạn quản lý, khai thác và vận hành công trình sau đầu tư xây dựng."
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "75727365-87d9-44df-aa51-01274ab1de14",
+      "question": "Mục đích chủ yếu của Báo cáo nghiên cứu tiền khả thi đầu tư xây dựng là gì?",
+      "options": [
+        "Làm cơ sở để cơ quan có thẩm quyền xem xét, quyết định chủ trương đầu tư.",
+        "Làm căn cứ phục vụ việc cấp giấy phép xây dựng công trình theo quy định.",
+        "Báo cáo dự báo tốc độ tăng trưởng GDP của cả nước trong toàn bộ thời hạn hoạt động của dự án.",
+        "Làm tài liệu pháp lý để ký kết hợp đồng thi công xây dựng công trình dự án."
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "b20b061d-300f-47c6-ab8c-59cbea469cde",
+      "question": "Nội dung nào sau đây không thuộc thành phần bắt buộc của hồ sơ đề nghị chấp thuận chủ trương đầu tư?",
+      "options": [
+        "Đánh giá hiệu quả kinh tế – xã hội của dự án đầu tư đề xuất thực hiện.",
+        "Đề xuất giải pháp bảo vệ môi trường trong quá trình triển khai dự án đầu tư.",
+        "Phân tích dự báo tăng trưởng GDP quốc gia trong thời kỳ thực hiện dự án đầu tư.",
+        "Xác định nhu cầu sử dụng đất và quy mô diện tích phục vụ dự án đầu tư."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "c9cece5b-c495-4105-9603-eabe5f62b6a8",
+      "question": "Quy mô của một dự án bất động sản thường được xác định thông qua các yếu tố nào?",
+      "options": [
+        "Tổng diện tích đất sử dụng để triển khai thực hiện dự án đầu tư xây dựng.",
+        "Quy mô số lượng căn hộ hoặc diện tích sàn xây dựng của công trình dự án.",
+        "Quy mô dân số dự kiến đáp ứng trong trường hợp dự án có yêu cầu xác định dân cư.",
+        "Bao gồm toàn bộ các tiêu chí về đất đai, xây dựng và quy mô dân số dự kiến."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "c0a80f4c-a3ec-4777-b9ef-17e5a6a88041",
+      "question": "Trình tự thực hiện dự án đầu tư kinh doanh bất động sản thông thường được bắt đầu từ bước nào?",
+      "options": [
+        "Thực hiện thủ tục cấp Giấy chứng nhận quyền sử dụng đất cho chủ đầu tư dự án.",
+        "Thực hiện thủ tục giao đất, cho thuê đất hoặc chuyển mục đích sử dụng đất.",
+        "Thực hiện thủ tục chấp thuận chủ trương đầu tư trong trường hợp dự án thuộc diện phải chấp thuận chủ trương đầu tư theo quy định pháp luật.",
+        "Ký kết hợp đồng mua bán sản phẩm bất động sản với khách hàng tham gia dự án."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "95bcba58-e600-4c57-b5b6-ab9d20d931bd",
+      "question": "Sau khi được chấp thuận chủ trương đầu tư, chủ đầu tư dự án có sử dụng đất phải tiếp tục thực hiện thủ tục nào?",
+      "options": [
+        "Ký hợp đồng huy động vốn hoặc hợp đồng mua bán với khách hàng của dự án.",
+        "Thực hiện thủ tục giao đất, cho thuê đất hoặc chuyển mục đích sử dụng đất.",
+        "Nộp hồ sơ đề nghị cấp giấy phép xây dựng công trình thuộc dự án đầu tư.",
+        "Tiến hành bàn giao nhà ở và quyền sử dụng đất cho người mua trên thực địa."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "e99c57b2-0613-48c7-9567-410e36125272",
+      "question": "Việc chuyển nhượng toàn bộ hoặc một phần dự án bất động sản phải bảo đảm nguyên tắc nào sau đây?",
+      "options": [
+        "Chủ đầu tư được tự do chuyển nhượng sau khi dự án hoàn thành phần móng.",
+        "Chỉ cần bên nhận chuyển nhượng đồng ý tiếp tục thực hiện dự án.",
+        "Dự án, bên chuyển nhượng và bên nhận chuyển nhượng phải đáp ứng các điều kiện theo quy định của pháp luật và thực hiện thủ tục chuyển nhượng theo thẩm quyền.",
+        "Chỉ được chuyển nhượng sau khi toàn bộ công trình của dự án đã hoàn thành."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "99391266-7aab-4950-9017-5e9eb3a15172",
+      "question": "Theo Luật Nhà ở 2023, đối với dự án đầu tư xây dựng nhà ở thương mại thuộc trường hợp phải thực hiện nghĩa vụ về quỹ đất nhà ở xã hội, nghĩa vụ này có thể được thực hiện theo hình thức nào?",
+      "options": [
+        "Chỉ được dành đất trong chính dự án để xây dựng nhà ở xã hội.",
+        "Chỉ được nộp tiền tương đương giá trị quỹ đất.",
+        "Chỉ được bố trí quỹ đất tại một dự án khác.",
+        "Có thể dành đất trong dự án, bố trí quỹ đất ở vị trí khác hoặc đóng tiền tương đương theo trường hợp do pháp luật quy định."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "3f5a4c80-4757-4d2f-9bc1-775e61ce3cb4",
+      "question": "Ngân hàng thương mại thường tham gia vào dự án bất động sản với vai trò chủ yếu nào?",
+      "options": [
+        "Trực tiếp tham gia hoạt động kinh doanh bất động sản thuộc phạm vi dự án đầu tư.",
+        "Thực hiện chức năng định giá bất động sản và xác định giá bán sản phẩm dự án.",
+        "Thay mặt cơ quan nhà nước thực hiện thẩm định pháp lý đối với dự án đầu tư.",
+        "Cấp tín dụng, bảo lãnh nghĩa vụ tài chính cho chủ đầu tư thực hiện dự án."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "c8d6bceb-53f6-4ab6-aba1-68b9a7e071bc",
+      "question": "Khi điều chỉnh dự án đầu tư làm thay đổi nội dung thuộc trường hợp phải điều chỉnh chủ trương đầu tư theo quy định pháp luật, nhà đầu tư phải làm gì?",
+      "options": [
+        "Thực hiện thủ tục chấp thuận điều chỉnh chủ trương đầu tư trước khi thực hiện nội dung điều chỉnh.",
+        "Chỉ cần thông báo cho khách hàng.",
+        "Được tự điều chỉnh mà không cần thực hiện thủ tục đầu tư.",
+        "Chỉ cần được ngân hàng tài trợ vốn đồng ý."
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "b311e453-63ff-436c-a1f2-58ab1f16108f",
+      "question": "Điều kiện quan trọng để chủ đầu tư bàn giao nhà ở cho người mua là gì?",
+      "options": [
+        "Nhà ở đã được tổ chức thẩm định giá xác định lại giá trị.",
+        "Nhà ở đã được nghiệm thu theo quy định, bảo đảm an toàn và đáp ứng các điều kiện bàn giao theo pháp luật về xây dựng, nhà ở và nội dung hợp đồng.",
+        "Người mua đã được cấp Giấy chứng nhận trước thời điểm nhận nhà.",
+        "Chủ đầu tư đã tất toán toàn bộ khoản vay của dự án."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "4461b60b-261d-4fcf-80a7-08e861e35c22",
+      "question": "Hoạt động thẩm định và phê duyệt dự án đầu tư thuộc giai đoạn nào của dự án xây dựng?",
+      "options": [
+        "Giai đoạn thực hiện dự án đầu tư xây dựng và tổ chức thi công công trình.",
+        "Giai đoạn kết thúc đầu tư xây dựng và bàn giao công trình đưa vào khai thác.",
+        "Giai đoạn chuẩn bị dự án đầu tư xây dựng trước khi triển khai thực hiện dự án.",
+        "Giai đoạn quản lý vận hành, khai thác sử dụng công trình sau khi hoàn thành đầu tư."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "21dedfc4-8e1e-4351-b813-8e2820c367e4",
+      "question": "Nội dung nào sau đây thuộc công tác lập dự án đầu tư xây dựng kinh doanh bất động sản?",
+      "options": [
+        "Tổ chức lựa chọn nhà thầu và triển khai thi công xây dựng công trình dự án.",
+        "Thực hiện thủ tục xin cấp giấy phép xây dựng cho công trình thuộc dự án đầu tư.",
+        "Lập Báo cáo nghiên cứu khả thi đầu tư xây dựng phục vụ việc thẩm định dự án.",
+        "Tổ chức nghiệm thu hoàn thành công trình xây dựng để đưa vào khai thác sử dụng."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "0043441b-9c10-4060-80d2-070a01cf99a9",
+      "question": "Hoạt động nào sau đây là hoạt động điển hình thuộc giai đoạn thực hiện dự án đầu tư xây dựng bất động sản?",
+      "options": [
+        "Nghiên cứu sự cần thiết và xác định sơ bộ hiệu quả đầu tư của dự án.",
+        "Lựa chọn nhà thầu và tổ chức thi công xây dựng công trình theo quy định.",
+        "Nghiên cứu, đề xuất địa điểm và quy mô sơ bộ của dự án trước khi quyết định đầu tư.",
+        "Quản lý, vận hành công trình sau khi đã hoàn thành và đưa vào sử dụng."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "df1c4af4-927d-478f-91c5-9c70df0fb42d",
+      "question": "Theo Luật Kinh doanh bất động sản 2023, về nguyên tắc tổ chức, cá nhân kinh doanh bất động sản phải đáp ứng yêu cầu nào sau đây?",
+      "options": [
+        "Phải duy trì mức vốn pháp định tối thiểu 20 tỷ đồng.",
+        "Phải thành lập doanh nghiệp hoặc hợp tác xã, liên hiệp hợp tác xã và có ngành, nghề kinh doanh bất động sản, trừ trường hợp pháp luật quy định khác.",
+        "Mọi người tham gia hoạt động kinh doanh phải có chứng chỉ môi giới.",
+        "Phải đặt trụ sở tại đô thị trực thuộc Trung ương."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "60e690d1-fe70-43c8-8e53-ed0d13d8d487",
+      "question": "Loại hình doanh nghiệp nào có chủ sở hữu chịu trách nhiệm bằng toàn bộ tài sản của mình và không có tư cách pháp nhân?",
+      "options": [
+        "Công ty cổ phần với cổ đông chịu trách nhiệm trong phạm vi số cổ phần đã mua.",
+        "Công ty trách nhiệm hữu hạn với thành viên chịu trách nhiệm trong phần vốn góp.",
+        "Doanh nghiệp tư nhân do một cá nhân làm chủ và chịu trách nhiệm vô hạn.",
+        "Công ty hợp danh có thành viên góp vốn chỉ chịu trách nhiệm hữu hạn phần vốn góp."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "c60f18ac-d97a-43ae-8fee-28e87b7b9078",
+      "question": "Theo pháp luật hiện hành, vốn điều lệ tối thiểu để thành lập doanh nghiệp kinh doanh bất động sản là bao nhiêu?",
+      "options": [
+        "Phải có tối thiểu 20 tỷ đồng trước khi nộp hồ sơ đăng ký doanh nghiệp kinh doanh.",
+        "Phải có mức vốn điều lệ tối thiểu 10 tỷ đồng duy trì trong suốt thời gian hoạt động.",
+        "Chỉ cần bảo đảm mức vốn điều lệ tối thiểu 05 tỷ đồng khi thành lập doanh nghiệp.",
+        "Pháp luật hiện hành không quy định mức vốn điều lệ tối thiểu khi kinh doanh bất động sản."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "62b4bcb0-caa2-4f50-b317-70d6b2a3ed23",
+      "question": "Theo Luật Kinh doanh bất động sản 2023, cá nhân kinh doanh bất động sản quy mô nhỏ có bắt buộc thành lập doanh nghiệp không?",
+      "options": [
+        "Phải thành lập doanh nghiệp trong mọi trường hợp có hoạt động mua bán bất động sản.",
+        "Không phải thành lập doanh nghiệp nhưng phải kê khai và nộp thuế theo pháp luật.",
+        "Chỉ được miễn thành lập doanh nghiệp khi số lượng giao dịch dưới mức luật định hằng năm.",
+        "Bắt buộc thành lập doanh nghiệp nếu tổng giá trị giao dịch vượt mức do Nhà nước quy định."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "79a84902-cdda-4ff4-98c5-5273436fd5e1",
+      "question": "Theo Luật Doanh nghiệp 2020 được sửa đổi, bổ sung năm 2025, vốn điều lệ của công ty được hiểu như thế nào?",
+      "options": [
+        "Là tổng giá trị tài sản do thành viên, cổ đông đã góp hoặc cam kết góp khi thành lập công ty.",
+        "Là toàn bộ giá trị tài sản mà doanh nghiệp đang quản lý và sử dụng trong hoạt động kinh doanh.",
+        "Là khoản vốn tối thiểu doanh nghiệp phải duy trì để bảo đảm khả năng thanh toán nghĩa vụ.",
+        "Là khoản tiền được sử dụng để chi trả lương, thưởng và chi phí quản lý doanh nghiệp."
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "3015b7ce-822c-48cc-b775-445b29a9b7dd",
+      "question": "Theo Nghị định 96/2024/NĐ-CP, cá nhân kinh doanh bất động sản quy mô nhỏ phải đáp ứng điều kiện nào sau đây?",
+      "options": [
+        "Chỉ cần thực hiện không quá 20 giao dịch bất động sản trong một năm.",
+        "Chỉ cần mỗi hợp đồng có giá trị không quá 300 tỷ đồng.",
+        "Không thuộc trường hợp phải lập dự án đầu tư và không thuộc trường hợp đồng thời có giá trị trên 300 tỷ đồng/hợp đồng và trên 10 lần giao dịch trong một năm.",
+        "Chỉ cần không sử dụng người lao động để thực hiện hoạt động kinh doanh."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "c37f8bb7-3e7c-418c-acb1-b22b9f25e0b7",
+      "question": "Doanh nghiệp kinh doanh bất động sản thông qua dự án phải có vốn chủ sở hữu tối thiểu 20% tổng mức đầu tư đối với dự án nào?",
+      "options": [
+        "Dự án có quy mô sử dụng đất dưới 20 héc-ta phải bảo đảm vốn chủ sở hữu tối thiểu 20%.",
+        "Dự án có quy mô sử dụng đất từ 20 héc-ta trở lên phải bảo đảm vốn chủ sở hữu tối thiểu 20%.",
+        "Dự án nhà ở thương mại có tổng mức đầu tư trên 5.000 tỷ đồng phải bảo đảm vốn chủ sở hữu.",
+        "Pháp luật hiện hành không còn quy định tỷ lệ vốn chủ sở hữu đối với dự án bất động sản."
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "5efa1a67-3f57-45b8-89d0-164227bebe67",
+      "question": "Cá nhân kinh doanh bất động sản quy mô nhỏ không phải thành lập doanh nghiệp nhưng vẫn phải thực hiện nghĩa vụ nào?",
+      "options": [
+        "Thực hiện kê khai, nộp thuế và chấp hành nghĩa vụ tài chính theo quy định của pháp luật.",
+        "Chuẩn bị hồ sơ pháp lý tương đương doanh nghiệp kinh doanh bất động sản chuyên nghiệp.",
+        "Chứng minh mức vốn pháp định tối thiểu trước khi thực hiện hoạt động mua bán nhà đất.",
+        "Xin giấy phép kinh doanh chuyên biệt đối với hoạt động chuyển nhượng bất động sản dân sự."
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "c004edfb-79f3-4805-8f3b-118e9e31c701",
+      "question": "Một doanh nghiệp kinh doanh bất động sản phải đáp ứng đầy đủ điều kiện nào sau đây?",
+      "options": [
+        "Không thuộc trường hợp bị cơ quan có thẩm quyền quyết định tạm ngừng hoạt động kinh doanh.",
+        "Bảo đảm tỷ lệ dư nợ tín dụng và dư nợ trái phiếu doanh nghiệp trên vốn chủ sở hữu.",
+        "Đáp ứng điều kiện về vốn chủ sở hữu tương ứng với quy mô sử dụng đất của từng dự án.",
+        "Đồng thời đáp ứng điều kiện về tình trạng hoạt động, tỷ lệ dư nợ và vốn chủ sở hữu đối với dự án theo quy định."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "556bf03d-5f25-4b67-912c-3a786c1e93c6",
+      "question": "Theo Luật Kinh doanh bất động sản 2023, trường hợp nào không bắt buộc thành lập doanh nghiệp khi kinh doanh bất động sản?",
+      "options": [
+        "Cá nhân thực hiện hoạt động kinh doanh bất động sản quy mô nhỏ theo quy định pháp luật.",
+        "Tổ chức, cá nhân bán nhà ở, công trình xây dựng không nhằm mục đích kinh doanh theo trường hợp pháp luật quy định.",
+        "Các trường hợp giao dịch bất động sản nhỏ lẻ đều không bắt buộc thành lập doanh nghiệp.",
+        "Bao gồm cá nhân kinh doanh quy mô nhỏ và giao dịch bất động sản không nhằm mục đích kinh doanh."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "a62b7319-98b3-4b13-90a7-0ba746892dc9",
+      "question": "Sau khi được cấp Giấy chứng nhận đăng ký doanh nghiệp, doanh nghiệp kinh doanh bất động sản muốn thực hiện hoạt động kinh doanh phải lưu ý điều kiện nào?",
+      "options": [
+        "Phải được cơ quan đăng ký kinh doanh cấp thêm giấy phép kinh doanh bất động sản.",
+        "Phải có tối thiểu ba người có chứng chỉ môi giới bất động sản.",
+        "Phải đáp ứng các điều kiện kinh doanh bất động sản theo pháp luật chuyên ngành trước khi thực hiện hoạt động thuộc ngành, nghề kinh doanh có điều kiện.",
+        "Phải hoàn thành ít nhất một dự án bất động sản trước khi ký hợp đồng kinh doanh."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "2781938e-9646-4085-8ff4-a0792b52d45b",
+      "question": "Hồ sơ đăng ký thành lập công ty kinh doanh bất động sản phải có tài liệu nào sau đây?",
+      "options": [
+        "Giấy phép xây dựng hoặc quyết định chấp thuận chủ trương đầu tư của dự án bất động sản.",
+        "Chứng chỉ môi giới bất động sản của tất cả thành viên tham gia góp vốn thành lập công ty.",
+        "Giấy đề nghị đăng ký doanh nghiệp và Điều lệ công ty theo mẫu quy định pháp luật.",
+        "Giấy chứng nhận quyền sử dụng đất đối với toàn bộ tài sản dự kiến đưa vào kinh doanh."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "369cd767-fb8a-4ad3-803c-346bad8b97c4",
+      "question": "Theo pháp luật về đăng ký doanh nghiệp hiện hành, thời hạn giải quyết hồ sơ đăng ký thành lập doanh nghiệp hợp lệ là bao lâu?",
+      "options": [
+        "Trong thời hạn 05 ngày làm việc kể từ ngày nhận đủ hồ sơ đăng ký doanh nghiệp.",
+        "Trong thời hạn 07 ngày làm việc kể từ ngày doanh nghiệp hoàn tất nghĩa vụ lệ phí.",
+        "Trong thời hạn 03 ngày làm việc kể từ ngày cơ quan đăng ký nhận hồ sơ hợp lệ.",
+        "Trong thời hạn 10 ngày làm việc kể từ ngày cơ quan nhà nước tiến hành thẩm định hồ sơ."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "e69790ad-4896-4aea-b260-98890bbc9691",
+      "question": "Hồ sơ đăng ký doanh nghiệp kinh doanh bất động sản có thể nộp bằng hình thức nào?",
+      "options": [
+        "Nộp trực tiếp tại cơ quan đăng ký kinh doanh nơi doanh nghiệp đặt trụ sở hoạt động.",
+        "Nộp qua mạng thông tin điện tử theo trình tự thủ tục đăng ký doanh nghiệp trực tuyến.",
+        "Nộp thông qua dịch vụ bưu chính công ích đến cơ quan đăng ký kinh doanh có thẩm quyền.",
+        "Có thể nộp trực tiếp, trực tuyến hoặc qua dịch vụ bưu chính công ích theo quy định."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "32bdcf05-edf6-4dec-8257-130769a7c365",
+      "question": "Doanh nghiệp được cấp Giấy chứng nhận đăng ký doanh nghiệp khi đáp ứng các điều kiện nào sau đây?",
+      "options": [
+        "Chỉ cần ngành, nghề đăng ký không thuộc ngành, nghề cấm đầu tư kinh doanh.",
+        "Chỉ cần tên doanh nghiệp được đặt đúng quy định.",
+        "Ngành, nghề đăng ký không bị cấm; tên doanh nghiệp đúng quy định; hồ sơ đăng ký hợp lệ và thực hiện nghĩa vụ lệ phí theo quy định.",
+        "Chỉ cần hồ sơ có đầy đủ chữ ký của người đại diện theo pháp luật."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "f57ca78a-e963-42c9-8d9e-d921f6cc6e58",
+      "question": "Mã số doanh nghiệp ghi trên Giấy chứng nhận đăng ký doanh nghiệp đồng thời là mã số nào?",
+      "options": [
+        "Là mã số thuế duy nhất của doanh nghiệp được sử dụng trong suốt quá trình hoạt động.",
+        "Là số đăng ký kinh doanh và mã số phục vụ hoạt động xuất nhập khẩu của doanh nghiệp.",
+        "Là mã số giao dịch ngân hàng do doanh nghiệp đăng ký với cơ quan quản lý nhà nước.",
+        "Là mã định danh cá nhân của người đại diện theo pháp luật hoặc chủ doanh nghiệp tư nhân."
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "0b6ad47a-d4a5-4fa8-8a5e-98a91301a6ab",
+      "question": "Nội dung nào sau đây không được ghi trên Giấy chứng nhận đăng ký doanh nghiệp?",
+      "options": [
+        "Thông tin về tên doanh nghiệp và mã số doanh nghiệp được cơ quan đăng ký cấp phát.",
+        "Địa chỉ trụ sở chính của doanh nghiệp theo hồ sơ đăng ký đã được chấp thuận.",
+        "Danh mục ngành, nghề kinh doanh chi tiết của doanh nghiệp sau khi thành lập hoạt động.",
+        "Họ tên và thông tin pháp lý của người đại diện theo pháp luật của doanh nghiệp."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "407c8e0f-0e7d-4276-8d9e-da522e1cc5a0",
+      "question": "Cơ quan đăng ký kinh doanh cấp Giấy chứng nhận đăng ký doanh nghiệp khi nào?",
+      "options": [
+        "Khi doanh nghiệp chứng minh đã đáp ứng mọi điều kiện kinh doanh của ngành nghề đăng ký.",
+        "Khi doanh nghiệp đã được cấp toàn bộ giấy phép chuyên ngành.",
+        "Khi doanh nghiệp đáp ứng các điều kiện cấp Giấy chứng nhận đăng ký doanh nghiệp theo Luật Doanh nghiệp và hồ sơ đăng ký hợp lệ.",
+        "Khi có văn bản đồng ý của UBND cấp tỉnh."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "ff0e67db-4284-4ac4-aba6-45656a77a832",
+      "question": "Một trong các tài liệu bắt buộc phải có trong hồ sơ đăng ký doanh nghiệp là gì?",
+      "options": [
+        "Giấy tờ chứng minh quyền sử dụng đất hoặc quyền sở hữu hợp pháp trụ sở doanh nghiệp.",
+        "Giấy đề nghị đăng ký doanh nghiệp theo biểu mẫu do cơ quan có thẩm quyền ban hành.",
+        "Giấy phép xây dựng đối với dự án bất động sản dự kiến triển khai trong tương lai gần.",
+        "Hợp đồng nguyên tắc ký kết giữa doanh nghiệp với khách hàng hoặc đối tác kinh doanh."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "7b2c366c-f99f-45af-8df2-44b59cc1b0e5",
+      "question": "Trong hồ sơ đăng ký doanh nghiệp, ngành nghề kinh doanh được ghi nhận như thế nào?",
+      "options": [
+        "Không cần kê khai ngành nghề nếu doanh nghiệp đã đáp ứng đầy đủ điều kiện về vốn.",
+        "Được cơ quan chuyên ngành bổ sung sau khi doanh nghiệp hoàn tất thủ tục thành lập.",
+        "Chỉ ghi cụ thể ngành nghề bất động sản theo Luật Kinh doanh bất động sản hiện hành.",
+        "Lựa chọn ngành kinh tế cấp bốn trong Hệ thống ngành kinh tế Việt Nam để ghi ngành, nghề kinh doanh theo quy định."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "6ce9302b-2fd9-4f5a-8573-f6923aba9aef",
+      "question": "Anh/chị hiểu như thế nào là \"rửa tiền\" theo quy định của pháp luật?",
+      "options": [
+        "Là giao dịch bằng tiền mặt hoặc ngoại tệ có tổng giá trị vượt mức phải báo cáo.",
+        "Là tài sản, lợi nhuận hoặc khoản thu phát sinh trực tiếp từ hành vi phạm tội.",
+        "Là hành vi nhằm hợp pháp hóa nguồn gốc tài sản do phạm tội mà có.",
+        "Là danh sách cảnh báo tổ chức, cá nhân có nguy cơ cao về rửa tiền tài chính."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "4e8c51cd-0506-4802-8bf0-3dc9db118a8f",
+      "question": "Ngoài biện pháp trì hoãn giao dịch, pháp luật còn quy định biện pháp tạm thời nào trong phòng, chống rửa tiền?",
+      "options": [
+        "Phong tỏa tài khoản; niêm phong, phong tỏa hoặc tạm giữ tài sản liên quan.",
+        "Chỉ áp dụng biện pháp phong tỏa tài khoản của khách hàng có dấu hiệu nghi ngờ.",
+        "Chỉ áp dụng niêm phong hoặc tạm giữ tài sản theo yêu cầu của cơ quan điều tra.",
+        "Kéo dài thời hạn trì hoãn giao dịch cho đến khi có kết luận của cơ quan quản lý."
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "a022f9ab-d085-42b5-9773-e9954be35535",
+      "question": "Đâu không phải là dấu hiệu đáng ngờ trong lĩnh vực kinh doanh bất động sản?",
+      "options": [
+        "Giá giao dịch bất động sản không phù hợp đáng kể so với giá thị trường thực tế.",
+        "Khách hàng từ chối cung cấp thông tin về nhân thân hoặc bất động sản liên quan.",
+        "Khách hàng chuyển nhượng chứng khoán ngoài hệ thống mà không có lý do hợp lý.",
+        "Giao dịch bất động sản theo hình thức ủy quyền nhưng thiếu căn cứ pháp lý rõ ràng."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "fb058791-23dd-4682-a159-a5ab06dde0ae",
+      "question": "Khách hàng không quan tâm đến giá bất động sản và các loại phí giao dịch phải trả thì được hiểu như thế nào?",
+      "options": [
+        "Đây là một trong các dấu hiệu đáng ngờ trong lĩnh vực kinh doanh bất động sản.",
+        "Không phải dấu hiệu đáng ngờ nếu khách hàng chứng minh được năng lực tài chính.",
+        "Chỉ bị coi là đáng ngờ khi giao dịch vượt mức giá trị phải báo cáo theo quy định.",
+        "Không thuộc trường hợp phải theo dõi trong hoạt động phòng, chống rửa tiền hiện nay."
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "558789b6-7f05-4be1-a302-00d7454f9544",
+      "question": "Cơ quan nào có trách nhiệm chủ trì, phối hợp với Ngân hàng Nhà nước Việt Nam thực hiện quản lý nhà nước về phòng, chống rửa tiền đối với hoạt động kinh doanh bất động sản thuộc lĩnh vực quản lý?",
+      "options": [
+        "Bộ Tài chính.",
+        "Bộ Công an.",
+        "Bộ Xây dựng.",
+        "Bộ Tư pháp."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "d5e849c4-c0ed-4606-84b4-f25141fdc792",
+      "question": "Biện pháp trì hoãn giao dịch trong lĩnh vực phòng, chống rửa tiền được áp dụng tối đa trong thời hạn bao lâu?",
+      "options": [
+        "Không quá 01 ngày làm việc kể từ thời điểm bắt đầu áp dụng biện pháp trì hoãn.",
+        "Không quá 03 ngày làm việc kể từ ngày bắt đầu áp dụng biện pháp trì hoãn.",
+        "Không quá 05 ngày làm việc kể từ khi cơ quan có thẩm quyền tiếp nhận thông tin.",
+        "Không quá 07 ngày làm việc kể từ thời điểm phát sinh giao dịch đáng ngờ ban đầu."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "81ac9dbd-f229-4d61-8bc8-b00794077c65",
+      "question": "Chủ thể nào sau đây thuộc đối tượng báo cáo theo Luật Phòng, chống rửa tiền trong lĩnh vực kinh doanh bất động sản?",
+      "options": [
+        "Mọi cá nhân có hoạt động mua bán nhà ở.",
+        "Tổ chức, cá nhân kinh doanh dịch vụ quản lý bất động sản, môi giới bất động sản, sàn giao dịch bất động sản.",
+        "Mọi chủ đầu tư dự án nhà ở thương mại.",
+        "Cá nhân cho thuê nhà ở thuộc sở hữu của mình."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "9d33c73b-dd73-4aa8-9f7a-378ccc7d7cf6",
+      "question": "Đâu là biện pháp tạm thời được áp dụng trong công tác phòng, chống rửa tiền?",
+      "options": [
+        "Thực hiện nhận biết và cập nhật thông tin khách hàng trong quá trình giao dịch.",
+        "Áp dụng biện pháp trì hoãn giao dịch khi phát hiện dấu hiệu đáng ngờ liên quan.",
+        "Thu thập, xử lý và trao đổi thông tin phục vụ hoạt động phòng, chống rửa tiền.",
+        "Thực hiện nghĩa vụ báo cáo, cung cấp hồ sơ và tài liệu cho cơ quan quản lý nhà nước."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "7d256848-ece8-466f-8d7c-e7a1fa08ebf6",
+      "question": "Khi phát sinh giao dịch lớn phải báo cáo, đối tượng báo cáo có trách nhiệm gửi thông tin đến cơ quan nào?",
+      "options": [
+        "Chính phủ để theo dõi và tổng hợp hoạt động giao dịch tài chính trên phạm vi cả nước.",
+        "Bộ Công an nhằm phục vụ hoạt động điều tra và xử lý các hành vi vi phạm pháp luật.",
+        "Ngân hàng Nhà nước Việt Nam theo quy định về phòng, chống rửa tiền hiện hành.",
+        "Bộ Xây dựng để phối hợp quản lý hoạt động kinh doanh bất động sản có liên quan."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "7123f56b-5ea3-4a7e-8b96-778c7be4f3ed",
+      "question": "Đối tượng báo cáo có trách nhiệm lưu trữ thông tin, hồ sơ, tài liệu nào sau đây?",
+      "options": [
+        "Thông tin, hồ sơ, tài liệu nhận biết khách hàng.",
+        "Kết quả phân tích, đánh giá khách hàng và giao dịch.",
+        "Hồ sơ, tài liệu liên quan đến giao dịch và báo cáo theo quy định.",
+        "Bao gồm các thông tin, hồ sơ và tài liệu nêu trên."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "60a65495-3e1e-46cf-b90f-76301dc613b5",
+      "question": "Khi phát hiện khách hàng hoặc giao dịch có dấu hiệu đáng ngờ, doanh nghiệp môi giới bất động sản thuộc đối tượng báo cáo phải thực hiện trách nhiệm nào?",
+      "options": [
+        "Tự động phong tỏa tài sản khách hàng.",
+        "Thực hiện các biện pháp nhận biết, xác minh thông tin và báo cáo giao dịch đáng ngờ theo quy định.",
+        "Tự động hủy giao dịch.",
+        "Chỉ báo cáo khi xác định chắc chắn có hành vi rửa tiền."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "7c9d496b-ed2a-4652-aa3b-5ac0c0cf423e",
+      "question": "Thông tin phục vụ việc nhận biết khách hàng trong phòng, chống rửa tiền bao gồm nội dung nào sau đây?",
+      "options": [
+        "Thông tin nhận dạng khách hàng tham gia thiết lập giao dịch hoặc quan hệ kinh doanh.",
+        "Thông tin liên quan đến chủ sở hữu hưởng lợi của giao dịch hoặc tài sản liên quan.",
+        "Thông tin về mục đích và bản chất quan hệ kinh doanh giữa khách hàng và tổ chức báo cáo.",
+        "Bao gồm toàn bộ thông tin nhận dạng, chủ sở hữu hưởng lợi và mục đích giao dịch."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "54c0102e-b0f6-434d-ba4c-7d69799cea1c",
+      "question": "Đối tượng báo cáo phải thực hiện nhận biết khách hàng trong trường hợp nào sau đây?",
+      "options": [
+        "Khi thực hiện giao dịch dân sự thông thường có giá trị nhỏ dưới mức phải báo cáo.",
+        "Khi nghi ngờ giao dịch hoặc các bên liên quan có dấu hiệu liên quan đến rửa tiền.",
+        "Khi khách hàng có nhu cầu tìm hiểu thông tin bất động sản nhưng chưa giao dịch thực tế.",
+        "Khi tổ chức kinh doanh muốn mở rộng phạm vi hoạt động tại nhiều địa phương khác nhau."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "ef0c33cc-673f-418a-a367-37a0deb50c5a",
+      "question": "Khi có căn cứ để nghi ngờ hoặc phát hiện các bên liên quan đến giao dịch thuộc Danh sách đen, đối tượng báo cáo phải áp dụng biện pháp nào?",
+      "options": [
+        "Trì hoãn giao dịch theo quy định của pháp luật.",
+        "Chờ Ngân hàng Nhà nước xác nhận rồi mới xử lý.",
+        "Hoàn thành giao dịch trước rồi báo cáo.",
+        "Chỉ xử lý khi khách hàng thừa nhận hành vi vi phạm."
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "99e2870e-52ab-411c-a3b3-9969eacc52f6",
+      "question": "Giao dịch bất động sản có giá chuyển nhượng cao bất thường so với thị trường nhưng khách hàng không quan tâm đến giá cả được hiểu như thế nào?",
+      "options": [
+        "Là dấu hiệu đáng ngờ trong hoạt động kinh doanh bất động sản theo quy định pháp luật.",
+        "Không bị xem là đáng ngờ nếu các bên tự nguyện và có khả năng tài chính đầy đủ.",
+        "Chỉ là giao dịch dân sự thông thường nếu được công chứng hợp lệ theo quy định pháp luật.",
+        "Không thuộc phạm vi kiểm soát của pháp luật phòng, chống rửa tiền trong bất động sản."
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "39448106-7665-49e2-b118-363b6566567f",
+      "question": "Theo Luật Phòng, chống rửa tiền 2022, thời hạn lưu trữ các hồ sơ, tài liệu thuộc diện phải lưu trữ về nguyên tắc là bao lâu?",
+      "options": [
+        "03 năm.",
+        "05 năm.",
+        "07 năm.",
+        "10 năm."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "6acba632-9e89-48f3-b2aa-fdbc3c2832f7",
+      "question": "Đối tượng báo cáo có được tiết lộ cho khách hàng hoặc cá nhân không có thẩm quyền về việc đã báo cáo giao dịch đáng ngờ hay không?",
+      "options": [
+        "Không được tiết lộ, trừ trường hợp pháp luật có quy định khác.",
+        "Được nếu khách hàng yêu cầu bằng văn bản.",
+        "Được nếu giao dịch đã hoàn thành.",
+        "Được nếu khách hàng cam kết bảo mật."
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "561f0dff-2c2b-44e5-8034-ac0253522712",
+      "question": "Theo Luật Phòng, chống rửa tiền 2022, trường hợp nào sau đây thuộc trường hợp phải áp dụng biện pháp trì hoãn giao dịch?",
+      "options": [
+        "Khi có căn cứ để nghi ngờ hoặc phát hiện các bên liên quan đến giao dịch thuộc Danh sách đen.",
+        "Khi mọi giao dịch có giá trị từ 400 triệu đồng trở lên.",
+        "Khi khách hàng thực hiện nhiều giao dịch trong một ngày.",
+        "Khi doanh nghiệp cần thêm thời gian kiểm tra hồ sơ."
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "7b1009df-b0d0-489a-acaa-2184abc5710e",
+      "question": "Khi giao dịch bất động sản được thực hiện thông qua người đại diện hoặc người được ủy quyền, đối tượng báo cáo cần làm gì?",
+      "options": [
+        "Chỉ cần nhận biết người trực tiếp đến giao dịch.",
+        "Thực hiện nhận biết, xác minh thông tin khách hàng và người đại diện hoặc người được ủy quyền theo quy định.",
+        "Mặc nhiên coi đây là giao dịch đáng ngờ.",
+        "Tự động trì hoãn giao dịch trong 03 ngày làm việc."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "d089867e-b62d-4843-bb65-d13bd96d1311",
+      "question": "Theo quy định pháp luật về phòng, chống rửa tiền, \"đối tượng báo cáo\" có trách nhiệm nào sau đây?",
+      "options": [
+        "Thực hiện nhận biết khách hàng và cập nhật thông tin giao dịch theo quy định hiện hành.",
+        "Báo cáo các giao dịch có giá trị lớn hoặc có dấu hiệu đáng ngờ cho cơ quan có thẩm quyền.",
+        "Lưu trữ hồ sơ, tài liệu và thông tin liên quan đến hoạt động phòng, chống rửa tiền.",
+        "Thực hiện đầy đủ các trách nhiệm về nhận biết, báo cáo và lưu trữ thông tin giao dịch."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "8df76a3c-3e46-4696-8221-3ceb5e503906",
+      "question": "Theo quy định của Luật Phòng, chống rửa tiền 2022, đối tượng báo cáo phải áp dụng biện pháp nhận biết khách hàng nhằm mục đích nào sau đây?",
+      "options": [
+        "Xác định giá trị tài sản giao dịch để tính thuế theo quy định của pháp luật hiện hành.",
+        "Kiểm tra khả năng thanh toán và năng lực tài chính của khách hàng trước giao dịch.",
+        "Nhận biết và xác minh khách hàng nhằm phục vụ việc phòng, chống rửa tiền và các hoạt động liên quan theo quy định pháp luật.",
+        "Đánh giá mức độ uy tín của khách hàng trong hoạt động kinh doanh bất động sản dân sự."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "16631034-8a96-4da8-b698-7feade57275b",
+      "question": "Khi thực hiện nhận biết khách hàng, đối tượng báo cáo phải thu thập thông tin nào về chủ sở hữu hưởng lợi?",
+      "options": [
+        "Thông tin về nơi cư trú và lịch sử giao dịch dân sự của người đại diện pháp luật.",
+        "Thông tin về tài sản riêng và nghĩa vụ tài chính của khách hàng trong quá khứ.",
+        "Thông tin để xác định cá nhân thực tế sở hữu hoặc kiểm soát khách hàng, giao dịch.",
+        "Thông tin về quan hệ gia đình của khách hàng với người tham gia giao dịch bất động sản."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "c9e15519-0025-4685-977f-3dab8268db81",
+      "question": "Theo Luật Phòng, chống rửa tiền 2022, đối tượng báo cáo phải báo cáo giao dịch đáng ngờ bằng văn bản trong thời hạn nào?",
+      "options": [
+        "05 ngày làm việc kể từ ngày phát sinh giao dịch.",
+        "03 ngày làm việc kể từ ngày phát sinh giao dịch hoặc 01 ngày làm việc kể từ ngày phát hiện giao dịch đáng ngờ.",
+        "07 ngày làm việc kể từ ngày xác minh khách hàng.",
+        "Báo cáo định kỳ vào cuối tháng."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "a7f7c744-db85-426d-b821-48d0534a3ebe",
+      "question": "Theo quy định pháp luật, tổ chức kinh doanh bất động sản có trách nhiệm gì khi phát hiện giao dịch có dấu hiệu liên quan đến rửa tiền?",
+      "options": [
+        "Tự ý hủy bỏ giao dịch và phong tỏa tài sản của khách hàng tham gia giao dịch đó.",
+        "Chuyển toàn bộ hồ sơ giao dịch cho cơ quan công an mà không cần lưu trữ thông tin.",
+        "Thực hiện báo cáo và áp dụng biện pháp phòng, chống rửa tiền theo đúng quy định.",
+        "Từ chối toàn bộ giao dịch bất động sản có giá trị lớn hơn mức thông thường trên thị trường."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "97146fa4-d7ea-4a70-b845-d40e69f3d8c7",
+      "question": "Theo quy định của Luật Phòng, chống rửa tiền 2022, giao dịch nào dưới đây có thể bị xem xét là giao dịch đáng ngờ trong lĩnh vực bất động sản?",
+      "options": [
+        "Giao dịch có giá phù hợp thị trường và được thanh toán qua tài khoản ngân hàng hợp pháp.",
+        "Giao dịch mua bán nhà đất được công chứng và kê khai đầy đủ nghĩa vụ tài chính.",
+        "Giao dịch chuyển nhượng quyền sử dụng đất giữa các thành viên trong cùng hộ gia đình.",
+        "Giao dịch bất động sản có giá bất thường, phương thức thanh toán không phù hợp hoặc có những đặc điểm bất thường khác thuộc dấu hiệu đáng ngờ theo quy định."
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "5f968b2e-ce90-471a-a7fa-7f180179b0d8",
+      "question": "Luật nào là văn bản pháp luật nền tảng quy định các nguyên tắc chung về xử phạt vi phạm hành chính tại Việt Nam?",
+      "options": [
+        "Luật Đất đai 2024",
+        "Luật kinh doanh bất động sản 2023",
+        "Bộ luật Dân sự 2015",
+        "Luật Xử lý Vi phạm Hành chính 2020 (đã được sửa đổi, bổ sung một số điều theo Luật số 88 năm 2025)"
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "c5a2f3eb-6ae5-4157-8624-cc4a54d78b8b",
+      "question": "Theo quy định chung, mức phạt tiền đối với tổ chức vi phạm hành chính trong lĩnh vực đất đai và kinh doanh BĐS thường như thế nào so với cá nhân có cùng hành vi?",
+      "options": [
+        "Bằng cá nhân",
+        "Gấp đôi cá nhân",
+        "Bằng một nửa cá nhân",
+        "Gấp ba lần cá nhân"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "665791e2-97bd-4a5a-91c6-b8e8b3df5ce9",
+      "question": "Thời hiệu xử phạt vi phạm hành chính trong lĩnh vực đất đai theo Nghị định 123/2024/NĐ-CP là bao lâu?",
+      "options": [
+        "1 năm",
+        "2 năm",
+        "3 năm",
+        "5 năm"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "7eca8033-a137-4e14-8235-75cdaef4a9e1",
+      "question": "Đối tượng nào sau đây KHÔNG thuộc phạm vi áp dụng của Nghị định 123/2024/NĐ-CP?",
+      "options": [
+        "Tổ chức, cá nhân trong nước",
+        "Tổ chức, cá nhân nước ngoài",
+        "Hộ gia đình, cộng đồng dân cư",
+        "Cơ quan nhà nước có thẩm quyền xử phạt"
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "88016df2-2338-4930-85c1-bd26355fbfc1",
+      "question": "Hành vi nào sau đây KHÔNG phải là vi phạm về chuyển mục đích sử dụng đất theo Điều 8 - Điều 12 Nghị định 123/2024/NĐ-CP?",
+      "options": [
+        "Tự ý chuyển đất trồng lúa sang đất trồng cây lâu năm",
+        "Chuyển đất ở sang đất nông nghiệp không được phép",
+        "Chuyển đất nông nghiệp sang đất phi nông nghiệp không được phép",
+        "Xây dựng nhà trên đất nông nghiệp khi chưa được phép"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "a039f7b6-9367-4255-9ce6-439111a5643c",
+      "question": "Mức phạt tiền đối với hành vi chuyển mục đích sử dụng đất trái phép KHÔNG phụ thuộc vào yếu tố nào sau đây?",
+      "options": [
+        "Loại đất ban đầu và loại đất chuyển đến",
+        "Diện tích đất vi phạm",
+        "Vị trí đất (nông thôn/đô thị)",
+        "Thời điểm thực hiện hành vi vi phạm"
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "414305b1-52d0-49f8-9642-c874c99f0b83",
+      "question": "Biện pháp khắc phục hậu quả chính đối với hành vi chuyển mục đích sử dụng đất trái phép là gì?",
+      "options": [
+        "Buộc nộp tiền sử dụng đất",
+        "Buộc khôi phục lại tình trạng ban đầu của đất",
+        "Tịch thu toàn bộ diện tích đất vi phạm",
+        "Phạt tù người vi phạm"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "c2e7e2dc-959b-4902-ac49-57a4dd017c3f",
+      "question": "Mức phạt tiền tối đa đối với cá nhân có hành vi lấn, chiếm đất theo Nghị định 123/2024/NĐ-CP là bao nhiêu?",
+      "options": [
+        "200.000.000 đồng",
+        "400.000.000 đồng",
+        "500.000.000 đồng",
+        "1.000.000.000 đồng"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "a5643ebd-d057-4d52-9b9c-b65e91e5cdf2",
+      "question": "Biện pháp khắc phục hậu quả đối với hành vi không đăng ký đất đai là gì?",
+      "options": [
+        "Buộc khôi phục tình trạng ban đầu",
+        "Buộc nộp lại số lợi bất hợp pháp",
+        "Buộc thực hiện thủ tục đăng ký đất đai theo quy định",
+        "Tịch thu giấy tờ liên quan"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "568fe261-3044-4410-a435-9d8b28c5ab31",
+      "question": "Hình thức xử phạt bổ sung nào được áp dụng đối với hành vi sử dụng giấy tờ giả trong thủ tục hành chính về đất đai?",
+      "options": [
+        "Tước quyền sử dụng đất",
+        "Đình chỉ hoạt động",
+        "Tịch thu giấy tờ giả đã sử dụng",
+        "Cảnh cáo"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "451a6d02-1b60-42df-b1a1-cf256ba58523",
+      "question": "Hành vi không sử dụng đất trồng cây lâu năm liên tục trong bao lâu thì bị coi là vi phạm (bỏ hoang đất)?",
+      "options": [
+        "6 tháng",
+        "12 tháng",
+        "18 tháng",
+        "24 tháng"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "2b5f6360-8afd-4e8d-ad75-b529b966dd92",
+      "question": "Biện pháp khắc phục hậu quả đối với hành vi bỏ hoang đất trồng cây lâu năm là gì?",
+      "options": [
+        "Buộc trả lại đất cho Nhà nước",
+        "Buộc đưa đất vào sử dụng trong thời hạn 60 ngày",
+        "Buộc nộp phạt gấp đôi",
+        "Buộc chuyển sang loại đất khác"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "1c73663e-b287-4d2f-ba7e-86748238960f",
+      "question": "Hình thức xử phạt bổ sung nào có thể áp dụng đối với tổ chức vi phạm điều kiện hoạt động dịch vụ tư vấn đất đai?",
+      "options": [
+        "Phạt tiền gấp 3 lần",
+        "Tịch thu phương tiện hành nghề",
+        "Tước quyền sử dụng giấy phép/chứng chỉ hành nghề hoặc Đình chỉ hoạt động",
+        "Buộc giải thể tổ chức"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "d5ad359e-3579-4058-a5a4-0b1f51873252",
+      "question": "Hành vi nào sau đây KHÔNG phải là vi phạm quy định về Kinh doanh bất động sản theo Điều 66 Nghị định 339/2026/NĐ-CP?",
+      "options": [
+        "Kinh doanh BĐS không thành lập doanh nghiệp/HTX khi bắt buộc",
+        "Công khai thông tin dự án BĐS đầy đủ, kịp thời",
+        "Doanh nghiệp nhận tiền thanh toán không thông qua tài khoản",
+        "Kinh doanh bất động sản trong phạm vi khu vực bảo vệ theo quy định của pháp luật về quốc phòng, an ninh"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "18634fc1-2f8a-46a8-970c-f4c7bc344105",
+      "question": "Mức phạt tiền cao nhất đối với tổ chức có hành vi vi phạm trong Kinh doanh bất động sản theo Nghị định 339/2026/NĐ-CP là bao nhiêu?",
+      "options": [
+        "500.000.000 đồng",
+        "800.000.000 đồng",
+        "1.000.000.000 đồng",
+        "2.000.000.000 đồng"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "70a148d5-2f13-445a-b2cd-356956d943d8",
+      "question": "Hình thức xử phạt bổ sung nào có thể áp dụng cho hành vi kinh doanh BĐS không đủ điều kiện theo Nghị định 339/2026/NĐ-CP?",
+      "options": [
+        "Tịch thu BĐS",
+        "Đình chỉ hoạt động kinh doanh BĐS từ 03 đến 06 tháng",
+        "Phạt tiền gấp đôi",
+        "Buộc phá dỡ công trình"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "a1d8269f-40ba-4032-b306-79a5083d61dc",
+      "question": "Theo Điều 68, Nghị định 339/2026/NĐ-CP, chủ đầu tư thu tiền trong bán, cho thuê mua nhà ở, công trình xây dựng hình thành trong tương lai không đúng quy định thì ngoài bị phạt tiền còn phải thực hiện biện pháp khắc phục hậu quả nào?",
+      "options": [
+        "Buộc hoàn trả khách hàng toàn bộ số tiền đã thu không đúng quy định, kèm theo khoản lợi tức phát sinh từ số tiền đã thu",
+        "Buộc giảm giá bán bất động sản",
+        "Buộc chuyển số tiền thu vượt vào ngân sách nhà nước",
+        "Buộc dừng thi công dự án"
+      ],
+      "correct": 0,
+      "explanation": ""
+    },
+    {
+      "id": "88469f6a-b8cb-472a-8670-b141dbb7511e",
+      "question": "Mức phạt tiền đối với cá nhân môi giới độc lập không có chứng chỉ hành nghề theo Nghị định 339/2026/NĐ-CP là bao nhiêu?",
+      "options": [
+        "20 - 30 triệu đồng",
+        "40 - 60 triệu đồng",
+        "60 - 80 triệu đồng",
+        "100 - 120 triệu đồng"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "af219f77-66ae-44ae-9b1e-6790476d5762",
+      "question": "Hành vi nào sau đây của sàn giao dịch BĐS KHÔNG bị phạt tiền từ 200 - 400 triệu đồng theo Nghị định 339/2026/NĐ-CP?",
+      "options": [
+        "Kinh doanh dịch vụ sàn giao dịch bất động sản nhưng không thành lập doanh nghiệp",
+        "Sàn giao dịch bất động sản hoạt động không có giấy phép hoạt động theo quy định",
+        "Ký hợp đồng với cá nhân hành nghề môi giới bất động sản nhưng cá nhân đó không đủ điều kiện hoạt động theo quy định",
+        "Thu phí dịch vụ sai quy định"
+      ],
+      "correct": 3,
+      "explanation": ""
+    },
+    {
+      "id": "4c5ef276-efb8-4efe-bb3d-d9d4fb04bad8",
+      "question": "Mức phạt tiền đối với tổ chức có hành vi làm sai lệch, hư hỏng thông tin về nhà ở và thị trường BĐS là bao nhiêu?",
+      "options": [
+        "40 - 60 triệu đồng",
+        "60 - 80 triệu đồng",
+        "80 - 100 triệu đồng",
+        "100 - 120 triệu đồng"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "1899c8f4-c432-4926-9453-bc8d0f154e15",
+      "question": "Mục tiêu chính của các quy định xử phạt trong Kinh doanh bất động sản theo Nghị định 339/2026/NĐ-CP là gì?",
+      "options": [
+        "Tăng nguồn thu ngân sách",
+        "Hạn chế số lượng doanh nghiệp BĐS",
+        "Bảo vệ quyền lợi người tiêu dùng và đảm bảo tính minh bạch thị trường",
+        "Khuyến khích đầu cơ bất động sản"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "621bec83-e623-49fa-8b17-f7fcdf268fcf",
+      "question": "Ngoài phạt tiền, hình thức xử phạt bổ sung nào KHÔNG được đề cập là phổ biến trên thế giới trong lĩnh vực này?",
+      "options": [
+        "Cảnh cáo",
+        "Buộc lao động công ích",
+        "Đình chỉ hoặc thu hồi giấy phép hoạt động",
+        "Buộc chấm dứt hành vi vi phạm"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "26b40b74-11d8-451d-88f7-aefc08bb76a0",
+      "question": "Việc Bộ luật Dân sự 2015 quy định về hiệu lực của hợp đồng có ý nghĩa gì đối với việc xử phạt hành chính trong kinh doanh BĐS?",
+      "options": [
+        "Thay thế hoàn toàn việc xử phạt hành chính.",
+        "Không liên quan đến xử phạt hành chính.",
+        "Một hành vi vi phạm có thể vừa bị xử phạt hành chính, vừa dẫn đến hậu quả dân sự (ví dụ hợp đồng vô hiệu).",
+        "Chỉ áp dụng nếu không có Nghị định xử phạt chuyên ngành"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "c941132f-c8b8-4f88-b284-320992c03d2f",
+      "question": "Trường hợp nào hành vi chuyển mục đích sử dụng đất trái phép có thể KHÔNG bị áp dụng biện pháp khắc phục hậu quả là buộc khôi phục tình trạng ban đầu?",
+      "options": [
+        "Khi người vi phạm tự nguyện nộp phạt gấp đôi.",
+        "Khi việc chuyển mục đích phù hợp quy hoạch và người sử dụng đất đủ điều kiện được chuyển mục đích.",
+        "Khi diện tích vi phạm dưới 10m2.",
+        "Khi hành vi vi phạm xảy ra ở khu vực nông thôn."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "7bb55c8c-a475-4bb9-bf7e-6300bbc2d332",
+      "question": "Mức phạt đối với hành vi chuyển đất trồng lúa sang đất ở tại khu vực đô thị (phường, thị trấn) so với cùng hành vi tại khu vực nông thôn (xã) là như thế nào?",
+      "options": [
+        "Bằng nhau",
+        "Gấp đôi",
+        "Bằng một nửa",
+        "Gấp ba lần"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "e9b82810-9fd9-43e3-b557-e1943a99c9fb",
+      "question": "Hành vi hủy hoại đất nào sau đây có khung phạt tiền cao hơn theo Điều 14 Nghị định 123/2024/NĐ-CP?",
+      "options": [
+        "Làm suy giảm chất lượng đất (mất tầng canh tác, ô nhiễm...)",
+        "Làm biến dạng địa hình (thay đổi độ dốc, san lấp trái phép...)",
+        "Cả hai hành vi có khung phạt như nhau.",
+        "Chỉ hành vi gây ô nhiễm mới bị phạt."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "03e6632b-2259-4e37-885e-dc2f6e7c4f5d",
+      "question": "Trường hợp hủy hoại đất mà không thể khôi phục lại tình trạng ban đầu thì mức phạt tiền sẽ như thế nào?",
+      "options": [
+        "Giảm một nửa",
+        "Giữ nguyên",
+        "Tăng gấp đôi (nhưng không vượt mức tối đa)",
+        "Miễn phạt tiền, chỉ áp dụng biện pháp khác"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "26090392-4c35-4a2e-959b-9343e9960d19",
+      "question": "Hành vi cản trở việc sử dụng đất của người khác bằng cách đào bới, xây tường, làm hàng rào có mức phạt tiền như thế nào so với việc chỉ đặt vật liệu gây cản trở?",
+      "options": [
+        "Thấp hơn",
+        "Bằng nhau",
+        "Cao hơn",
+        "Tùy thuộc vào loại vật liệu"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "94e17451-6ba9-4ecd-a543-72af9d83407d",
+      "question": "Hành vi không đăng ký biến động đất đai khi có thay đổi (ví dụ: chuyển quyền, thế chấp) có mức phạt tiền như thế nào so với không đăng ký đất đai lần đầu?",
+      "options": [
+        "Thấp hơn",
+        "Bằng nhau",
+        "Cao hơn",
+        "Tùy thuộc vào giá trị thửa đất"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "c1d73323-3d3c-4c1f-816d-c5896cecb6d6",
+      "question": "Cá nhân nhận chuyển nhượng đất trồng lúa vượt hạn mức mà không thành lập tổ chức kinh tế để tiếp tục sử dụng thì bị xử phạt như thế nào?",
+      "options": [
+        "Cảnh cáo",
+        "Phạt tiền từ 50 triệu đến 100 triệu đồng",
+        "Buộc trả lại đất ngay lập tức",
+        "Buộc chuyển sang trồng cây khác"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "15b0972f-485c-4fcf-9877-6fef8acf24b2",
+      "question": "Hành vi khai báo không trung thực dẫn đến sai lệch trong việc cấp Giấy chứng nhận quyền sử dụng đất bị phạt tiền ở mức nào đối với cá nhân?",
+      "options": [
+        "2 - 5 triệu đồng",
+        "5 - 10 triệu đồng",
+        "10 - 20 triệu đồng",
+        "Cảnh cáo"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "3c240b7e-9a83-48fd-a94c-c9692507ed6b",
+      "question": "Biện pháp khắc phục hậu quả nào áp dụng cho trường hợp sử dụng giấy tờ giả trong thủ tục hành chính về đất đai?",
+      "options": [
+        "Buộc làm lại giấy tờ thật",
+        "Buộc nộp lại số lợi bất hợp pháp",
+        "Hủy bỏ kết quả thực hiện thủ tục hành chính đã thực hiện",
+        "Buộc xin lỗi công khai"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "cdb68b07-889f-43a0-b315-e231e0c1db47",
+      "question": "Hành vi chậm cung cấp thông tin đất đai theo yêu cầu của cơ quan có thẩm quyền bị xử phạt như thế nào đối với cá nhân?",
+      "options": [
+        "Phạt tiền 2 - 5 triệu đồng",
+        "Phạt tiền 5 - 10 triệu đồng",
+        "Phạt cảnh cáo",
+        "Không bị xử phạt nếu sau đó cung cấp đủ"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "6c998811-49af-4b21-832d-ae6a3677c82e",
+      "question": "Thời hạn buộc đưa đất vào sử dụng đối với hành vi bỏ hoang đất trồng rừng là bao lâu?",
+      "options": [
+        "30 ngày",
+        "60 ngày",
+        "90 ngày",
+        "120 ngày"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "5b74811b-fbe6-4281-89e7-adb31b4ab66c",
+      "question": "Mức phạt tối đa đối với tổ chức có hành vi vi phạm về điều kiện hoạt động dịch vụ trong lĩnh vực đất đai (Điều 29 Nghị định 123/2024/NĐ-CP) là bao nhiêu?",
+      "options": [
+        "100 triệu đồng",
+        "120 triệu đồng",
+        "200 triệu đồng",
+        "400 triệu đồng"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "8d8b3c86-e7fe-466c-b748-36948b1cb53a",
+      "question": "Theo Nghị định 339/2026/NĐ-CP, doanh nghiệp kinh doanh BĐS không công khai hoặc công khai không đầy đủ, không chính xác, không trung thực thông tin về BĐS, dự án BĐS trước khi đưa vào kinh doanh thuộc trường hợp quy định tại Điều 66 bị phạt tiền bao nhiêu?",
+      "options": [
+        "120–160 triệu đồng",
+        "200–300 triệu đồng",
+        "300–400 triệu đồng",
+        "600–800 triệu đồng"
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "23c0497b-4d24-4614-9f1b-103f179a617d",
+      "question": "Doanh nghiệp kinh doanh dịch vụ BĐS không đủ số người có chứng chỉ môi giới theo quy định bị xử phạt ở mức nào?",
+      "options": [
+        "40 - 60 triệu đồng",
+        "60 - 80 triệu đồng",
+        "200 - 250 triệu đồng",
+        "400 - 600 triệu đồng"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "efc22483-2f6c-4062-9b5d-7f2bd7273945",
+      "question": "Mức phạt tiền đối với tổ chức có hành vi chia sẻ thông tin về nhà ở và thị trường BĐS trái phép là bao nhiêu?",
+      "options": [
+        "40 - 60 triệu đồng",
+        "60 - 80 triệu đồng",
+        "80 - 100 triệu đồng",
+        "100 - 120 triệu đồng"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "49b4eb6f-4287-4a5f-a891-e78345c098ba",
+      "question": "Theo Nghị định 339/2026/NĐ-CP, chủ đầu tư dự án đầu tư xây dựng nhà ở thương mại có hành vi ủy quyền hoặc giao cho tổ chức, cá nhân khác thực hiện ký hợp đồng thuê, thuê mua, mua bán nhà ở thay mình thì bị phạt tiền ở mức nào?",
+      "options": [
+        "Phạt tiền 100 - 120 triệu đồng",
+        "Phạt tiền 140 - 160 triệu đồng",
+        "Phạt tiền 400 - 600 triệu đồng và có thể bị đình chỉ hoạt động KD BĐS (3-6 tháng)",
+        "Chỉ bị cảnh cáo"
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "630022f7-ed75-46f1-a623-51e3686f1de8",
+      "question": "Chủ đầu tư dự án BĐS không công khai thông tin về BĐS đưa vào kinh doanh theo quy định sẽ bị xử phạt ở mức nào theo Nghị định 339/2026/NĐ-CP?",
+      "options": [
+        "400 - 600 triệu đồng.",
+        "800 triệu - 1 tỷ đồng.",
+        "300 - 400 triệu đồng.",
+        "120 - 160 triệu đồng."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "fb1a4b8f-272f-435a-9cf1-d38491c80f37",
+      "question": "Việc chủ đầu tư ký hợp đồng mua bán nhà ở hình thành trong tương lai mà không có bảo lãnh hợp lệ của ngân hàng thương mại bị xử phạt ở khung nào?",
+      "options": [
+        "100 - 120 triệu đồng.",
+        "120 - 160 triệu đồng.",
+        "260 - 300 triệu đồng.",
+        "800 triệu - 1 tỷ đồng."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "042101f0-25e5-47f4-9cb6-c3cf3c88193b",
+      "question": "Doanh nghiệp kinh doanh dịch vụ môi giới bất động sản không có quy chế hoạt động theo quy định bị xử phạt ở mức nào?",
+      "options": [
+        "40 - 60 triệu đồng.",
+        "60 - 80 triệu đồng.",
+        "200 - 250 triệu đồng.",
+        "Không bị xử phạt, chỉ bị nhắc nhở."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "f0fa3075-aa62-47cc-9e16-fde590a065a9",
+      "question": "Việc không tuân thủ thủ tục \"đăng ký biến động đất đai\" khi có thay đổi về người sử dụng đất có thể dẫn đến hậu quả trực tiếp nào theo Nghị định 123/2024?",
+      "options": [
+        "Bị thu hồi đất ngay lập tức.",
+        "Bị phạt tiền từ 2 - 3 triệu đồng (cá nhân) và buộc thực hiện thủ tục đăng ký.",
+        "Bị truy cứu trách nhiệm hình sự.",
+        "Hợp đồng chuyển nhượng bị vô hiệu đương nhiên."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "5d36ba8f-51ed-4758-804a-c930b257cfb8",
+      "question": "Việc kết hợp giữa phạt tiền và các biện pháp khắc phục hậu quả cụ thể (buộc khôi phục, buộc thực hiện thủ tục...) trong hệ thống xử phạt Việt Nam phản ánh mục tiêu gì?",
+      "options": [
+        "Chỉ nhằm tối đa hóa nguồn thu từ tiền phạt.",
+        "Vừa răn đe, trừng phạt, vừa khắc phục hậu quả và lập lại trật tự quản lý.",
+        "Tạo thêm công việc cho các cơ quan hành chính.",
+        "Giảm gánh nặng cho hệ thống tòa án."
+      ],
+      "correct": 1,
+      "explanation": ""
+    },
+    {
+      "id": "25f03715-d645-4a2a-b275-8b9c57638c4e",
+      "question": "Hành vi xây dựng hàng rào kiên cố lấn sang phần đất lưu không hành lang an toàn giao thông đường bộ có thể bị xử phạt theo quy định nào?",
+      "options": [
+        "Chỉ theo pháp luật về giao thông đường bộ.",
+        "Chỉ theo pháp luật về xây dựng.",
+        "Có thể bị xử phạt về hành vi lấn chiếm đất (đất công do Nhà nước quản lý.",
+        "Chỉ bị yêu cầu tháo dỡ."
+      ],
+      "correct": 2,
+      "explanation": ""
+    },
+    {
+      "id": "c388e15c-015d-43fc-a824-3fc51d0ebd83",
+      "question": "Việc một sàn giao dịch BĐS cung cấp thông tin không trung thực về một dự án có thể dẫn đến hậu quả nào theo Điểm b Khoản 2 Điều 72 Nghị định 339/2026/NĐ-CP?",
+      "options": [
+        "Chỉ bị phạt tiền mức thấp nhất.",
+        "Bị phạt tiền từ 80-100 triệu đồng",
+        "Chỉ bị yêu cầu cải chính thông tin",
+        "Được miễn trừ trách nhiệm nếu thông tin do chủ đầu tư cung cấp."
+      ],
+      "correct": 1,
+      "explanation": ""
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "updated_at": "2026-10-08",
+  "version": 3,
+  "updated_at": "2026-10-09",
   "sets": [
     {
       "id": "kdbds-2023",
@@ -9,6 +9,15 @@
       "file": "luat-kdbds-2023.json",
       "version": 2,
       "updated_at": "2026-10-08",
+      "published": true
+    },
+    {
+      "id": "chuyen-de-4-7-9-10",
+      "title": "Ôn tập Chuyên đề 4, 7, 9, 10",
+      "description": "111 câu — Chuyên đề 4, 7, 9, 10.",
+      "file": "chuyen-de-4-7-9-10.json",
+      "version": 1,
+      "updated_at": "2026-10-09",
       "published": true
     }
   ]
