@@ -161,6 +161,17 @@
       var keys = sessionKeys(s) || [];
       if (!keys.length) return null;
       var pos = Math.min((s.idx || 0) + 1, keys.length);
+      return { pos: pos, total: keys.length, label: 'Câu ' + pos + ' / ' + keys.length };
+    } catch (e) { return null; }
+  }
+
+  // Display-only helper: real position/total of a kept session for the
+  // Stitch-style progress card/modal. No session data is created or changed.
+  function sessionProgress(s) {
+    try {
+      var keys = sessionKeys(s) || [];
+      if (!keys.length) return null;
+      var pos = Math.min((s.idx || 0) + 1, keys.length);
       var answered = Array.isArray(s.answers) ? s.answers.filter(function (a) { return typeof a === 'number' && a >= 0; }).length : 0;
       return { pos: answered, total: keys.length, label: 'Đã trả lời ' + answered + ' / ' + keys.length + ' câu · Đang ở câu ' + pos };
     } catch (e) { return null; }
@@ -283,6 +294,15 @@
       } else {
         prog.hidden = true;
       }
+    }
+    var prog = $('modal-progress');
+    if (prog) {
+      if (opts.progress && opts.progress.total) {
+        prog.hidden = false;
+        $('modal-progress-label').textContent = opts.progress.label || '';
+        $('modal-progress-pct').textContent = Math.round(opts.progress.pos / opts.progress.total * 100) + '%';
+        $('modal-progress-fill').style.width = Math.round(opts.progress.pos / opts.progress.total * 100) + '%';
+      } else { prog.hidden = true; }
     }
     $('modal-overlay').hidden = false;
     setTimeout(function () { try { safe.focus(); } catch (e) {} }, 50);
