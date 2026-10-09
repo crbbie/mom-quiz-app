@@ -1943,10 +1943,45 @@
     if (swReg && swReg.waiting) swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
     else window.location.reload();
   };
+  window.checkAppVersion = function () {
+    if (!('serviceWorker' in navigator)) { toast('Trình duyệt này không hỗ trợ cập nhật ứng dụng tự động'); return; }
+    navigator.serviceWorker.getRegistration().then(function (reg) {
+      if (!reg) { toast('Hãy tải lại trang để cài phiên bản ứng dụng'); return; }
+      swReg = reg;
+      return reg.update().then(function () {
+        if (reg.waiting && navigator.serviceWorker.controller) {
+          var banner = $('update-banner');
+          if (banner) banner.classList.add('show');
+          toast('Có phiên bản ứng dụng mới. Hãy bấm Cập nhật ở đầu trang.');
+        } else {
+          toast('Đã kiểm tra phiên bản ứng dụng');
+        }
+      });
+    }).catch(function () { toast('Chưa kiểm tra được. Hãy thử lại khi có mạng.'); });
+  };
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('sw.js').then(function (reg) {
         swReg = reg;
+        // A waiting worker may have finished installing before this page opened.
+        // Checking only updatefound misses it on iOS installed PWAs.
+        function announceReady() {
+          var banner = $('update-banner');
+          if (banner && reg.waiting && navigator.serviceWorker.controller) banner.classList.add('show');
+        }
+        announceReady();
+        reg.update().then(announceReady).catch(function () {});
+        var lastAppCheck = Date.now();
+        function refreshAppVersion() {
+          if (document.visibilityState === 'hidden') return;
+          announceReady();
+          if (Date.now() - lastAppCheck < 60000) return;
+          lastAppCheck = Date.now();
+          reg.update().then(announceReady).catch(function () {});
+        }
+        document.addEventListener('visibilitychange', refreshAppVersion);
+        window.addEventListener('pageshow', refreshAppVersion);
+        window.addEventListener('focus', refreshAppVersion);
         reg.addEventListener('updatefound', function () {
           var nw = reg.installing;
           if (!nw) return;
