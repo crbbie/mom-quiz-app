@@ -30,6 +30,15 @@
   // persistSession() uses this, never screen visibility, so start/answer/nav
   // always save even before show() runs.
   var activeKind = null;
+  // Update-detection throttle: automatic checks (open / visible / focus /
+  // online) run at most once per window; manual taps always bypass.
+  // syncInProgress prevents overlapping fetches. pendingDataUpdate defers
+  // the "new data" notice when an update lands mid-session so the learner
+  // is told on return home instead of being interrupted mid-quiz.
+  var SYNC_THROTTLE_MS = 5 * 60 * 1000;
+  var lastSyncAt = 0;
+  var syncInProgress = false;
+  var pendingDataUpdate = false;
 
   /* ---------- helpers ---------- */
   function shuffle(a) {
@@ -108,21 +117,59 @@
     if ((s.wrongSetId || null) !== (wrongScope || null)) return false;
     return true;
   }
-  // proceed() starts the requested new session. If a DIFFERENT unfinished
-  // session exists, ask in-app: safe choice resumes it ("Tiếp tục bài đang
-  // làm"), destructive choice clearly replaces it. Resuming the same session
+  function sameExamSession(s, setId) {
+    if (!s || s.kind !== 'exam') return false;
+    return (s.setId || null) === (setId || null);
+  }
+  // Second, explicit discard confirmation. The first warning's destructive
+  // choice never starts anything by itself — it always lands here, so a
+  // single stray tap can never erase an unfinished session.
+  function confirmDiscardThenStart(keptDesc, proceed) {
+    showModal({
+      title: 'Bỏ bài cũ và bắt đầu mới?',
+      msg: 'Bài đang làm dở (' + keptDesc + ') sẽ bị xóa khỏi máy. Chỉ tiếp tục khi bạn chắc chắn muốn bỏ bài cũ.',
+      safeLabel: 'Giữ lại bài cũ',
+      dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
+      cancelLabel: 'Để sau',
+      onSafe: function () {},
+      onDanger: function () { proceed(); },
+      onCancel: function () {}
+    });
+  }
+  // Session-safety guard: detect the stored unfinished session BEFORE any
+  // destructive write. Same unfinished quiz -> offer Resume (restart needs
+  // its own explicit confirmation). Different quiz -> Resume / Discard and
+  // Start New (itself double-confirmed) / Cancel. Cancel and Resume never
+  // write storage, so the kept session survives byte-for-byte.
+  // proceed() starts the requested new session. Resuming the same session
   // (resumeSession) never passes through here, so it never nags.
   function guardReplaceSession(kind, setId, isWrong, wrongScope, proceed) {
     var kept = keptSession();
     if (!kept) { proceed(); return; }
-    if (kind === 'study' && sameStudySession(kept, setId, isWrong, wrongScope)) { proceed(); return; }
+    var isSame = (kind === 'study' && sameStudySession(kept, setId, isWrong, wrongScope)) ||
+                 (kind === 'exam' && sameExamSession(kept, setId));
+    if (isSame) {
+      showModal({
+        title: 'Bài này đang làm dở?',
+        msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Muốn tiếp tục bài đó hay làm lại từ đầu?',
+        safeLabel: 'Tiếp tục bài đang làm',
+        dangerLabel: 'Làm lại từ đầu',
+        cancelLabel: 'Để sau',
+        onSafe: function () { window.resumeSession(); },
+        onDanger: function () { confirmDiscardThenStart(describeSession(kept), proceed); },
+        onCancel: function () {}
+      });
+      return;
+    }
     showModal({
       title: 'Bài đang làm dở?',
       msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Bắt đầu bài mới sẽ xóa bài đang làm dở này.',
       safeLabel: 'Tiếp tục bài đang làm',
       dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
+      cancelLabel: 'Để sau',
       onSafe: function () { window.resumeSession(); },
-      onDanger: function () { proceed(); }
+      onDanger: function () { confirmDiscardThenStart(describeSession(kept), proceed); },
+      onCancel: function () {}
     });
   }
 
@@ -202,6 +249,10 @@
     if (el) el.classList.add('active');
     window.scrollTo(0, 0);
     if (screenId === 'home') renderHome();
+    if (screenId === 'home' && pendingDataUpdate) {
+      pendingDataUpdate = false;
+      setTimeout(function () { toast('Đã cập nhật dữ liệu mới'); }, 350);
+    }
     if (screenId === 'history') renderHistory();
     if (screenId === 'search') {
       var inp = $('search-input');
@@ -216,15 +267,23 @@
 
   /* ---------- modal confirm (Batch 3 §3.2/§3.9: explicit, safe-choice-first) ---------- */
   function showModal(opts) {
-    // opts: { title, msg, safeLabel, dangerLabel, onSafe, onDanger, dangerIsPrimary?:false }
+    // opts: { title, msg, safeLabel, dangerLabel, cancelLabel, onSafe, onDanger, onCancel, hideDanger?, hideCancel? }
+    // Session-safety guards pass cancelLabel + onCancel so backing out
+    // preserves the unfinished session untouched. Other flows omit the
+    // cancel button (hideCancel) and behave exactly as before.
     $('modal-title').textContent = opts.title || 'Xác nhận';
     $('modal-msg').textContent = opts.msg || '';
-    var safe = $('modal-safe'), danger = $('modal-danger');
+    var safe = $('modal-safe'), danger = $('modal-danger'), cancel = $('modal-cancel');
     safe.textContent = opts.safeLabel || 'Tiếp tục làm bài';
     danger.textContent = opts.dangerLabel || 'Nộp bài';
     danger.style.display = opts.hideDanger ? 'none' : '';
     safe.onclick = function () { hideModal(); if (opts.onSafe) opts.onSafe(); };
     danger.onclick = function () { hideModal(); if (opts.onDanger) opts.onDanger(); };
+    if (cancel) {
+      cancel.textContent = opts.cancelLabel || 'Để sau';
+      cancel.hidden = !!opts.hideCancel;
+      cancel.onclick = function () { hideModal(); if (opts.onCancel) opts.onCancel(); };
+    }
     $('modal-overlay').hidden = false;
     setTimeout(function () { try { safe.focus(); } catch (e) {} }, 50);
   }
@@ -295,19 +354,29 @@
     return arr.map(function (q) { return q.id; });
   }
 
-  // Compare catalog version + per-set versions; download only what changed.
+  // Compare remote catalog + per-set version metadata against the locally
+  // installed version; download only what changed. Remote files are fetched
+  // fresh (cache-busting query + no-store, never trusting HTTP/PWA cache).
   // Never interrupts an active study/exam session: the session keeps its
-  // in-memory questions; new content applies to future sessions.
+  // in-memory questions AND its stored snapshot; new content applies to
+  // future sessions. This function never clears or rewrites the session
+  // slot — stars/wrong are pruned by stable composite ID, history kept.
   async function syncContent(manual) {
+    if (syncInProgress && !manual) return;
+    if (!manual && lastSyncAt && (Date.now() - lastSyncAt) < SYNC_THROTTLE_MS) return;
     if (!navigator.onLine && !manual) {
       if (cache.sets.length) setSyncStatus('off', 'Ngoại tuyến — đang dùng bộ đề đã lưu (' + cache.sets.length + ' bộ)');
       return;
     }
+    syncInProgress = true;
+    lastSyncAt = Date.now();
     if (manual) setSyncStatus('on', 'Đang kiểm tra dữ liệu mới…');
     var catalog;
     try {
       catalog = await fetchFresh('data/catalog.json');
     } catch (e) {
+      syncInProgress = false;
+      lastSyncAt = 0; // error/offline: allow a prompt retry on next active event
       if (cache.sets.length) {
         setSyncStatus('off', 'Ngoại tuyến — đang dùng bộ đề đã lưu (' + cache.sets.length + ' bộ)');
         if (manual) toast('Không có mạng — vẫn dùng dữ liệu đã lưu');
@@ -363,6 +432,8 @@
     }
 
     if (!ok && !Object.keys(questionsBySet).length && !cache.sets.length) {
+      syncInProgress = false;
+      lastSyncAt = 0; // nothing usable: retry soon, not after a full throttle window
       setSyncStatus('off', 'Chưa tải được dữ liệu — thử lại khi có mạng');
       return;
     }
@@ -377,18 +448,22 @@
     LddStore.pruneStaleIds(cache);
 
     if (failures.length) {
+      syncInProgress = false;
+      lastSyncAt = 0; // partial failure: keep old versions AND retry promptly
       if (!active) renderHome();
       setSyncStatus('off', 'Cập nhật chưa hoàn tất — sẽ thử lại (' + failures.length + ' bộ)');
       toast('Cập nhật chưa hoàn tất — giữ dữ liệu cũ, sẽ thử lại');
       return;
     }
 
+    syncInProgress = false;
     if (changed) {
       if (!active) renderHome();
       setSyncStatus('on', 'Đã cập nhật · ' + fmtDate(Date.now()));
-      // Never pop a toast over an active study/exam session; the new
-      // content simply applies to future sessions.
+      // In-app notice ONLY when an update actually landed. Never pop a
+      // toast over an active study/exam session; defer it until home.
       if (!active || manual) toast('Đã cập nhật dữ liệu mới');
+      else pendingDataUpdate = true;
     } else {
       if (!active) renderHome();
       setSyncStatus('on', 'Bộ đề đã mới nhất · ' + cache.sets.length + ' bộ');
@@ -397,7 +472,21 @@
   }
 
   window.manualSync = function () { syncContent(true); };
-  window.addEventListener('online', function () { syncContent(false); });
+  // Real update detection: check on open (initialLoad) AND whenever the app
+  // becomes active again (PWA reopen, Safari restart, tab foreground) plus
+  // connectivity regain. Throttled; manual taps always run immediately.
+  function maybeSyncOnActive() {
+    try {
+      if (document.visibilityState === 'hidden') return;
+    } catch (e) {}
+    syncContent(false);
+  }
+  window.addEventListener('online', function () { lastSyncAt = 0; syncContent(false); });
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') maybeSyncOnActive();
+  });
+  window.addEventListener('focus', function () { maybeSyncOnActive(); });
+  window.addEventListener('pageshow', function () { maybeSyncOnActive(); });
 
   /* ---------- home (Batch 3 §3.1/§3.2 hierarchy) ----------
    * Order: 1. Resume (only when one exists) 2. Question Set/subject
