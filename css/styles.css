@@ -383,3 +383,22 @@ html[data-text-size="xlarge"] .grid2{grid-template-columns:1fr}
 .view-topic-filter label{display:block;margin-bottom:10px;font-size:var(--font-important,20px);font-weight:700;color:#141C28;line-height:1.45}
 .view-topic-filter select{display:block;width:100%;max-width:100%;min-height:58px;padding:12px 42px 12px 14px;border:2px solid #165CB8;border-radius:12px;background:#F4F7FB;color:#141C28;font-size:var(--font-answer,20px);font-weight:600;line-height:1.4;font-family:inherit;white-space:normal}
 .view-topic-filter select:focus-visible{outline:3px solid #165CB8;outline-offset:3px}
+
+/* Older learner P0/P1: one stable bank and large, explicit choices. */
+#screen-home .hero{margin-bottom:8px}#screen-home .hero p{display:none}
+#screen-home .textsize-row{padding:6px 0;margin-bottom:8px}
+#screen-home .sync-card{background:transparent;border:0;box-shadow:none;padding:0;margin:8px 0 12px}
+#screen-home .sync-card summary{padding:10px 12px;font-size:var(--font-meta);font-weight:600;cursor:pointer;color:var(--ink-2)}
+#screen-home .sync-detail{padding:12px;border:1px solid var(--line);border-radius:12px}
+.bank-picker{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.bank-picker label{display:block;font-size:var(--font-meta);font-weight:700;margin-bottom:8px}
+.bank-picker select{width:100%;min-height:58px;padding:12px 14px;font:inherit;font-size:var(--font-important);font-weight:650;color:var(--ink);background:var(--bg);border:2px solid var(--accent);border-radius:12px}
+.learning-modes{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:16px}
+.mode-action{display:flex;align-items:center;gap:14px;width:100%;min-height:83px;padding:16px;text-align:left;background:var(--card);color:var(--ink);border:0;border-bottom:1px solid var(--line);font:inherit}
+.mode-action:last-child{border-bottom:0}.mode-action>span:nth-child(2){flex:1;min-width:0}.mode-action b{display:block;font-size:var(--font-important)}.mode-action small{display:block;margin-top:4px;color:var(--ink-2);font-size:var(--font-meta);line-height:1.45}.mode-icon{font-size:25px;flex-shrink:0}
+.resume-card{padding:14px 16px;border:1px solid var(--accent)}.resume-card h2{display:none}.resume-card .resume-meta{font-size:var(--font-meta);font-weight:500}.resume-answered{font-size:var(--font-meta);margin-bottom:8px}.resume-card .set-actions{display:flex;gap:8px}
+.view-position{font-size:var(--font-important);font-weight:700;color:var(--ink);margin:8px 0 12px}
+.exam-options{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:12px 0;padding:12px}.exam-options summary{font-size:var(--font-important);font-weight:700;cursor:pointer;padding:6px}
+.bottom-actions{box-sizing:border-box;width:100%;max-width:640px;margin:12px auto 0;flex-direction:row;gap:10px}.bottom-actions .btn{width:50%;min-width:0;flex:1 1 0}
+#screen-study .bottom-actions,#screen-view .bottom-actions,#screen-exam .bottom-actions{flex-wrap:wrap}
+@media(max-width:360px){.bottom-actions{flex-direction:column}.bottom-actions .btn{width:100%}}

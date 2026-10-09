@@ -20,5 +20,5 @@ assert(html.includes('id="view-topic-filter"') && html.includes('id="view-topic-
 assert(app.includes('window.changeViewTopic') && app.includes('view.list = next;'), 'Filtered answer navigation missing');
 assert(app.includes("(!view.origin || view.origin.type === 'home')"), 'Single-question review must remain unfiltered');
 assert(app.includes('confirmDiscardThenStart(describeSession(kept), proceed)'), 'Discard confirmation missing');
-assert(app.includes('var same = (kind === \'study\''), 'Same-session protection missing');
+assert(app.includes('sameStudySession(kept, setId, isWrong, wrongScope)') && app.includes('sameExamSession(kept, setId)'), 'Same-session protection missing');
 console.log('OK: 111 IDs unique, 20+20+25+46 topic partition, review filter and session guards checked');

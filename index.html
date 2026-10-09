@@ -33,16 +33,16 @@
         <span style="flex:1">Có phiên bản mới của ứng dụng.</span>
         <button onclick="applyAppUpdate()">Cập nhật</button>
       </div>
-      <div class="sync-card sync-line" id="sync-card">
+      <details class="sync-card sync-line" id="sync-card"><summary>Thông tin và cập nhật dữ liệu</summary><div class="sync-detail">
         <div class="sync-card-top">
           <span class="sync-dot" id="sync-dot"></span>
           <span class="sync-card-text" id="sync-text">Đang tải bộ đề…</span>
         </div>
         <button class="btn ghost sync-btn" onclick="manualSync()">Cập nhật dữ liệu</button>
         <p class="sync-hint">Nếu chưa thấy bộ đề mới, hãy bấm Cập nhật dữ liệu.</p>
-      </div>
+      </div></details>
       <div id="resume-slot"></div>
-      <h2 class="home-section-label" id="sets-label">Danh sách bộ đề</h2>
+      <h2 class="home-section-label" id="sets-label">Chọn cách học</h2>
       <div id="set-list" role="list" aria-labelledby="sets-label"></div>
       <div id="home-nav"></div>
       <p class="install-hint" id="install-hint">
@@ -71,8 +71,8 @@
       <div id="study-feedback"></div>
     </div>
     <div class="bottom-actions">
-      <button class="btn primary" id="study-next" onclick="studyNext()" disabled>Tiếp theo ›</button>
       <button class="btn ghost" id="study-prev" onclick="studyPrev()">‹ Câu trước</button>
+      <button class="btn primary" id="study-next" onclick="studyNext()" disabled>Câu tiếp ›</button>
     </div>
   </section>
 
@@ -117,18 +117,19 @@
         <label for="view-topic-select">Chọn chuyên đề để xem đáp án</label>
         <select id="view-topic-select" onchange="changeViewTopic(this.value)" aria-label="Lọc đáp án theo chuyên đề"></select>
       </div>
+      <p class="view-position" id="view-position"></p>
       <div class="qcat" id="view-cat" style="display:none"></div>
       <div class="qtext" id="view-q"></div>
       <div class="options" id="view-ans"></div>
       <div id="view-exp"></div>
       <div class="view-done" id="view-done" hidden>
-        <p>Đã xem hết <b id="view-done-n">0</b> câu trong bộ đề này.</p>
+        <p>Đây là câu cuối trong danh sách (<b id="view-done-n">0</b> câu).</p>
         <button class="btn ghost" onclick="exitViewToHome()">Về bộ đề</button>
       </div>
     </div>
     <div class="bottom-actions">
-      <button class="btn primary" id="view-next" onclick="viewNext()">Câu tiếp ›</button>
       <button class="btn ghost" id="view-prev" onclick="viewPrev()">‹ Câu trước</button>
+      <button class="btn primary" id="view-next" onclick="viewNext()">Câu tiếp ›</button>
     </div>
   </section>
 
@@ -140,7 +141,8 @@
     </div>
     <div class="body">
       <p class="setup-hint" id="exam-default-hint">Mặc định: 20 câu · 20 phút — nhấn Bắt đầu thi là làm ngay.</p>
-      <div class="setup-group">
+      <button class="btn primary" id="exam-start-btn" style="width:100%;margin:12px 0" onclick="startExam()">Bắt đầu thi</button>
+      <details class="exam-options"><summary>Đổi số câu và thời gian</summary><div class="setup-group">
         <h3>Số câu hỏi</h3>
         <div class="chips" id="exam-count-chips">
           <button class="chip" data-v="10">10 câu</button>
@@ -158,7 +160,8 @@
           <button class="chip" data-v="60">60 phút</button>
         </div>
       </div>
-      <div class="setup-group">
+      </details>
+      <details class="exam-options"><summary>Tùy chọn khác</summary><div class="setup-group">
         <h3>Tùy chọn</h3>
         <div class="switch-row">
           <span id="lbl-shuffle-q">🔀 Đảo thứ tự câu hỏi</span>
@@ -169,7 +172,7 @@
           <button class="switch on" id="sw-shuffle-a" role="switch" aria-checked="true" aria-labelledby="lbl-shuffle-a sw-shuffle-a" onclick="toggleSwitch(this)"></button>
         </div>
       </div>
-      <button class="btn primary" id="exam-start-btn" style="width:100%;margin-top:8px" onclick="startExam()">Bắt đầu thi</button>
+      </details>
     </div>
   </section>
 
@@ -190,13 +193,12 @@
       <div class="qcat" id="exam-cat" style="display:none"></div>
       <div class="qtext" id="exam-q"></div>
       <div class="options" id="exam-opts"></div>
-      <h3 class="section-label">Bảng câu hỏi</h3>
-      <div class="nav-grid" id="exam-nav"></div>
+      <div class="nav-grid" id="exam-nav" hidden></div>
       <button class="btn danger" style="width:100%;margin-top:10px" onclick="confirmSubmitExam()">Nộp bài</button>
     </div>
     <div class="bottom-actions">
-      <button class="btn primary" id="exam-next-btn" onclick="examNext()">Sau ›</button>
-      <button class="btn ghost" onclick="examPrev()">‹ Trước</button>
+      <button class="btn ghost" onclick="examPrev()">‹ Câu trước</button>
+      <button class="btn primary" id="exam-next-btn" onclick="examNext()">Câu tiếp ›</button>
     </div>
   </section>
 
@@ -218,6 +220,7 @@
       <div class="stat-row">
         <div class="stat ok"><b id="er-ok">0</b><small>Đúng</small></div>
         <div class="stat no"><b id="er-no">0</b><small>Sai</small></div>
+        <div class="stat"><b id="er-unanswered">0</b><small>Chưa trả lời</small></div>
         <div class="stat"><b id="er-pct">0%</b><small>Tỷ lệ</small></div>
       </div>
       <h3 class="section-label">Chi tiết bài làm</h3>
