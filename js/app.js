@@ -30,6 +30,10 @@
   // persistSession() uses this, never screen visibility, so start/answer/nav
   // always save even before show() runs.
   var activeKind = null;
+  // Stitch Home §D: accordion state (UI-only, in-memory). Exactly one set
+  // card expanded at a time; null = first set. Never persisted, never a
+  // session — opening/closing changes no data.
+  var openAccId = null;
 
   /* ---------- helpers ---------- */
   function shuffle(a) {
@@ -119,11 +123,22 @@
     showModal({
       title: 'Bài đang làm dở?',
       msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Bắt đầu bài mới sẽ xóa bài đang làm dở này.',
+      progress: sessionProgress(kept),
       safeLabel: 'Tiếp tục bài đang làm',
       dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
       onSafe: function () { window.resumeSession(); },
       onDanger: function () { proceed(); }
     });
+  }
+  // Display-only helper: real position/total of a kept session for the
+  // Stitch-style progress card/modal. No session data is created or changed.
+  function sessionProgress(s) {
+    try {
+      var keys = sessionKeys(s) || [];
+      if (!keys.length) return null;
+      var pos = Math.min((s.idx || 0) + 1, keys.length);
+      return { pos: pos, total: keys.length, label: 'Câu ' + pos + ' / ' + keys.length };
+    } catch (e) { return null; }
   }
 
   // ---- session snapshot helpers (B1): persist the EXACT displayed option
@@ -214,9 +229,12 @@
     }
   }
 
-  /* ---------- modal confirm (Batch 3 §3.2/§3.9: explicit, safe-choice-first) ---------- */
+  /* ---------- modal confirm (Batch 3 §3.2/§3.9: explicit, safe-choice-first)
+   * Stitch Screen 4 §7 visual: white card, optional real progress bar,
+   * stacked actions — continue (primary), discard (soft warning), and an
+   * explicit Close that only dismisses the dialog and changes nothing. */
   function showModal(opts) {
-    // opts: { title, msg, safeLabel, dangerLabel, onSafe, onDanger, dangerIsPrimary?:false }
+    // opts: { title, msg, progress?:{pos,total,label}, safeLabel, dangerLabel, onSafe, onDanger, hideDanger? }
     $('modal-title').textContent = opts.title || 'Xác nhận';
     $('modal-msg').textContent = opts.msg || '';
     var safe = $('modal-safe'), danger = $('modal-danger');
@@ -225,6 +243,18 @@
     danger.style.display = opts.hideDanger ? 'none' : '';
     safe.onclick = function () { hideModal(); if (opts.onSafe) opts.onSafe(); };
     danger.onclick = function () { hideModal(); if (opts.onDanger) opts.onDanger(); };
+    var prog = $('modal-progress');
+    if (prog) {
+      if (opts.progress && opts.progress.total) {
+        prog.hidden = false;
+        $('modal-progress-label').textContent = opts.progress.label || '';
+        var pct = Math.round(opts.progress.pos / opts.progress.total * 100);
+        $('modal-progress-pct').textContent = pct + '%';
+        $('modal-progress-fill').style.width = pct + '%';
+      } else {
+        prog.hidden = true;
+      }
+    }
     $('modal-overlay').hidden = false;
     setTimeout(function () { try { safe.focus(); } catch (e) {} }, 50);
   }
@@ -449,12 +479,15 @@
         var rc = document.createElement('div');
         rc.className = 'set-card resume-card';
         rc.id = 'resume-card';
+        var pct = total ? Math.round(pos / total * 100) : 0;
         rc.innerHTML =
-          '<h2>⏸️ Bài đang làm dở</h2>' +
+          '<div class="resume-kicker"><span class="pulse" aria-hidden="true"></span><span>BÀI ĐANG LÀM DỞ</span></div>' +
+          '<h2>Bài đang làm dở</h2>' +
           '<p class="resume-meta" id="resume-meta">' + escapeHtml(meta) + '</p>' +
+          '<div class="resume-bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + pos + '" aria-label="Tiến độ bài đang làm dở"><div style="width:' + pct + '%"></div></div>' +
           '<div class="set-actions">' +
-          '<button class="btn primary" id="resume-continue" data-act="resume">▶️ Tiếp tục</button>' +
-          '<button class="btn ghost" id="resume-discard" data-act="drop">🗑️ Bỏ bài</button>' +
+          '<button class="btn primary study-primary" id="resume-continue" data-act="resume">Tiếp tục học</button>' +
+          '<button class="btn ghost drop" id="resume-discard" data-act="drop">Bỏ bài</button>' +
           '</div>';
         rc.querySelector('[data-act="resume"]').onclick = function () { window.resumeSession(); };
         rc.querySelector('[data-act="drop"]').onclick = function () { window.discardSession(); };
@@ -462,7 +495,10 @@
       }
     } catch (e2) {}
 
-    // 2-6. Per-set blocks in learner priority order.
+    // 2-6. Per-set accordion (Stitch Screen 5 §D): collapsed header shows
+    // the real set title, real question count and a real status chip when
+    // one exists; the whole header is one large tap target. Exactly one
+    // panel open at a time. Actions inside are unchanged.
     var box = $('set-list');
     box.innerHTML = '';
     if (!cache.sets.length) {
@@ -473,11 +509,24 @@
         '</p></div>';
       setSyncStatus('off', online ? 'Chưa có dữ liệu' : 'Ngoại tuyến — cần mạng cho lần đầu');
     }
+    if (openAccId === null && cache.sets.length) openAccId = cache.sets[0].id;
+    var keptForChip = null;
+    try { keptForChip = keptSession(); } catch (eC) {}
     cache.sets.forEach(function (s) {
       var n = questionsOf(s.id).length;
       var nw = wrongCountFor(s.id);
       var ns = starCountFor(s.id);
       var upd = s.updated_at ? fmtDate(Date.parse(s.updated_at)) : '';
+      // Real status only: "Đang học" when the unfinished session belongs to
+      // this set. Nothing is invented (no fake completed/new states).
+      var chip = (keptForChip && keptForChip.setId === s.id)
+        ? '<span class="acc-status">Đang học</span>' : '';
+      // Real study label: "Tiếp tục ôn tập" only when a plain unfinished
+      // study session for this exact set exists (startStudy resumes it);
+      // otherwise "Bắt đầu ôn tập".
+      var studyLabel = (keptForChip && keptForChip.kind === 'study' &&
+        keptForChip.setId === s.id && !keptForChip.isWrongReview)
+        ? 'Tiếp tục ôn tập' : 'Bắt đầu ôn tập';
       // Batch E: small resume hint for answer viewing (never a large card).
       var viewHint = '';
       try {
@@ -492,14 +541,21 @@
           }
         }
       } catch (eV) {}
+      var open = openAccId === s.id;
       var card = document.createElement('div');
       card.className = 'set-card';
+      card.setAttribute('role', 'listitem');
       card.innerHTML =
-        '<h2>' + escapeHtml(s.title) + '</h2>' +
+        '<button class="acc-head" aria-expanded="' + (open ? 'true' : 'false') + '" aria-controls="acc-panel-' + escapeHtml(s.id) + '">' +
+        '<span class="acc-head-text"><span class="acc-title">' + escapeHtml(s.title) + '</span>' +
+        '<span class="acc-head-meta"><span>' + n + ' câu hỏi</span>' + chip + '</span></span>' +
+        '<span class="acc-chev" aria-hidden="true">⌄</span>' +
+        '</button>' +
+        '<div class="acc-panel" id="acc-panel-' + escapeHtml(s.id) + '"' + (open ? '' : ' hidden') + '>' +
         (s.description ? '<p class="set-desc">' + escapeHtml(s.description) + '</p>' : '') +
-        '<div class="set-meta">' + n + ' câu' + (upd ? ' · cập nhật ' + escapeHtml(upd) : '') + '</div>' +
+        (upd ? '<div class="set-meta">cập nhật ' + escapeHtml(upd) + '</div>' : '') +
         '<div class="set-actions">' +
-        '<button class="btn primary study-primary" data-act="study">📖 Bắt đầu ôn tập</button>' +
+        '<button class="btn primary study-primary" data-act="study">📖 ' + studyLabel + '</button>' +
         '<button class="btn ghost view-secondary" data-act="view">👁️ Xem đáp án</button>' +
         '<button class="btn ghost exam-secondary" data-act="exam">📝 Thi thử</button>' +
         viewHint +
@@ -507,7 +563,21 @@
         '<button class="btn ghost" data-act="wrong">❌ Ôn câu sai · ' + nw + ' câu</button>' +
         '<button class="btn ghost" data-act="star">⭐ Câu đã lưu (' + ns + ')</button>' +
         '</div>' +
-        '</div>';
+        '</div></div>';
+      (function (setId, head) {
+        head.onclick = function () {
+          openAccId = (openAccId === setId) ? '__none__' : setId;
+          var cards = box.querySelectorAll('.set-card');
+          cards.forEach(function (c) {
+            var h = c.querySelector('.acc-head');
+            var p = c.querySelector('.acc-panel');
+            if (!h || !p) return;
+            var isOpen = h.getAttribute('aria-controls') === 'acc-panel-' + setId && openAccId === setId;
+            h.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            p.hidden = !isOpen;
+          });
+        };
+      })(s.id, card.querySelector('.acc-head'));
       card.querySelector('[data-act="study"]').onclick = function () { startStudy(s.id); };
       card.querySelector('[data-act="view"]').onclick = function () { startView(s.id); };
       card.querySelector('[data-act="exam"]').onclick = function () {
@@ -521,25 +591,28 @@
       box.appendChild(card);
     });
 
-    // 7-8. Global History / Search (secondary to per-set actions).
+    // 7-8. Study tools (Stitch §E): real counts only, 2-column cards that
+    // collapse to one column on small screens / "Rất lớn" text via CSS.
     var nav = $('home-nav');
     nav.innerHTML = '';
     var hLabel = document.createElement('h3');
     hLabel.className = 'home-section-label';
-    hLabel.textContent = 'Xem thêm';
+    hLabel.textContent = 'Công cụ học tập';
     nav.appendChild(hLabel);
+    var histTotal = 0;
+    try { histTotal = LddStore.getHistory().length; } catch (eH) {}
     var grid = document.createElement('div');
     grid.className = 'grid2';
     grid.innerHTML =
-      '<button class="tile" id="tile-history"><span class="ico">🕘</span><b>Lịch sử</b></button>' +
-      '<button class="tile" id="tile-search"><span class="ico">🔍</span><b>Tìm kiếm</b></button>';
+      '<button class="tile" id="tile-history"><span class="ico">🕘</span><b>Lịch sử</b><small>' + histTotal + ' bài đã làm</small></button>' +
+      '<button class="tile" id="tile-search"><span class="ico">🔍</span><b>Tìm kiếm</b><small>Tra cứu nhanh</small></button>';
     // Global review tiles (all sets) for older-learner clarity.
     var grid2 = document.createElement('div');
     grid2.className = 'grid2';
     grid2.innerHTML =
       '<button class="tile full" id="tile-wrong"><span class="ico">❌</span><b>Ôn câu sai · ' + wrongTotal + ' câu</b>' +
       '<span class="badge warn' + (wrongTotal ? '' : ' empty') + '" id="badge-wrong">' + wrongTotal + '</span></button>' +
-      '<button class="tile" id="tile-star"><span class="ico">⭐</span><b>Câu đã lưu</b>' +
+      '<button class="tile" id="tile-star"><span class="ico">⭐</span><b>Câu đã lưu</b><small>' + starTotal + ' câu quan trọng</small>' +
       '<span class="badge star' + (starTotal ? '' : ' empty') + '" id="badge-star">' + starTotal + '</span></button>';
     nav.appendChild(grid2);
     nav.appendChild(grid);
@@ -1674,9 +1747,12 @@
   };
 
   window.discardSession = function () {
+    var kept = null;
+    try { kept = keptSession(); } catch (eK) {}
     showModal({
       title: 'Bỏ bài đang làm dở?',
       msg: 'Bài làm dở sẽ bị xóa khỏi máy. Chỉ bỏ khi bạn chắc chắn muốn làm lại từ đầu.',
+      progress: kept ? sessionProgress(kept) : null,
       safeLabel: 'Giữ lại bài',
       dangerLabel: 'Bỏ bài',
       onSafe: function () {},
