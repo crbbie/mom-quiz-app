@@ -30,28 +30,47 @@ t('view action is a clear mode row (full width by layout)', html.indexOf('data-m
 t('modes always stack vertically (never cramped side-by-side)', /\.mode-list\{[^}]*flex-direction:\s*column/.test(css));
 t('resume hint small (Tiếp tục xem từ câu N, no large card)', app.indexOf('Tiếp tục xem từ câu ') >= 0 && app.indexOf('view-resume-hint') >= 0);
 
-// ---- view screen ----
+// ---- view screen: continuous-scroll answer review ----
 t('view screen exists (screen-view)', html.indexOf('id="screen-view"') >= 0);
-t('view shows scoped question position and Xem đáp án', vb.indexOf('view-position') >= 0 && vb.indexOf("'Xem đáp án'") >= 0);
-t('view has Danh sách câu entry', html.indexOf('id="screen-view"') >= 0 && html.split('id="screen-view"')[1].indexOf('Danh sách câu') >= 0);
+// DOM–JS contract (the shipped bug: JS wrote #view-position which HTML
+// lacked, throwing TypeError and blanking the screen). Both sides must agree.
+t('view-position element exists in DOM', html.indexOf('id="view-position"') >= 0);
+t('renderView writes the existing #view-position (no null textContent)', vb.indexOf("$('view-position')") >= 0 && html.indexOf('id="view-position"') >= 0);
+t('every view-section $() id exists in index.html (DOM contract)', (() => {
+  const ids = new Set([...html.matchAll(/id="([^"]+)"/g)].map(m => m[1]));
+  const used = [...vb.matchAll(/\$\('([^']+)'\)/g)].map(m => m[1]);
+  const missing = [...new Set(used)].filter(id => !ids.has(id));
+  if (missing.length) console.log('   missing ids: ' + missing.join(', '));
+  return missing.length === 0;
+})());
+t('view header shows Xem đáp án + set title', vb.indexOf("'Xem đáp án'") >= 0 && vb.indexOf('renderViewHeader') >= 0);
+t('view renders a card list (view-list container)', html.indexOf('id="view-list"') >= 0 && vb.indexOf("$('view-list')") >= 0);
+t('view has Xem thêm fallback (view-load-more)', html.indexOf('id="view-load-more"') >= 0 && vb.indexOf('viewLoadMore') >= 0);
+t('view appends progressive batches (no full innerHTML wipe per card)', vb.indexOf('renderViewBatch') >= 0 && vb.indexOf('DocumentFragment') >= 0);
 t('view shows correct badge (✓ Đáp án đúng)', vb.indexOf('✓ Đáp án đúng') >= 0);
-t('view shows star control (Lưu câu/Đã lưu)', vb.indexOf('Lưu câu') >= 0 && vb.indexOf('Đã lưu') >= 0);
-t('view has prev/next (Câu trước/Câu tiếp)', html.indexOf('id="view-prev"') >= 0 && html.indexOf('id="view-next"') >= 0);
-t('last-question completion + Về bộ đề (no score)', html.indexOf('Về bộ đề') >= 0 && html.indexOf('id="view-done"') >= 0 && vb.indexOf('done.hidden') >= 0);
+t('view shows per-card star control (Lưu câu/Đã lưu + aria-pressed)', vb.indexOf('view-star-btn') >= 0 && vb.indexOf('Lưu câu') >= 0 && vb.indexOf('Đã lưu') >= 0 && vb.indexOf('aria-pressed') >= 0);
+t('no single-question prev/next (continuous scroll needs none)', html.indexOf('id="view-prev"') < 0 && html.indexOf('id="view-next"') < 0 && app.indexOf('window.viewPrev') < 0 && app.indexOf('window.viewNext') < 0);
+t('no single-question picker in review (study/exam pickers untouched)', vb.indexOf('openViewPicker') < 0 && app.indexOf('function openViewPicker') < 0 && app.indexOf('openStudyPicker') >= 0 && app.indexOf('openExamPicker') >= 0);
 
 // ---- read-only isolation ----
 t('correct comes DIRECTLY from data (q.o[q.c])', vb.indexOf('q.o[q.c]') >= 0);
 t('no inference/recalc (no search inside view section)', vb.toLowerCase().indexOf('fetch(') < 0 && vb.indexOf('normalizeVi') < 0);
-t('explanation only when present (if (q.e))', vb.indexOf('if (q.e)') >= 0);
+// ---- explanation guard ----
+t('explanation only when present (non-empty q.e check)', /typeof q\.e === 'string' && q\.e\.trim\(\)/.test(vb));
 t('view never answers study quiz (no answerStudy call)', vcode.indexOf('answerStudy(') < 0);
 t('view never answers exam (no selectExam/submitExam)', vcode.indexOf('selectExam') < 0 && vcode.indexOf('submitExam') < 0);
 t('view never writes wrong membership (no setWrong)', vcode.indexOf('setWrong') < 0);
 t('view never writes history (no pushHistory)', vcode.indexOf('pushHistory') < 0);
 t('view never touches session slot (no setSession/clearSession/persistSession)', vcode.indexOf('setSession') < 0 && vcode.indexOf('clearSession') < 0 && vcode.indexOf('persistSession') < 0);
 t('view never starts quiz sessions (no startStudy/startExam)', vcode.indexOf('startStudy') < 0 && vcode.indexOf('startExam') < 0 && vcode.indexOf('startWrongStudy') < 0);
-t('only star tap writes stars (setStars once, in toggleViewStar)', (() => {
+t('only star tap writes stars (setStars once, in toggleViewCardStar)', (() => {
   const n = vcode.split('setStars').length - 1;
-  return n === 1 && vcode.indexOf('window.toggleViewStar') >= 0;
+  return n === 1 && vcode.indexOf('window.toggleViewCardStar') >= 0;
+})());
+t('star tap updates only its own card (no full renderView rebuild)', (() => {
+  const i = vcode.indexOf('window.toggleViewCardStar');
+  const b = vcode.slice(i, i + 1400);
+  return b.indexOf('renderView(') < 0;
 })());
 
 // ---- viewing position ----
@@ -60,14 +79,9 @@ t('position keyed per set (getViewPos/setViewPos)', store.indexOf('getViewPos') 
 t('first visit opens Q1 (viewResumeIndex defaults 0)', vb.indexOf('return 0;') >= 0);
 t('later visits resume saved key (stable setId:qid match)', vb.indexOf('LddStore.key(list[i].setId, list[i].id) === k') >= 0);
 
-// ---- picker in view mode ----
-t('view uses shared picker (openViewPicker via renderPicker)', vb.indexOf('openViewPicker') >= 0 || app.indexOf('function openViewPicker') >= 0);
-t('view picker changes no quiz state (pick only sets view.idx)', (() => {
-  const i = app.indexOf('function openViewPicker');
-  const b = app.slice(i, i + 900);
-  return b.indexOf('renderPicker(') >= 0 && b.indexOf('study.') < 0 && b.indexOf('exam.') < 0 && b.indexOf('persistSession') < 0;
-})());
-t('dispatcher routes active view to view picker', app.indexOf('view && view.active') >= 0);
+// ---- picker: review no longer paginates, study/exam pickers intact ----
+t('study/exam pickers intact (openStudyPicker/openExamPicker via renderPicker)', app.indexOf('function openStudyPicker') >= 0 && app.indexOf('function openExamPicker') >= 0);
+t('dispatcher routes only study/exam (no view picker branch)', app.indexOf('view && view.active') < 0);
 
 // ---- search + starred integration ----
 t('search tap opens view mode (openViewAt + search origin)', app.indexOf("openViewAt(q.setId, q.id, { type: 'search', query: lastSearchQuery") >= 0);

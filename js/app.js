@@ -17,7 +17,7 @@
   // viewing never touches study/exam answers, wrong membership, history or
   // the unfinished-session slot. Only the per-set view position (its own
   // storage slot) plus explicit star taps may change.
-  var view = { active: false, setId: null, list: [], idx: 0, origin: null, topic: 'all' };
+  var view = { active: false, setId: null, list: [], origin: null, topic: 'all', anchorKey: null, renderedCount: 0 };
   // Batch B §3: result context recorded at finish (study is cleared there),
   // so "Ôn lại" can retry the still-wrong scope instead of the full set.
   var lastResult = null;
@@ -1362,7 +1362,6 @@
   var pickerCtx = null;
   window.openQuestionPicker = function () {
     if ($('screen-exam') && $('screen-exam').classList.contains('active') && exam.list.length && !exam.submitted) { openExamPicker(); return; }
-    if (typeof view !== 'undefined' && view && view.active) { openViewPicker(); return; }
     openStudyPicker();
   };
   window.closeQuestionPicker = function () {
@@ -1472,6 +1471,13 @@
    * sessions. The displayed correct answer comes DIRECTLY from the course
    * data (q.o[q.c]) — never inferred or recalculated. Only an explicit star
    * tap may change Starred; the per-set view position uses its own slot. */
+  // Continuous-scroll answer review: one card per question in original
+  // set order, progressive batches appended (never full re-render per star
+  // tap). Reading position is tracked by composite key "setId:questionId".
+  var VIEW_BATCH = 20;
+  var viewObserver = null;
+  var viewScrollTimer = null;
+  var viewPlaceTimer = null;
   function viewResumeIndex(setId, list) {
     try {
       var k = (LddStore.getViewPos() || {})[setId];
@@ -1483,23 +1489,41 @@
     } catch (e) {}
     return 0;
   }
+  function viewFilteredList(setId, topic) {
+    var all = questionsOf(setId);
+    if (!topic || topic === 'all') return all;
+    return all.filter(function (q) { return reviewTopicId(q) === topic; });
+  }
   window.startView = function (setId) {
-    var list = questionsOf(setId || activeSetId);
+    var sid = setId || activeSetId;
+    var list = questionsOf(sid);
     if (!list.length) { toast('Bộ đề này chưa có câu hỏi'); return; }
-    var idx = viewResumeIndex(setId || activeSetId, list);
+    var idx = viewResumeIndex(sid, list);
     openViewAt(list[idx].setId, list[idx].id, { type: 'home', setId: list[idx].setId });
   };
   function openViewAt(setId, qid, origin) {
-    var list = questionsOf(setId);
-    if (!list.length) { toast('Bộ đề này chưa có câu hỏi'); return; }
-    var idx = 0;
-    for (var i = 0; i < list.length; i++) if (list[i].id === qid) { idx = i; break; }
+    var full = questionsOf(setId);
+    if (!full.length) { toast('Bộ đề này chưa có câu hỏi'); return; }
+    var org = origin || { type: 'home', setId: setId };
+    // Search/star origins always open the full set scope so a hidden topic
+    // filter can never swallow the chosen question.
+    var anchorKey = LddStore.key(setId, qid);
+    var known = false;
+    for (var k = 0; k < full.length; k++) {
+      if (full[k].id === qid) { known = true; break; }
+    }
+    if (!known) anchorKey = LddStore.key(full[0].setId, full[0].id);
     activeSetId = setId;
-    view = { active: true, setId: setId, list: list, idx: idx, origin: origin || { type: 'home', setId: setId }, topic: 'all' };
+    view = {
+      active: true, setId: setId, list: full.slice(),
+      origin: org, topic: 'all',
+      anchorKey: anchorKey, renderedCount: 0
+    };
     // Isolation: deliberately no persistSession() — viewing must never
     // overwrite an unfinished Study/Exam session.
     show('view');
     renderView();
+    placeViewAnchor(true);
   }
   window.openViewAt = openViewAt;
   // Topic filter applies ONLY to home-origin answer viewing of the combined set.
@@ -1540,104 +1564,324 @@
     if (!canFilterReview()) return;
     var allowed = topic === 'all' || REVIEW_TOPICS.some(function (t) { return t.id === topic; });
     if (!allowed) return;
-    var current = view.list[view.idx];
-    var all = questionsOf(view.setId);
-    var next = topic === 'all' ? all : all.filter(function (q) { return reviewTopicId(q) === topic; });
+    if (view.topic === topic) return;
+    var anchor = currentViewKey() || view.anchorKey;
+    var next = viewFilteredList(view.setId, topic);
     if (!next.length) { toast('Chuyên đề này chưa có câu hỏi'); updateReviewTopicPicker(); return; }
+    var kept = false;
+    if (anchor) {
+      for (var i = 0; i < next.length; i++) {
+        if (LddStore.key(next[i].setId, next[i].id) === anchor) { kept = true; break; }
+      }
+    }
     view.topic = topic;
     view.list = next;
-    var same = current && next.findIndex(function (q) { return q.id === current.id; });
-    view.idx = same >= 0 ? same : 0;
+    view.anchorKey = kept ? anchor : LddStore.key(next[0].setId, next[0].id);
     renderView();
-    window.scrollTo(0, 0);
+    placeViewAnchor(true);
+    saveViewPos(view.anchorKey);
+    var label = topic === 'all' ? 'Tất cả chuyên đề' : 'Chuyên đề ' + topic;
+    toast(label + ' · ' + next.length + ' câu' + (kept ? ' · giữ câu đang đọc' : ''));
   };
 
   function renderView() {
-    var q = view.list[view.idx];
-    if (!q) return;
-    var total = view.list.length;
+    if (!view.active || !view.list.length) return;
+    renderViewHeader();
+    teardownViewObserver();
+    var list = $('view-list');
+    if (list) {
+      setupViewListDelegation();
+      list.innerHTML = '';
+      view.renderedCount = 0;
+      // Render the first batch plus every batch needed to include the
+      // anchor card, then the observer appends the rest on demand.
+      renderViewBatch();
+      ensureAnchorRendered();
+      updateViewPosition();
+      setupViewObserver();
+    }
+  }
+  function renderViewHeader() {
     updateReviewTopicPicker();
     $('view-title').textContent = 'Xem đáp án';
-    $('view-position').textContent = 'Câu ' + (view.idx + 1) + ' trong ' + total + ' câu' + (view.topic && view.topic !== 'all' ? ' của Chuyên đề ' + view.topic : ' của bộ đề');
     $('view-sub').textContent = setTitleOf(view.setId);
     var org = view.origin || {};
     $('view-back').setAttribute('aria-label',
       org.type === 'search' ? 'Quay lại tìm kiếm' : (org.type === 'star' ? 'Quay lại câu đã lưu' : 'Quay lại'));
-    var cat = $('view-cat');
-    if (q.category) { cat.style.display = ''; cat.textContent = q.category; }
-    else cat.style.display = 'none';
-    $('view-q').textContent = q.q;
+  }
+  // List counter (keeps the #view-position DOM–JS contract that the old
+  // single-question layout broke by omitting the element).
+  function updateViewPosition() {
+    var pos = $('view-position');
+    if (!pos) return;
+    var total = view.list.length;
+    var shown = Math.min(view.renderedCount, total);
+    pos.textContent = 'Đã hiển thị ' + shown + ' trong ' + total + ' câu' +
+      (view.topic && view.topic !== 'all' ? ' của Chuyên đề ' + view.topic : ' của bộ đề');
+    var more = $('view-load-more');
+    if (more) more.style.display = shown < total ? '' : 'none';
+  }
+  function buildViewCard(q, pos) {
+    var card = document.createElement('article');
+    card.className = 'view-card';
+    card.setAttribute('data-key', LddStore.key(q.setId, q.id));
+    card.setAttribute('aria-label', 'Câu ' + pos);
+
+    var head = document.createElement('div');
+    head.className = 'view-card-head';
+    var num = document.createElement('span');
+    num.className = 'view-num';
+    num.textContent = 'Câu ' + pos;
+    head.appendChild(num);
+    if (q.category) {
+      var cat = document.createElement('span');
+      cat.className = 'qcat view-card-cat';
+      cat.textContent = q.category;
+      head.appendChild(cat);
+    }
+    card.appendChild(head);
+
+    var qt = document.createElement('div');
+    qt.className = 'qtext view-card-q';
+    qt.textContent = q.q;
+    card.appendChild(qt);
+
     // Correct answer DIRECTLY from course data — never inferred.
-    var ans = $('view-ans');
-    ans.innerHTML = '';
+    var ans = document.createElement('div');
+    ans.className = 'options';
     var d = document.createElement('div');
     d.className = 'opt correct';
     d.setAttribute('role', 'note');
     d.setAttribute('aria-label', 'Đáp án đúng ' + LETTERS[q.c] + ': ' + q.o[q.c]);
-    d.innerHTML = '<span class="letter" aria-hidden="true">' + LETTERS[q.c] + '</span><span class="otext">' +
-      escapeHtml(q.o[q.c]) + '</span><span class="tag">✓ Đáp án đúng</span>';
+    var letter = document.createElement('span');
+    letter.className = 'letter';
+    letter.setAttribute('aria-hidden', 'true');
+    letter.textContent = LETTERS[q.c];
+    var otext = document.createElement('span');
+    otext.className = 'otext';
+    otext.textContent = q.o[q.c];
+    var tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.textContent = '✓ Đáp án đúng';
+    d.appendChild(letter);
+    d.appendChild(otext);
+    d.appendChild(tag);
     ans.appendChild(d);
+    card.appendChild(ans);
+
     // ONLY the existing explanation from data, when present.
-    var exp = $('view-exp');
-    if (q.e) {
-      exp.innerHTML = '<div class="feedback ok"><div class="head">Giải thích</div><div class="exp">' +
-        escapeHtml(q.e) + '</div></div>';
-    } else {
-      exp.innerHTML = '';
+    if (typeof q.e === 'string' && q.e.trim()) {
+      var fb = document.createElement('div');
+      fb.className = 'feedback ok';
+      var fh = document.createElement('div');
+      fh.className = 'head';
+      fh.textContent = 'Giải thích';
+      var ex = document.createElement('div');
+      ex.className = 'exp';
+      ex.textContent = q.e;
+      fb.appendChild(fh);
+      fb.appendChild(ex);
+      card.appendChild(fb);
     }
-    var on = LddStore.getStars().indexOf(qkey(q)) >= 0;
-    var starBtn = $('view-star');
-    var starIco = $('view-star-ico');
-    var starTxt = $('view-star-txt');
-    if (starIco) starIco.textContent = on ? '★' : '☆';
-    if (starTxt) starTxt.textContent = on ? 'Đã lưu' : 'Lưu câu';
-    starBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    starBtn.setAttribute('aria-label', on ? 'Đã lưu (bỏ lưu câu này)' : 'Lưu câu (đánh dấu câu này)');
-    starBtn.classList.toggle('on', on);
-    $('view-prev').disabled = view.idx === 0;
-    $('view-next').disabled = view.idx === total - 1;
-    // Simple completion state at the last question — no score/results.
-    var done = $('view-done');
-    if (view.idx === total - 1) {
-      done.hidden = false;
-      $('view-done-n').textContent = total;
-    } else {
-      done.hidden = true;
+
+    var star = document.createElement('button');
+    star.className = 'btn ghost small view-star-btn';
+    var on = LddStore.getStars().indexOf(LddStore.key(q.setId, q.id)) >= 0;
+    star.setAttribute('data-key', LddStore.key(q.setId, q.id));
+    star.setAttribute('aria-pressed', on ? 'true' : 'false');
+    star.setAttribute('aria-label', on ? 'Đã lưu (bỏ lưu câu này)' : 'Lưu câu (đánh dấu câu này)');
+    if (on) star.classList.add('on');
+    star.innerHTML = '';
+    var ico = document.createElement('span');
+    ico.setAttribute('aria-hidden', 'true');
+    ico.textContent = on ? '★' : '☆';
+    star.appendChild(ico);
+    var slab = document.createElement('span');
+    slab.className = 'view-star-label';
+    slab.textContent = on ? ' Đã lưu' : ' Lưu câu';
+    star.appendChild(slab);
+    card.appendChild(star);
+
+    return card;
+  }
+  function renderViewBatch() {
+    var list = $('view-list');
+    if (!list || !view.active) return 0;
+    var start = view.renderedCount;
+    var end = Math.min(start + VIEW_BATCH, view.list.length);
+    if (start >= end) { updateViewPosition(); return 0; }
+    var frag = document.createDocumentFragment();
+    for (var i = start; i < end; i++) {
+      frag.appendChild(buildViewCard(view.list[i], i + 1));
     }
-    // Separate per-set position slot — never the quiz-session slot.
+    list.appendChild(frag);
+    view.renderedCount = end;
+    updateViewPosition();
+    return end - start;
+  }
+  function ensureAnchorRendered() {
+    if (!view.anchorKey) return;
+    var guard = 0;
+    while (view.renderedCount < view.list.length && guard < 20) {
+      var found = false;
+      var cards = viewCards();
+      for (var i = 0; i < cards.length; i++) {
+        if (cards[i].getAttribute('data-key') === view.anchorKey) { found = true; break; }
+      }
+      if (found) break;
+      renderViewBatch();
+      guard++;
+    }
+  }
+  function viewCards() {
+    var list = $('view-list');
+    if (!list) return [];
+    if (list.querySelectorAll) return list.querySelectorAll('.view-card');
+    return list.children || [];
+  }
+  function viewCardByKey(key) {
+    var cards = viewCards();
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i].getAttribute && cards[i].getAttribute('data-key') === key) return cards[i];
+    }
+    return null;
+  }
+  // Position the anchor card in view exactly once per open/filter change —
+  // never while the learner is reading.
+  function placeViewAnchor() {
+    if (!view.active) return;
+    if (viewPlaceTimer) { clearTimeout(viewPlaceTimer); viewPlaceTimer = null; }
+    viewPlaceTimer = setTimeout(function () {
+      viewPlaceTimer = null;
+      if (!view.active || !view.anchorKey) return;
+      var card = viewCardByKey(view.anchorKey);
+      if (!card) return;
+      try {
+        if (typeof card.scrollIntoView === 'function') card.scrollIntoView({ block: 'start' });
+        else window.scrollTo(0, card.offsetTop || 0);
+      } catch (e) {}
+    }, 60);
+  }
+  // The card currently at the top of the viewport (below the sticky bar).
+  function currentViewKey() {
+    var cards = viewCards();
+    if (!cards.length) return view.anchorKey;
+    var current = null;
+    for (var i = 0; i < cards.length; i++) {
+      try {
+        var r = cards[i].getBoundingClientRect();
+        if (r && r.top <= 140) current = cards[i];
+        else break;
+      } catch (e) { break; }
+    }
+    var el = current || cards[0];
+    return el && el.getAttribute ? el.getAttribute('data-key') : view.anchorKey;
+  }
+  function saveViewPos(key) {
+    if (!view.active || !view.setId || !key) return;
     try {
       var m = LddStore.getViewPos() || {};
-      m[view.setId] = LddStore.key(q.setId, q.id);
+      m[view.setId] = key;
       LddStore.setViewPos(m);
-    } catch (e2) {}
+      view.anchorKey = key;
+    } catch (e) {}
   }
-  window.viewPrev = function () {
-    if (!view.active || view.idx === 0) return;
-    view.idx--;
-    renderView();
-    window.scrollTo(0, 0);
-  };
-  window.viewNext = function () {
-    if (!view.active || view.idx === view.list.length - 1) return;
-    view.idx++;
-    renderView();
-    window.scrollTo(0, 0);
+  function onViewScroll() {
+    if (!view.active) return;
+    if (viewScrollTimer) clearTimeout(viewScrollTimer);
+    viewScrollTimer = setTimeout(function () {
+      viewScrollTimer = null;
+      if (!view.active) return;
+      saveViewPos(currentViewKey());
+    }, 400);
+  }
+  function setupViewObserver() {
+    teardownViewObserver();
+    try {
+      if (typeof window !== 'undefined' && window.addEventListener) {
+        window.addEventListener('scroll', onViewScroll);
+      }
+      var more = $('view-load-more');
+      if (more && view.renderedCount < view.list.length &&
+          typeof IntersectionObserver !== 'undefined') {
+        viewObserver = new IntersectionObserver(function (entries) {
+          for (var i = 0; i < entries.length; i++) {
+            if (entries[i].isIntersecting) {
+              renderViewBatch();
+              if (view.renderedCount >= view.list.length) teardownViewObserver();
+            }
+          }
+        }, { rootMargin: '600px 0px' });
+        viewObserver.observe(more);
+      }
+    } catch (e) {}
+  }
+  function teardownViewObserver() {
+    try {
+      if (viewObserver && viewObserver.disconnect) viewObserver.disconnect();
+    } catch (e) {}
+    viewObserver = null;
+    try {
+      if (typeof window !== 'undefined' && window.removeEventListener) {
+        window.removeEventListener('scroll', onViewScroll);
+      }
+    } catch (e2) {}
+    if (viewScrollTimer) { clearTimeout(viewScrollTimer); viewScrollTimer = null; }
+  }
+  // Fallback "Xem thêm" button — appends the next batch on tap.
+  window.viewLoadMore = function () {
+    if (!view.active) return;
+    var added = renderViewBatch();
+    if (!added) {
+      var more = $('view-load-more');
+      if (more) more.style.display = 'none';
+    }
   };
   // Explicit star taps are the ONLY quiz-adjacent write allowed in viewing.
-  window.toggleViewStar = function () {
-    var q = view.list[view.idx];
-    if (!q) return;
+  // Per-card buttons update ONLY their own card DOM — never a full rebuild,
+  // so the scroll position never jumps. Wired via delegation on #view-list.
+  window.toggleViewCardStar = function (key, btn) {
+    if (!key) return;
     var s = LddStore.getStars();
-    var k = qkey(q);
-    var pos = s.indexOf(k);
-    if (pos >= 0) { s.splice(pos, 1); toast('Đã bỏ đánh dấu'); }
-    else { s.push(k); toast('⭐ Đã đánh dấu câu này'); }
+    var pos = s.indexOf(key);
+    var on;
+    if (pos >= 0) { s.splice(pos, 1); on = false; toast('Đã bỏ đánh dấu'); }
+    else { s.push(key); on = true; toast('⭐ Đã đánh dấu câu này'); }
     LddStore.setStars(s);
-    renderView();
+    if (btn) {
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.setAttribute('aria-label', on ? 'Đã lưu (bỏ lưu câu này)' : 'Lưu câu (đánh dấu câu này)');
+      if (btn.classList) btn.classList.toggle('on', on);
+      var ico = btn.querySelector ? btn.querySelector('[aria-hidden]') : null;
+      if (ico) ico.textContent = on ? '★' : '☆';
+      var label = btn.querySelector ? btn.querySelector('.view-star-label') : null;
+      if (label) label.textContent = on ? ' Đã lưu' : ' Lưu câu';
+      else if (btn.childNodes && btn.childNodes.length > 1 && btn.childNodes[1].nodeValue !== undefined) {
+        btn.childNodes[1].nodeValue = on ? ' Đã lưu' : ' Lưu câu';
+      }
+    }
   };
+  function setupViewListDelegation() {
+    var list = $('view-list');
+    if (!list || list._viewDelegated) return;
+    list._viewDelegated = true;
+    list.addEventListener('click', function (ev) {
+      var t = ev.target;
+      while (t && t !== list) {
+        if (t.classList && t.classList.contains('view-star-btn')) {
+          window.toggleViewCardStar(t.getAttribute('data-key'), t);
+          return;
+        }
+        t = t.parentNode;
+      }
+    });
+  }
   window.exitView = function () {
+    try { saveViewPos(currentViewKey()); } catch (e0) {}
     var o = (view && view.origin) || { type: 'home' };
-    view = { active: false, setId: null, list: [], idx: 0, origin: null };
+    teardownViewObserver();
+    if (viewPlaceTimer) { clearTimeout(viewPlaceTimer); viewPlaceTimer = null; }
+    view = { active: false, setId: null, list: [], origin: null, topic: 'all', anchorKey: null, renderedCount: 0 };
     if (o.type === 'search') {
       lastSearchQuery = o.query || lastSearchQuery;
       lastSearchScroll = o.scroll || 0;
@@ -1652,26 +1896,12 @@
     }
   };
   window.exitViewToHome = function () {
-    view = { active: false, setId: null, list: [], idx: 0, origin: null };
+    try { saveViewPos(currentViewKey()); } catch (e0) {}
+    teardownViewObserver();
+    if (viewPlaceTimer) { clearTimeout(viewPlaceTimer); viewPlaceTimer = null; }
+    view = { active: false, setId: null, list: [], origin: null, topic: 'all', anchorKey: null, renderedCount: 0 };
     show('home');
   };
-  function openViewPicker() {
-    if (!view || !view.active || !view.list.length) return;
-    renderPicker({
-      sub: 'Xem đáp án · ' + setTitleOf(view.setId),
-      legend: '<span>◉ Đang xem</span>',
-      total: view.list.length,
-      cur: view.idx,
-      cls: function (i) { return i === view.idx ? 'cur' : ''; },
-      mark: function () { return ''; },
-      label: function (i) { return 'Câu ' + (i + 1) + (i === view.idx ? ', đang xem' : ''); },
-      pick: function (i) {
-        view.idx = i;
-        renderView();
-        window.scrollTo(0, 0);
-      }
-    });
-  }
 
   /* ---------- wrong / star / history / search (composite keys) ---------- */
   window.openList = function (type, setId, keepScroll) {

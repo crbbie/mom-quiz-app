@@ -413,3 +413,18 @@ html[data-text-size="xlarge"] .grid2{grid-template-columns:1fr}
 .view-topic-filter label{display:block;margin-bottom:10px;font-size:var(--font-important);font-weight:800;color:var(--ink-title);line-height:1.45}
 .view-topic-filter select{display:block;width:100%;max-width:100%;min-height:58px;padding:12px 42px 12px 14px;border:2px solid var(--accent);border-radius:14px;background:var(--accent-faint);color:var(--ink-title);font-size:var(--font-answer);font-weight:600;line-height:1.4;font-family:inherit}
 .view-topic-filter select:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+/* Continuous-scroll answer review: one white card per question, vertical
+ * flow only (no nested scroll areas). Cards stay in the DOM once rendered
+ * so height and scroll position never shift under the reader. */
+#view-list{display:flex;flex-direction:column;gap:14px;min-width:0}
+#view-position{margin:0 4px 12px}
+.view-card{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:18px;padding:18px 16px;box-shadow:var(--shadow-sm);min-width:0;overflow-wrap:break-word;scroll-margin-top:86px}
+.view-card-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.view-num{background:var(--card);border:1px solid var(--line);padding:7px 16px;border-radius:999px;font-weight:800;font-size:var(--font-counter);line-height:1.4;color:var(--ink-title);box-shadow:var(--shadow-sm)}
+.view-card-cat{margin-bottom:0}
+.view-card-q{margin:0 0 14px}
+.view-card .feedback{margin-top:14px}
+.view-star-btn{width:100%;margin-top:14px}
+.view-star-btn.on{background:#FFF3D1;border-color:#D9A521;color:var(--ink-title)}
+#view-load-more{min-height:56px}
