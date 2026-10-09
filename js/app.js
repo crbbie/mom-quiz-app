@@ -33,6 +33,7 @@
   // Stitch Home §D: accordion state (UI-only, in-memory). Exactly one set
   // card expanded at a time; null = first set. Never persisted, never a
   // session — opening/closing changes no data.
+  var openAccId = null;
 
   // Update-detection throttle: automatic checks (open / visible / focus /
   // online) run at most once per window; manual taps always bypass.
@@ -123,43 +124,66 @@
   }
   // Keep the existing session intact until a separate discard confirmation.
   function sameExamSession(s, setId) {
-    return !!s && s.kind === 'exam' && s.setId === setId;
+    if (!s || s.kind !== 'exam') return false;
+    return (s.setId || null) === (setId || null);
   }
-  function confirmDiscardThenStart(desc, proceed) {
+  // Second, explicit discard confirmation. The first warning's destructive
+  // choice never starts anything by itself — it always lands here, so a
+  // single stray tap can never erase an unfinished session.
+  function confirmDiscardThenStart(keptDesc, proceed) {
     showModal({
       title: 'Bỏ bài cũ và bắt đầu mới?',
-      msg: 'Bài đang làm dở (' + desc + ') sẽ bị xóa. Bạn có chắc chắn muốn bỏ bài này?',
-      progress: sessionProgress(keptSession()),
+      msg: 'Bài đang làm dở (' + keptDesc + ') sẽ bị xóa khỏi máy. Chỉ tiếp tục khi bạn chắc chắn muốn bỏ bài cũ.',
       safeLabel: 'Giữ lại bài cũ',
       dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
+      cancelLabel: 'Để sau',
       onSafe: function () {},
-      onDanger: proceed
+      onDanger: function () { proceed(); },
+      onCancel: function () {}
     });
   }
+  // Starting a NEW Study/Exam/Wrong-review session is an explicit replacement action.
+  // The user requested one-tap replacement: no interrupting resume/restart dialog.
+  // Keep "Tiếp tục bài đang làm" wired directly to resumeSession(), never here.
+  // All other persisted data (stars, wrong list, history, preferences) is untouched.
   function guardReplaceSession(kind, setId, isWrong, wrongScope, proceed) {
     var kept = keptSession();
     if (!kept) { proceed(); return; }
-    var same = (kind === 'study' && sameStudySession(kept, setId, isWrong, wrongScope)) ||
-               (kind === 'exam' && sameExamSession(kept, setId));
+    var isSame = (kind === 'study' && sameStudySession(kept, setId, isWrong, wrongScope)) ||
+                 (kind === 'exam' && sameExamSession(kept, setId));
+    if (isSame) {
+      showModal({
+        title: 'Bài này đang làm dở?',
+        msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Muốn tiếp tục bài đó hay làm lại từ đầu?',
+        safeLabel: 'Tiếp tục bài đang làm',
+        dangerLabel: 'Làm lại từ đầu',
+        cancelLabel: 'Để sau',
+        onSafe: function () { window.resumeSession(); },
+        onDanger: function () { proceed(); },
+        onCancel: function () {}
+      });
+      return;
+    }
     showModal({
-      title: same ? 'Bài này đang làm dở?' : 'Bài đang làm dở?',
-      msg: 'Bạn đang làm dở: ' + describeSession(kept) +
-        (same ? '. Bạn muốn tiếp tục hay làm lại từ đầu?' : '. Muốn làm bài mới, bạn cần bỏ bài này.'),
-      progress: sessionProgress(kept),
+      title: 'Bài đang làm dở?',
+      msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Bắt đầu bài mới sẽ xóa bài đang làm dở này.',
       safeLabel: 'Tiếp tục bài đang làm',
-      dangerLabel: same ? 'Làm lại từ đầu' : 'Bỏ bài cũ, bắt đầu mới',
+      dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
+      cancelLabel: 'Để sau',
       onSafe: function () { window.resumeSession(); },
-      onDanger: function () { confirmDiscardThenStart(describeSession(kept), proceed); }
+      onDanger: function () { proceed(); },
+      onCancel: function () {}
     });
   }
-  // Display-only helper: real position/total of a kept session for the
-  // Stitch-style progress card/modal. No session data is created or changed.
+
+  // Progress counts actual answers, not the current question position.
   function sessionProgress(s) {
     try {
       var keys = sessionKeys(s) || [];
       if (!keys.length) return null;
       var pos = Math.min((s.idx || 0) + 1, keys.length);
-      return { pos: pos, total: keys.length, label: 'Câu ' + pos + ' / ' + keys.length };
+      var answered = Array.isArray(s.answers) ? s.answers.filter(function (a) { return typeof a === 'number' && a >= 0; }).length : 0;
+      return { pos: answered, total: keys.length, label: 'Đã trả lời ' + answered + ' / ' + keys.length + ' câu · Đang ở câu ' + pos };
     } catch (e) { return null; }
   }
 
@@ -260,15 +284,23 @@
    * stacked actions — continue (primary), discard (soft warning), and an
    * explicit Close that only dismisses the dialog and changes nothing. */
   function showModal(opts) {
-    // opts: { title, msg, progress?:{pos,total,label}, safeLabel, dangerLabel, onSafe, onDanger, hideDanger? }
+    // opts: { title, msg, safeLabel, dangerLabel, cancelLabel, onSafe, onDanger, onCancel, hideDanger?, hideCancel? }
+    // Session-safety guards pass cancelLabel + onCancel so backing out
+    // preserves the unfinished session untouched. Other flows omit the
+    // cancel button (hideCancel) and behave exactly as before.
     $('modal-title').textContent = opts.title || 'Xác nhận';
     $('modal-msg').textContent = opts.msg || '';
-    var safe = $('modal-safe'), danger = $('modal-danger');
+    var safe = $('modal-safe'), danger = $('modal-danger'), cancel = $('modal-cancel');
     safe.textContent = opts.safeLabel || 'Tiếp tục làm bài';
     danger.textContent = opts.dangerLabel || 'Nộp bài';
     danger.style.display = opts.hideDanger ? 'none' : '';
     safe.onclick = function () { hideModal(); if (opts.onSafe) opts.onSafe(); };
     danger.onclick = function () { hideModal(); if (opts.onDanger) opts.onDanger(); };
+    if (cancel) {
+      cancel.textContent = opts.cancelLabel || 'Để sau';
+      cancel.hidden = !!opts.hideCancel;
+      cancel.onclick = function () { hideModal(); if (opts.onCancel) opts.onCancel(); };
+    }
     var prog = $('modal-progress');
     if (prog) {
       if (opts.progress && opts.progress.total) {
@@ -277,9 +309,7 @@
         var pct = Math.round(opts.progress.pos / opts.progress.total * 100);
         $('modal-progress-pct').textContent = pct + '%';
         $('modal-progress-fill').style.width = pct + '%';
-      } else {
-        prog.hidden = true;
-      }
+      } else { prog.hidden = true; }
     }
     $('modal-overlay').hidden = false;
     setTimeout(function () { try { safe.focus(); } catch (e) {} }, 50);
@@ -1181,7 +1211,7 @@
     $('exam-pill').textContent = 'Câu ' + (exam.idx + 1);
     var answeredCount = exam.answers.filter(function (a) { return a >= 0; }).length;
     $('exam-counter').textContent = 'Đã trả lời ' + answeredCount + ' / ' + total;
-    $('exam-progress').style.width = (exam.idx / total * 100) + '%';
+    $('exam-progress').style.width = (answeredCount / total * 100) + '%';
     $('exam-q').textContent = q.q;
     var cat = $('exam-cat');
     if (q.category) { cat.style.display = ''; cat.textContent = q.category; }
@@ -1210,7 +1240,7 @@
       cell.onclick = function () { exam.idx = i; renderExam(); persistSession(); window.scrollTo(0, 0); };
       nav.appendChild(cell);
     });
-    $('exam-next-btn').textContent = exam.idx === total - 1 ? 'Nộp bài' : 'Sau ›';
+    $('exam-next-btn').textContent = exam.idx === total - 1 ? 'Nộp bài' : 'Câu tiếp ›';
   }
 
   window.selectExam = function (i) {
@@ -1235,7 +1265,7 @@
   window.confirmExitExam = function () {
     showModal({
       title: 'Thoát bài thi?',
-      msg: 'Bài thi chưa nộp sẽ không được chấm. Bài làm dở vẫn được giữ để tiếp tục.',
+      msg: 'Bài thi được lưu. Thời gian thi vẫn tiếp tục chạy khi bạn rời khỏi trang.',
       safeLabel: 'Ở lại làm bài',
       dangerLabel: 'Thoát (giữ bài dở)',
       onSafe: function () {},
@@ -1296,10 +1326,13 @@
     $('er-num').textContent = correct;
     $('er-den').textContent = '/ ' + total;
     $('er-ok').textContent = correct;
-    $('er-no').textContent = total - correct;
+    var unanswered = exam.answers.filter(function (a) { return a < 0; }).length;
+    var incorrect = total - correct - unanswered;
+    $('er-no').textContent = incorrect;
+    if ($('er-unanswered')) $('er-unanswered').textContent = unanswered;
     $('er-pct').textContent = pct + '%';
     $('er-circle').style.setProperty('--deg', (pct * 3.6) + 'deg');
-    $('er-msg').textContent = pct >= 80 ? 'Xuất sắc! 🎉' : pct >= 60 ? 'Đạt yêu cầu 👍' : pct >= 50 ? 'Cần cố gắng thêm' : 'Cần ôn lại nhiều 💪';
+    $('er-msg').textContent = 'Kết quả luyện tập';
     $('er-sub').textContent = 'Thời gian: ' + fmtTime(usedTime) + ' · ' + correct + '/' + total + ' câu đúng';
     var rev = $('er-review');
     rev.innerHTML = '';
@@ -1472,10 +1505,10 @@
   // Topic filter applies ONLY to home-origin answer viewing of the combined set.
   // All questions preserve original IDs; study/exam sessions never use this list.
   var REVIEW_TOPICS = [
-    { id: '7', label: 'Chuyên đề 7' },
-    { id: '4', label: 'Chuyên đề 4' },
-    { id: '9', label: 'Chuyên đề 9' },
-    { id: '10', label: 'Chuyên đề 10' }
+    { id: '4', label: 'Chuyên đề 4 — Kinh doanh BĐS và doanh nghiệp' },
+    { id: '7', label: 'Chuyên đề 7 — Đầu tư và dự án BĐS' },
+    { id: '9', label: 'Chuyên đề 9 — Phòng, chống rửa tiền' },
+    { id: '10', label: 'Chuyên đề 10 — Xử lý vi phạm hành chính' }
   ];
   function reviewTopicId(q) {
     var m = /^Chuyên đề (4|7|9|10)(?: ·|$)/.exec(q && q.category || '');
@@ -1524,8 +1557,9 @@
     if (!q) return;
     var total = view.list.length;
     updateReviewTopicPicker();
-    $('view-title').textContent = 'Câu ' + (view.idx + 1) + ' / ' + total;
-    $('view-sub').textContent = 'Xem đáp án · ' + setTitleOf(view.setId) + (view.topic && view.topic !== 'all' ? ' · Chuyên đề ' + view.topic : '');
+    $('view-title').textContent = 'Xem đáp án';
+    $('view-position').textContent = 'Câu ' + (view.idx + 1) + ' trong ' + total + ' câu' + (view.topic && view.topic !== 'all' ? ' của Chuyên đề ' + view.topic : ' của bộ đề');
+    $('view-sub').textContent = setTitleOf(view.setId);
     var org = view.origin || {};
     $('view-back').setAttribute('aria-label',
       org.type === 'search' ? 'Quay lại tìm kiếm' : (org.type === 'star' ? 'Quay lại câu đã lưu' : 'Quay lại'));
