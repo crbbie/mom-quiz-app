@@ -111,5 +111,29 @@ function t(name, cond) { if (cond) { pass++; console.log('ok: ' + name); } else 
   t('same qid distinct per set', S.questionById(cache, 'a:q1').setId === 'a' && S.questionById(cache, 'b:q1').setId === 'b');
 }
 
+// 7. wrong/history delete APIs: exact-key + position semantics
+{
+  const { S } = freshEnv();
+  S.setWrong(['a:q1', 'a:q2', 'b:q1']);
+  t('removeWrong drops exactly one key', S.removeWrong('a:q1') === 1 && JSON.stringify(S.getWrong()) === JSON.stringify(['a:q2', 'b:q1']));
+  t('removeWrong missing key writes nothing', S.removeWrong('a:qx') === 0 && S.getWrong().length === 2);
+  S.clearWrong();
+  t('clearWrong empties wrong', S.getWrong().length === 0);
+  S.setHistory([]);
+  S.pushHistory({ type: 'Ôn tập', setId: 'a', score: 5, total: 10, date: 7 });
+  S.pushHistory({ type: 'Ôn tập', setId: 'a', score: 5, total: 10, date: 7 });
+  t('duplicate history records both kept', S.getHistory().length === 2);
+  const second = JSON.stringify(S.getHistory()[1]);
+  const starsBefore = JSON.stringify(S.getStars());
+  S.removeHistoryAt(0);
+  const rest = S.getHistory();
+  t('removeHistoryAt deletes exactly one duplicate', rest.length === 1 && JSON.stringify(rest[0]) === second);
+  t('removeHistoryAt out of range removes nothing', S.removeHistoryAt(9) === null && S.getHistory().length === 1);
+  S.clearHistory();
+  t('clearHistory empties history, stars kept', S.getHistory().length === 0 && JSON.stringify(S.getStars()) === starsBefore);
+  S.setHistory([{ type: 'X', score: 1, total: 2, date: 3 }]);
+  t('setHistory writes through', S.getHistory().length === 1 && S.getHistory()[0].type === 'X');
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

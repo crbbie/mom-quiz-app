@@ -203,17 +203,32 @@ const Ldd = sandbox.LddStore;
   const list80 = questionsBySet['kdbds-2023'];
   t('all 80 cards reachable', cards().length === 80, 'got ' + cards().length);
   t('keys unique + in original order', JSON.stringify(cardKeys()) === JSON.stringify(list80.map(keyOf)));
-  let ansOk = true, expOk = true;
+  let ansOk = true, expOk = true, fourOk = true, oneCorrectOk = true;
   cards().forEach((c, i) => {
     const q = list80[i];
-    const otext = c.querySelector('.otext');
-    const letter = c.querySelector('.letter');
-    if (!otext || otext.textContent !== q.o[q.c]) ansOk = false;
-    if (!letter || letter.textContent !== LETTERS[q.c]) ansOk = false;
+    const opts = c.querySelectorAll('.opt');
+    const texts = c.querySelectorAll('.otext');
+    if (opts.length !== 4 || texts.length !== 4) { fourOk = false; }
+    else {
+      for (let k = 0; k < 4; k++) {
+        if (texts[k].textContent !== q.o[k]) ansOk = false;
+      }
+    }
+    const corrects = c.querySelectorAll('.opt.correct');
+    if (corrects.length !== 1) { oneCorrectOk = false; }
+    else {
+      const otext = corrects[0].querySelector('.otext');
+      const letter = corrects[0].querySelector('.letter');
+      if (!otext || otext.textContent !== q.o[q.c]) ansOk = false;
+      if (!letter || letter.textContent !== LETTERS[q.c]) ansOk = false;
+      const aria = corrects[0].getAttribute('aria-label') || '';
+      if (aria.indexOf('Đáp án đúng') !== 0) ansOk = false;
+    }
     const hasExp = c.querySelectorAll('.feedback').length > 0;
     if (hasExp !== (typeof q.e === 'string' && !!q.e.trim())) expOk = false;
   });
-  t('every card answer matches options[correct] + letter', ansOk);
+  t('every card shows all 4 options verbatim in A-D order', ansOk && fourOk);
+  t('every card marks exactly one .correct at options[correct]', oneCorrectOk);
   t('explanation only when data has it (79/80)', expOk);
   t('load-more hides at end', $('view-load-more').style.display === 'none');
 
@@ -232,13 +247,25 @@ const Ldd = sandbox.LddStore;
   sandbox.changeViewTopic('all'); drainBatches();
   t('back to all renders 111', cards().length === 111, 'got ' + cards().length);
 
-  // ---- 4. Deep open lands on the anchor card ----
+  // ---- 4. Deep user-chosen destination scrolls to its anchor (search/star only) ----
   const deep = list111[list111.length - 1];
-  sandbox.openViewAt(deep.setId, deep.id, { type: 'home', setId: deep.setId });
+  sandbox.__scrolled = null;
+  sandbox.openViewAt(deep.setId, deep.id, { type: 'search', query: 'x', scroll: 0 });
   await sleep(180);
   const anchor = cardByKey(keyOf(deep));
   t('deep question card present in DOM', anchor.length === 1);
-  t('anchor scrolled into view once', sandbox.__scrolled === keyOf(deep), String(sandbox.__scrolled));
+  t('user-chosen destination scrolled into view once', sandbox.__scrolled === keyOf(deep), String(sandbox.__scrolled));
+  sandbox.exitView();
+
+  // ---- 4b. Home entry always starts at Q1 and never anchor-scrolls ----
+  const mid = list80[30];
+  Ldd.setViewPos({ 'kdbds-2023': keyOf(mid) }); // stale saved position must be ignored
+  sandbox.__scrolled = null;
+  scrollCalls.length = 0;
+  sandbox.startView('kdbds-2023');
+  await sleep(180);
+  t('home opens at Q1 despite saved position', cardKeys()[0] === keyOf(list80[0]), String(cardKeys()[0]));
+  t('home entry performs no anchor scroll', sandbox.__scrolled === null, String(sandbox.__scrolled));
 
   // ---- 5. Per-card stars are independent, no list rebuild ----
   const k1 = keyOf(list80[0]), k2 = keyOf(list80[1]);
@@ -296,15 +323,36 @@ const Ldd = sandbox.LddStore;
   const snap2 = JSON.stringify({ s: Ldd.getSession(), w: Ldd.getWrong(), h: Ldd.getHistory() });
   t('review never touches session/wrong/history', snap === snap2);
 
-  // ---- 9. Home reopen resumes the saved per-set position ----
-  const mid = list80[30];
-  sandbox.openViewAt(mid.setId, mid.id, { type: 'home', setId: mid.setId });
+  // ---- 9. Home reopen ignores the saved per-set position (starts at Q1) ----
+  const mid2 = list80[30];
+  sandbox.openViewAt(mid2.setId, mid2.id, { type: 'search', query: 'q', scroll: 0 });
   await sleep(180);
   sandbox.exitView();
   const saved = (Ldd.getViewPos() || {})['kdbds-2023'];
+  sandbox.__scrolled = null;
   sandbox.startView('kdbds-2023');
   await sleep(180);
-  t('reopen resumes saved key', !!saved && cardByKey(saved).length === 1, String(saved));
+  t('home starts at Q1 even with a saved key', !!saved && cardKeys()[0] === keyOf(list80[0]),
+    'saved=' + String(saved) + ' first=' + String(cardKeys()[0]));
+  t('home reopen performs no anchor scroll', sandbox.__scrolled === null, String(sandbox.__scrolled));
+
+  // ---- 10. Combined-answer card: A and C readable, only D marked correct ----
+  sandbox.startView('chuyen-de-4-7-9-10');
+  await sleep(180);
+  drainBatches();
+  const comboId = 'chuyen-de-4-7-9-10:fe3bd3cd-6a58-492f-98d7-192a682736ac';
+  const combo = cardByKey(comboId);
+  let comboOk = combo.length === 1;
+  if (comboOk) {
+    const src = questionsBySet['chuyen-de-4-7-9-10'].find((x) => keyOf(x) === comboId);
+    comboOk = !!src && src.c === 3;
+    const ts = combo[0].querySelectorAll('.otext');
+    const cs = combo[0].querySelectorAll('.opt.correct');
+    comboOk = comboOk && ts.length === 4 &&
+      ts[0].textContent === src.o[0] && ts[2].textContent === src.o[2] &&
+      cs.length === 1 && cs[0].querySelector('.otext').textContent === src.o[3];
+  }
+  t('combo card shows A..D, only D marked correct', comboOk);
 
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   process.exit(fail ? 1 : 0);

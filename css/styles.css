@@ -318,6 +318,17 @@ html[data-text-size="xlarge"] .grid2{grid-template-columns:1fr}
 .hist-item .h-score{font-size:var(--font-counter);font-weight:800;color:var(--accent);flex-shrink:0}
 .hist-item .h-score.low{color:var(--no)}
 .hist-item .h-score.high{color:var(--ok)}
+
+/* ========== management: delete controls (wrong list + history) ========== */
+.manage-bar{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.manage-btn{width:100%;min-height:52px;font-size:var(--font-meta);font-weight:800;overflow-wrap:break-word;white-space:normal;text-align:center}
+.btn.danger-soft{background:var(--no-bg);color:var(--no);border:1.5px solid #EFC3C3;border-radius:14px;padding:12px 16px}
+.list-row{display:flex;gap:10px;align-items:stretch;margin-bottom:12px;min-width:0}
+.list-row .list-open{flex:1;min-width:0;margin-bottom:0}
+.hist-row{display:flex;gap:10px;align-items:stretch;margin-bottom:10px;min-width:0}
+.hist-row .hist-main{flex:1;min-width:0;margin-bottom:0}
+.icon-del{flex:0 0 auto;min-width:48px;min-height:48px;align-self:center;border-radius:14px;background:var(--card);border:1.5px solid #EFC3C3;color:var(--no);font-size:20px;font-weight:800;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);padding:8px 12px}
+.icon-del:focus-visible{outline:3px solid var(--no);outline-offset:2px}
 .search-box{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:16px;padding:12px 16px;margin-bottom:16px;border:1px solid var(--line-2);box-shadow:var(--shadow-sm)}
 .search-box input{border:none;outline:none;flex:1;min-width:0;font-size:var(--font-answer);font-weight:500;font-family:inherit;background:transparent;color:var(--ink)}
 .search-box .ico{font-size:20px;color:var(--ink-2)}
@@ -425,6 +436,9 @@ html[data-text-size="xlarge"] .grid2{grid-template-columns:1fr}
 .view-card-cat{margin-bottom:0}
 .view-card-q{margin:0 0 14px}
 .view-card .feedback{margin-top:14px}
+.view-card .options{gap:10px}
+.view-card .opt{cursor:default;min-height:0}
+.view-card .opt:not(.correct){border-color:#D5DEEE;background:#FBFDFF}
 .view-star-btn{width:100%;margin-top:14px}
 .view-star-btn.on{background:#FFF3D1;border-color:#D9A521;color:var(--ink-title)}
 #view-load-more{min-height:56px}
