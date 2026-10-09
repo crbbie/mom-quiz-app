@@ -12,21 +12,28 @@ function t(name, cond) {
   else { fail++; console.log('FAIL: ' + name); }
 }
 
-// ---------- 1. Home hierarchy ----------
+// ---------- 1. Home hierarchy (redesigned approved layout: brand header ->
+// info/sync -> text size -> learn card [set select + 3 mode rows + resume]
+// -> study tools). Same intents: clear order, sync near top, prominent
+// primary study action, real per-set wrong count. ----------
 {
+  const sel = html.indexOf('id="home-set-select"');
+  const modes = html.indexOf('id="home-modes"');
   const rs = html.indexOf('id="resume-slot"');
-  const sl = html.indexOf('id="set-list"');
-  const hn = html.indexOf('id="home-nav"');
+  const tools = html.indexOf('id="home-tools"');
   const sy = html.indexOf('id="sync-dot"');
-  t('home order: resume-slot before set-list', rs >= 0 && sl > rs);
-  t('home order: set-list before home-nav', hn > sl);
-  t('Stitch update status near top of Home, before resume and set list', sy >= 0 && sy < rs && sy < sl);
-  const rh = app.indexOf('Bắt đầu ôn tập');
-  const ex = app.indexOf('Thi thử', rh);
-  const wr = app.indexOf('Ôn câu sai', ex);
-  const st = app.indexOf('Câu đã lưu', wr);
+  t('home order: set select before modes before resume before tools', sel >= 0 && modes > sel && rs > modes && tools > rs);
+  t('update status near top of Home, before set select and resume', sy >= 0 && sy < sel && sy < rs);
+  const mStudy = html.indexOf('data-mode="study"');
+  const mView = html.indexOf('data-mode="view"');
+  const mExam = html.indexOf('data-mode="exam"');
+  t('mode order: study before view before exam', mStudy > 0 && mView > mStudy && mExam > mView);
+  const rh = app.indexOf('startSelectedStudy');
+  const ex = app.indexOf('startSelectedExam', rh);
+  const wr = app.indexOf('startWrongStudy', ex);
+  const st = app.indexOf("openList('star'", wr);
   t('hierarchy: start before exam before wrong before starred', rh > 0 && ex > rh && wr > ex && st > wr);
-  t('primary study action prominent (study-primary)', app.indexOf('study-primary') >= 0 && css.indexOf('.study-primary') >= 0);
+  t('primary study action prominent (mode-row study)', html.indexOf('data-mode="study"') >= 0 && css.indexOf('.mode-row') >= 0);
   t('per-set wrong count (Ôn câu sai · N câu)', /Ôn câu sai · ' \+ nw/.test(app) || app.indexOf("Ôn câu sai · ' + nw") >= 0 || app.indexOf('Ôn câu sai · ') >= 0);
 }
 
@@ -35,8 +42,8 @@ function t(name, cond) {
   t('resume card id', app.indexOf("id = 'resume-card'") >= 0 || app.indexOf('resume-card') >= 0);
   t('resume shows subject+mode+position (resume-meta)', app.indexOf('resume-meta') >= 0);
   t('resume shows exam remaining time (còn MM:SS)', app.indexOf('còn ') >= 0);
-  t('resume primary action Tiếp tục (resume-continue)', app.indexOf('resume-continue') >= 0);
-  t('resume destructive action Bỏ bài (resume-discard)', app.indexOf('resume-discard') >= 0);
+  t('resume primary action (Tiếp tục ôn tập / Tiếp tục thi)', app.indexOf('data-act="resume"') >= 0 && (app.indexOf('Tiếp tục ôn tập') >= 0 || app.indexOf('Tiếp tục thi') >= 0));
+  t('resume destructive action (Bỏ bài, explicit confirm)', app.indexOf('data-act="drop"') >= 0 && app.indexOf('Bỏ bài') >= 0);
   t('discard requires explicit confirmation (showModal)', (() => {
     const i = app.indexOf('window.discardSession = function');
     const body = app.slice(i, i + 800);

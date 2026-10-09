@@ -34,7 +34,6 @@
   // card expanded at a time; null = first set. Never persisted, never a
   // session — opening/closing changes no data.
   var openAccId = null;
-  var selectedHomeSetId = null;
 
   // Update-detection throttle: automatic checks (open / visible / focus /
   // online) run at most once per window; manual taps always bypass.
@@ -539,23 +538,132 @@
     }
     return count;
   }
+  /* ---------- home (brand + set picker + modes + tools, theo anh mau) ----------
+   * Thu tu: 1. Brand/logo 2. Thong tin/cap nhat (collapsible) 3. Co chu
+   * 4. Learn card: bo de dang chon (dropdown) + 3 che do + bai dang lam do
+   * 5. Cong cu hoc tap 6. Meo. Mọi handler hoc/thi/xem giu nguyen. */
+  var selectedHomeSetId = null;
+  function selectedSetId() {
+    if (selectedHomeSetId && setOf(selectedHomeSetId)) return selectedHomeSetId;
+    if (activeSetId && setOf(activeSetId)) return activeSetId;
+    return cache.sets[0] && cache.sets[0].id;
+  }
+  window.selectHomeSet = function (id) {
+    if (id && setOf(id)) { selectedHomeSetId = id; activeSetId = id; }
+    renderHome();
+  };
+  window.startSelectedStudy = function () { startStudy(selectedSetId()); };
+  window.startSelectedView = function () { startView(selectedSetId()); };
+  window.startSelectedExam = function () {
+    var s = setOf(selectedSetId());
+    if (!s) { toast('Chưa có bộ đề'); return; }
+    activeSetId = s.id;
+    selectedHomeSetId = s.id;
+    $('exam-setup-title').textContent = 'Thi thử — ' + s.title;
+    updateExamStartBtn();
+    show('exam-setup');
+  };
+  window.toggleInfoCard = function () {
+    var p = $('info-panel'), t = $('info-toggle');
+    if (!p || !t) return;
+    var open = p.hidden;
+    p.hidden = !open;
+    t.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
   function renderHome() {
     cache = LddStore.getCache();
+    var sel = selectedSetId();
+    if (sel) selectedHomeSetId = sel;
     var wrongTotal = wrongCountFor(null);
     var starTotal = starCountFor(null);
 
-    // 1. Resume card (visible, contextual) — rendered first, only when one exists.
+    // 1. Bo de dang chon (dropdown) — giu day du cac set nhu accordion cu.
+    var select = $('home-set-select');
+    if (select) {
+      select.innerHTML = '';
+      if (!cache.sets.length) {
+        var o0 = document.createElement('option');
+        o0.value = '';
+        o0.textContent = 'Chưa có bộ đề';
+        select.appendChild(o0);
+      }
+      cache.sets.forEach(function (s) {
+        var n = questionsOf(s.id).length;
+        var o = document.createElement('option');
+        o.value = s.id;
+        o.textContent = s.title + ' (' + n + ' câu)';
+        if (s.id === sel) o.selected = true;
+        select.appendChild(o);
+      });
+      if (sel) select.value = sel;
+    }
+    var setObj = (sel && setOf(sel)) || null;
+    var desc = $('home-set-desc');
+    if (desc) {
+      if (!setObj) {
+        desc.textContent = navigator.onLine
+          ? 'Chưa tải được bộ đề — bấm “Cập nhật dữ liệu” để thử lại.'
+          : 'Ngoại tuyến — cần mạng cho lần mở đầu tiên.';
+        setSyncStatus('off', navigator.onLine ? 'Chưa có dữ liệu' : 'Ngoại tuyến — cần mạng cho lần đầu');
+      } else {
+        var nq = questionsOf(setObj.id).length;
+        var vh = '';
+        try {
+          var vk = (LddStore.getViewPos() || {})[setObj.id];
+          if (vk) {
+            var vl = questionsOf(setObj.id);
+            for (var vi = 0; vi < vl.length; vi++) {
+              if (LddStore.key(vl[vi].setId, vl[vi].id) === vk && vi > 0) {
+                vh = ' · Tiếp tục xem từ câu ' + (vi + 1);
+                break;
+              }
+            }
+          }
+        } catch (eV) {}
+        desc.innerHTML = '';
+        desc.appendChild(document.createTextNode(setObj.description || (nq + ' câu hỏi trong bộ đề này.')));
+        if (vh) {
+          var vhs = document.createElement('span');
+          vhs.className = 'view-resume-hint';
+          vhs.textContent = vh;
+          desc.appendChild(vhs);
+        }
+      }
+    }
+
+    // 2. Resume + per-set quick tools (nam trong learn card, truoc resume).
     var slot = $('resume-slot');
     slot.innerHTML = '';
+    if (setObj) {
+      var nw = wrongCountFor(setObj.id);
+      var ns = starCountFor(setObj.id);
+      var st = document.createElement('div');
+      st.className = 'set-tools';
+      st.innerHTML =
+        '<button class="btn ghost small" data-act="wrong">Ôn câu sai · ' + nw + ' câu</button>' +
+        '<button class="btn ghost small" data-act="star">Câu đã lưu (' + ns + ')</button>';
+      st.querySelector('[data-act="wrong"]').onclick = (function (sid) {
+        return function () { window.startWrongStudy(sid); };
+      })(setObj.id);
+      st.querySelector('[data-act="star"]').onclick = (function (sid) {
+        return function () { openList('star', sid); };
+      })(setObj.id);
+      slot.appendChild(st);
+    }
     try {
       var kept = LddStore.getSession();
       var keptKeys = sessionKeys(kept);
       if (kept && keptKeys && keptKeys.length && !sessionActive()) {
         var total = keptKeys.length;
         var pos = Math.min((kept.idx || 0) + 1, total);
-        var modeLabel = kept.kind === 'exam' ? 'Thi thử' : (kept.isWrongReview ? 'Ôn câu sai' : 'Ôn tập');
+        var isExam = kept.kind === 'exam';
+        var modeLabel = isExam ? 'Thi thử' : (kept.isWrongReview ? 'Ôn câu sai' : 'Ôn tập');
+        var answered = 0;
+        try {
+          (kept.answers || []).forEach(function (a) { if (a === 0 || a === 1 || a === 2 || a === 3) answered++; });
+        } catch (eA) {}
         var meta = setTitleOf(kept.setId) + ' · ' + modeLabel + ' · Câu ' + pos + ' / ' + total;
-        if (kept.kind === 'exam') {
+        if (isExam) {
           var endsAt = kept.endsAt || 0;
           var left = endsAt ? Math.max(0, Math.round((endsAt - Date.now()) / 1000)) : (kept.timeLeft | 0);
           if (left > 0 && endsAt) {
@@ -563,20 +671,20 @@
             meta += ' · còn ' + String(mm).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
           }
         }
-        var rc = document.createElement('div');
-        rc.className = 'set-card resume-card';
-        rc.id = 'resume-card';
-        var answered = Array.isArray(kept.answers) ? kept.answers.filter(function (a) { return typeof a === 'number' && a >= 0; }).length : 0;
         var pct = total ? Math.round(answered / total * 100) : 0;
+        var rc = document.createElement('div');
+        rc.className = 'resume-card';
+        rc.id = 'resume-card';
         rc.innerHTML =
           '<div class="resume-kicker"><span class="pulse" aria-hidden="true"></span><span>BÀI ĐANG LÀM DỞ</span></div>' +
-          '<h2>Bài đang làm dở</h2>' +
-          '<p class="resume-meta" id="resume-meta">' + escapeHtml(meta) + '</p>' +
-          '<div class="resume-answered">Đã trả lời ' + answered + ' / ' + total + ' câu</div>' +
-          '<div class="resume-bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + answered + '" aria-label="Số câu đã trả lời"><div style="width:' + pct + '%"></div></div>' +
+          '<div class="resume-info"><span class="resume-doc" aria-hidden="true">📄</span>' +
+          '<div><h2>' + escapeHtml(setTitleOf(kept.setId)) + '</h2>' +
+          '<p class="resume-meta">' + escapeHtml(modeLabel + ' · Câu ' + pos + ' / ' + total) + '</p></div></div>' +
+          '<div class="resume-answered"><span>Đã trả lời ' + answered + ' / ' + total + ' câu</span><span class="pct">' + pct + '%</span></div>' +
+          '<div class="resume-bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + answered + '" aria-label="Tiến độ bài đang làm dở"><div style="width:' + pct + '%"></div></div>' +
           '<div class="set-actions">' +
-          '<button class="btn primary study-primary" id="resume-continue" data-act="resume">' + (kept.kind === 'exam' ? ((kept.endsAt && kept.endsAt <= Date.now()) ? 'Xem kết quả — đã hết giờ' : 'Tiếp tục thi') : 'Tiếp tục ôn tập') + '</button>' +
-          '<button class="btn ghost drop" id="resume-discard" data-act="drop">Bỏ bài</button>' +
+          '<button class="btn primary" data-act="resume">▶ ' + (isExam ? 'Tiếp tục thi' : 'Tiếp tục ôn tập') + '</button>' +
+          '<button class="btn ghost" data-act="drop">🗎 Bỏ bài</button>' +
           '</div>';
         rc.querySelector('[data-act="resume"]').onclick = function () { window.resumeSession(); };
         rc.querySelector('[data-act="drop"]').onclick = function () { window.discardSession(); };
@@ -584,72 +692,32 @@
       }
     } catch (e2) {}
 
-    // Explicit bank selection: one bank, three stable modes; no hidden accordion actions.
-    var box = $('set-list');
-    box.innerHTML = '';
-    if (!cache.sets.length) {
-      box.innerHTML = '<p class="empty-state">Chưa có dữ liệu. Hãy kiểm tra kết nối và cập nhật bộ đề.</p>';
-    } else {
-      if (!cache.sets.some(function (s) { return s.id === selectedHomeSetId; })) {
-        selectedHomeSetId = (keptSession() && cache.sets.some(function (s) { return s.id === keptSession().setId; }))
-          ? keptSession().setId : cache.sets[0].id;
-      }
-      var selected = setOf(selectedHomeSetId);
+    // 3. Cong cu hoc tap (global) — so lieu that, khong che.
+    var tools = $('home-tools');
+    if (tools) {
+      tools.innerHTML = '';
+      var histTotal = 0;
+      try { histTotal = LddStore.getHistory().length; } catch (eH) {}
       var wrap = document.createElement('div');
-      wrap.className = 'learning-hub';
-      var opts = cache.sets.map(function (s) {
-        return '<option value="' + escapeHtml(s.id) + '"' + (s.id === selectedHomeSetId ? ' selected' : '') + '>' +
-          escapeHtml(s.title) + ' (' + questionsOf(s.id).length + ' câu)</option>';
-      }).join('');
-      wrap.innerHTML = '<div class="bank-picker"><label for="home-bank-select">Bộ đề đang chọn</label>' +
-        '<select id="home-bank-select" aria-label="Chọn bộ đề">' + opts + '</select></div>' +
-        '<div class="learning-modes">' +
-        '<button class="mode-action" data-mode="study"><span class="mode-icon" aria-hidden="true">📖</span><span><b>Ôn tập</b><small>Tự trả lời, rồi xem đáp án</small></span><span aria-hidden="true">›</span></button>' +
-        '<button class="mode-action" data-mode="view"><span class="mode-icon" aria-hidden="true">👁</span><span><b>Xem đáp án</b><small>Đọc câu hỏi và đáp án đúng</small></span><span aria-hidden="true">›</span></button>' +
-        '<button class="mode-action" data-mode="exam"><span class="mode-icon" aria-hidden="true">📝</span><span><b>Thi thử</b><small>Làm bài có giờ, xem kết quả khi nộp</small></span><span aria-hidden="true">›</span></button>' +
-        '</div>';
-      box.appendChild(wrap);
-      wrap.querySelector('#home-bank-select').onchange = function () {
-        selectedHomeSetId = this.value; renderHome();
-      };
-      wrap.querySelector('[data-mode="study"]').onclick = function () { startStudy(selectedHomeSetId); };
-      wrap.querySelector('[data-mode="view"]').onclick = function () { startView(selectedHomeSetId); };
-      wrap.querySelector('[data-mode="exam"]').onclick = function () {
-        activeSetId = selectedHomeSetId;
-        $('exam-setup-title').textContent = 'Thi thử — ' + selected.title;
-        updateExamStartBtn(); show('exam-setup');
-      };
+      wrap.className = 'tool-stack';
+      wrap.innerHTML =
+        '<button class="tool-row wrong" id="tile-wrong"><span class="tool-ico" aria-hidden="true">✖</span>' +
+        '<span class="tool-txt"><b>Ôn câu sai · ' + wrongTotal + ' câu</b></span>' +
+        '<span class="count-badge">' + wrongTotal + '</span><span class="tool-go" aria-hidden="true">›</span></button>' +
+        '<div class="tool-grid">' +
+        '<button class="tool-row" id="tile-star"><span class="tool-ico" aria-hidden="true">⭐</span>' +
+        '<span class="tool-txt"><b>Câu đã lưu</b><small>' + starTotal + ' câu quan trọng</small></span><span class="tool-go" aria-hidden="true">›</span></button>' +
+        '<button class="tool-row" id="tile-history"><span class="tool-ico" aria-hidden="true">🕘</span>' +
+        '<span class="tool-txt"><b>Lịch sử</b><small>' + histTotal + ' bài đã làm</small></span><span class="tool-go" aria-hidden="true">›</span></button>' +
+        '</div>' +
+        '<button class="tool-row" id="tile-search"><span class="tool-ico" aria-hidden="true">🔍</span>' +
+        '<span class="tool-txt"><b>Tìm kiếm</b><small>Tra cứu nhanh</small></span><span class="tool-go" aria-hidden="true">›</span></button>';
+      tools.appendChild(wrap);
+      tools.querySelector('#tile-wrong').onclick = function () { window.startWrongStudy(null); };
+      tools.querySelector('#tile-star').onclick = function () { openList('star'); };
+      tools.querySelector('#tile-history').onclick = function () { show('history'); };
+      tools.querySelector('#tile-search').onclick = function () { show('search'); };
     }
-
-    // 7-8. Study tools (Stitch §E): real counts only, 2-column cards that
-    // collapse to one column on small screens / "Rất lớn" text via CSS.
-    var nav = $('home-nav');
-    nav.innerHTML = '';
-    var hLabel = document.createElement('h3');
-    hLabel.className = 'home-section-label';
-    hLabel.textContent = 'Công cụ học tập';
-    nav.appendChild(hLabel);
-    var histTotal = 0;
-    try { histTotal = LddStore.getHistory().length; } catch (eH) {}
-    var grid = document.createElement('div');
-    grid.className = 'grid2';
-    grid.innerHTML =
-      '<button class="tile" id="tile-history"><span class="ico">🕘</span><b>Lịch sử</b><small>' + histTotal + ' bài đã làm</small></button>' +
-      '<button class="tile" id="tile-search"><span class="ico">🔍</span><b>Tìm kiếm</b><small>Tra cứu nhanh</small></button>';
-    // Global review tiles (all sets) for older-learner clarity.
-    var grid2 = document.createElement('div');
-    grid2.className = 'grid2';
-    grid2.innerHTML =
-      '<button class="tile full" id="tile-wrong"><span class="ico">❌</span><b>Ôn câu sai · ' + wrongTotal + ' câu</b>' +
-      '<span class="badge warn' + (wrongTotal ? '' : ' empty') + '" id="badge-wrong">' + wrongTotal + '</span></button>' +
-      '<button class="tile" id="tile-star"><span class="ico">⭐</span><b>Câu đã lưu</b><small>' + starTotal + ' câu quan trọng</small>' +
-      '<span class="badge star' + (starTotal ? '' : ' empty') + '" id="badge-star">' + starTotal + '</span></button>';
-    nav.appendChild(grid2);
-    nav.appendChild(grid);
-    nav.querySelector('#tile-history').onclick = function () { show('history'); };
-    nav.querySelector('#tile-search').onclick = function () { show('search'); };
-    nav.querySelector('#tile-wrong').onclick = function () { window.startWrongStudy(null); };
-    nav.querySelector('#tile-star').onclick = function () { openList('star'); };
 
     // Hide install hint when already installed as standalone PWA.
     try {

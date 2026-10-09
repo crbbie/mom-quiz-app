@@ -7,7 +7,7 @@
  * deployed catalog/set files are always discovered. The app's own
  * localStorage cache is the primary offline store; this SW fallback only
  * covers edge cases (e.g. no localStorage yet but SW saw the file). */
-var APP_VERSION = 'v2.5.1';
+var APP_VERSION = 'v2.6.0';
 var SHELL_CACHE = 'onthi-shell-' + APP_VERSION;
 var DATA_CACHE = 'onthi-data-v1';
 
@@ -18,9 +18,12 @@ var SHELL = [
   './css/styles.css',
   './js/store.js',
   './js/app.js',
+  './assets/branding/on-thi-wordmark-640.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './icons/apple-touch-icon.png'
+  './icons/icon-maskable-512.png',
+  './icons/apple-touch-icon.png',
+  './icons/favicon-64.png'
 ];
 
 function isDataRequest(url) {

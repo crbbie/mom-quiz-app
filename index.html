@@ -7,46 +7,100 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Ôn thi">
-<meta name="theme-color" content="#165CB8">
-<title>Ôn thi</title>
+<meta name="theme-color" content="#0F62DE">
+<title>Ôn thi — Học thông minh · Ôn luyện hiệu quả</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+<div class="bg-decor" aria-hidden="true">
+  <svg class="doodle book-left" viewBox="0 0 120 90" fill="none"><path d="M60 18C48 8 32 4 14 8v56c18-4 34 0 46 10 12-10 28-14 46-10V8C88 4 72 8 60 18Z" stroke="#BFD4F5" stroke-width="5" stroke-linejoin="round" fill="#DCE9FD"/><path d="M60 18v56" stroke="#BFD4F5" stroke-width="5" stroke-linecap="round"/></svg>
+  <svg class="doodle book-right" viewBox="0 0 120 90" fill="none"><path d="M60 18C48 8 32 4 14 8v56c18-4 34 0 46 10 12-10 28-14 46-10V8C88 4 72 8 60 18Z" stroke="#C4D9F7" stroke-width="5" stroke-linejoin="round" fill="#D9E7FD"/><path d="M60 18v56" stroke="#C4D9F7" stroke-width="5" stroke-linecap="round"/></svg>
+  <svg class="doodle spark s1" viewBox="0 0 24 24"><path d="M12 2c.7 5.5 4 8.8 9.5 9.5-5.5.7-8.8 4-9.5 9.5-.7-5.5-4-8.8-9.5-9.5C8 10.8 11.3 7.5 12 2Z" fill="#C9DBF8"/></svg>
+  <svg class="doodle spark s2" viewBox="0 0 24 24"><path d="M12 2c.7 5.5 4 8.8 9.5 9.5-5.5.7-8.8 4-9.5 9.5-.7-5.5-4-8.8-9.5-9.5C8 10.8 11.3 7.5 12 2Z" fill="#D7E4FA"/></svg>
+  <svg class="doodle spark s3" viewBox="0 0 24 24"><path d="M12 2c.7 5.5 4 8.8 9.5 9.5-5.5.7-8.8 4-9.5 9.5-.7-5.5-4-8.8-9.5-9.5C8 10.8 11.3 7.5 12 2Z" fill="#C9DBF8"/></svg>
+  <svg class="doodle spark s4" viewBox="0 0 24 24"><path d="M12 2c.7 5.5 4 8.8 9.5 9.5-5.5.7-8.8 4-9.5 9.5-.7-5.5-4-8.8-9.5-9.5C8 10.8 11.3 7.5 12 2Z" fill="#D7E4FA"/></svg>
+  <span class="doodle ring" aria-hidden="true"></span>
+</div>
 <div id="app">
 
-  <!-- ========== HOME: choose a question set ========== -->
+  <!-- ========== HOME ========== -->
   <section class="screen active" id="screen-home">
-    <div class="body" style="padding-top:calc(30px + env(safe-area-inset-top))">
-      <div class="hero">
-        <h1>Ôn thi</h1>
-        <p>Chọn bộ đề để bắt đầu</p>
-      </div>
-      <div class="textsize-row" role="group" aria-label="Điều chỉnh cỡ chữ">
-        <span class="ts-label" id="ts-label">Điều chỉnh cỡ chữ</span>
-        <button class="ts-btn" id="ts-large" data-ts="large" aria-pressed="true" aria-labelledby="ts-label ts-large" onclick="setTextSize('large')">Lớn</button>
-        <button class="ts-btn" id="ts-xlarge" data-ts="xlarge" aria-pressed="false" aria-labelledby="ts-label ts-xlarge" onclick="setTextSize('xlarge')">Rất lớn</button>
-      </div>
+    <div class="body home-body" style="padding-top:calc(26px + env(safe-area-inset-top))">
+      <header class="brand">
+        <img class="brand-logo" src="assets/branding/on-thi-wordmark-640.png" alt="Ôn thi" width="320" height="131">
+        <p class="brand-tag">Học thông minh · Ôn luyện hiệu quả</p>
+      </header>
+
       <div class="update-banner" id="update-banner">
         <span style="flex:1">Có phiên bản mới của ứng dụng.</span>
         <button onclick="applyAppUpdate()">Cập nhật</button>
       </div>
-      <details class="sync-card sync-line" id="sync-card"><summary>Thông tin và cập nhật dữ liệu</summary><div class="sync-detail">
-        <div class="sync-card-top">
-          <span class="sync-dot" id="sync-dot"></span>
-          <span class="sync-card-text" id="sync-text">Đang tải bộ đề…</span>
+
+      <div class="info-card">
+        <button class="info-head" id="info-toggle" aria-expanded="false" aria-controls="info-panel" onclick="toggleInfoCard()">
+          <span class="chev" aria-hidden="true">⌄</span>
+          <span>Thông tin và cập nhật dữ liệu</span>
+        </button>
+        <div class="info-panel" id="info-panel" hidden>
+          <div class="sync-card-top">
+            <span class="sync-dot" id="sync-dot"></span>
+            <span class="sync-card-text" id="sync-text">Đang tải bộ đề…</span>
+          </div>
+          <button class="btn ghost sync-btn" onclick="manualSync()">Cập nhật dữ liệu</button>
+          <p class="sync-hint">Nếu chưa thấy bộ đề mới, hãy bấm Cập nhật dữ liệu.</p>
         </div>
-        <button class="btn ghost sync-btn" onclick="manualSync()">Cập nhật dữ liệu</button>
-        <p class="sync-hint">Nếu chưa thấy bộ đề mới, hãy bấm Cập nhật dữ liệu.</p>
-      </div></details>
-      <div id="resume-slot"></div>
-      <h2 class="home-section-label" id="sets-label">Chọn cách học</h2>
-      <div id="set-list" role="list" aria-labelledby="sets-label"></div>
-      <div id="home-nav"></div>
-      <p class="install-hint" id="install-hint">
-        Mẹo: Mở bằng Safari → nút Chia sẻ → <b>Thêm vào Màn hình chính</b><br>để dùng như app, mở là chạy.
+      </div>
+
+      <div class="textsize-row" role="group" aria-label="Điều chỉnh cỡ chữ">
+        <span class="ts-label" id="ts-label"><span class="ts-ico" aria-hidden="true">✎</span>Điều chỉnh cỡ chữ</span>
+        <button class="ts-btn" id="ts-large" data-ts="large" aria-pressed="true" aria-labelledby="ts-label ts-large" onclick="setTextSize('large')">Lớn</button>
+        <button class="ts-btn" id="ts-xlarge" data-ts="xlarge" aria-pressed="false" aria-labelledby="ts-label ts-xlarge" onclick="setTextSize('xlarge')">Rất lớn</button>
+      </div>
+
+      <div class="learn-card">
+        <h2>Chọn cách học</h2>
+        <p class="learn-sub">Chọn bộ đề và phương thức ôn tập phù hợp với mục tiêu của bạn.</p>
+
+        <span class="set-pick-label" id="home-set-label">Bộ đề đang chọn</span>
+        <div class="set-select">
+          <span class="set-select-ico" aria-hidden="true">📚</span>
+          <label class="sr-only" for="home-set-select">Bộ đề đang chọn</label>
+          <select id="home-set-select" aria-labelledby="home-set-label" onchange="selectHomeSet(this.value)"></select>
+          <span class="set-select-chev" aria-hidden="true">⌄</span>
+        </div>
+        <p class="set-desc" id="home-set-desc"></p>
+
+        <div class="mode-list" id="home-modes">
+          <button class="mode-row" data-mode="study" onclick="startSelectedStudy()">
+            <span class="mode-ico blue" aria-hidden="true">📖</span>
+            <span class="mode-txt"><b>Ôn tập</b><small>Tự trả lời, rồi xem đáp án</small></span>
+            <span class="mode-go" aria-hidden="true">›</span>
+          </button>
+          <button class="mode-row" data-mode="view" onclick="startSelectedView()">
+            <span class="mode-ico sky" aria-hidden="true">👁</span>
+            <span class="mode-txt"><b>Xem đáp án</b><small>Đọc câu hỏi và đáp án đúng</small></span>
+            <span class="mode-go" aria-hidden="true">›</span>
+          </button>
+          <button class="mode-row" data-mode="exam" onclick="startSelectedExam()">
+            <span class="mode-ico pink" aria-hidden="true">📝</span>
+            <span class="mode-txt"><b>Thi thử</b><small>Làm bài có giờ, xem kết quả khi nộp</small></span>
+            <span class="mode-go" aria-hidden="true">›</span>
+          </button>
+        </div>
+
+        <div id="resume-slot"></div>
+      </div>
+
+      <h2 class="home-section-label">Công cụ học tập</h2>
+      <div id="home-tools"></div>
+
+      <p class="install-hint tip-card" id="install-hint">
+        <span class="tip-ico" aria-hidden="true">💡</span>
+        <span><u><b>Mẹo:</b></u> Mở bằng Safari → nút Chia sẻ → <b>Thêm vào Màn hình chính</b><br>để dùng như app, mở là chạy.</span>
       </p>
     </div>
   </section>
@@ -71,8 +125,8 @@
       <div id="study-feedback"></div>
     </div>
     <div class="bottom-actions">
+      <button class="btn primary" id="study-next" onclick="studyNext()" disabled>Tiếp theo ›</button>
       <button class="btn ghost" id="study-prev" onclick="studyPrev()">‹ Câu trước</button>
-      <button class="btn primary" id="study-next" onclick="studyNext()" disabled>Câu tiếp ›</button>
     </div>
   </section>
 
@@ -117,19 +171,18 @@
         <label for="view-topic-select">Chọn chuyên đề để xem đáp án</label>
         <select id="view-topic-select" onchange="changeViewTopic(this.value)" aria-label="Lọc đáp án theo chuyên đề"></select>
       </div>
-      <p class="view-position" id="view-position"></p>
       <div class="qcat" id="view-cat" style="display:none"></div>
       <div class="qtext" id="view-q"></div>
       <div class="options" id="view-ans"></div>
       <div id="view-exp"></div>
       <div class="view-done" id="view-done" hidden>
-        <p>Đây là câu cuối trong danh sách (<b id="view-done-n">0</b> câu).</p>
+        <p>Đã xem hết <b id="view-done-n">0</b> câu trong bộ đề này.</p>
         <button class="btn ghost" onclick="exitViewToHome()">Về bộ đề</button>
       </div>
     </div>
     <div class="bottom-actions">
-      <button class="btn ghost" id="view-prev" onclick="viewPrev()">‹ Câu trước</button>
       <button class="btn primary" id="view-next" onclick="viewNext()">Câu tiếp ›</button>
+      <button class="btn ghost" id="view-prev" onclick="viewPrev()">‹ Câu trước</button>
     </div>
   </section>
 
@@ -141,8 +194,7 @@
     </div>
     <div class="body">
       <p class="setup-hint" id="exam-default-hint">Mặc định: 20 câu · 20 phút — nhấn Bắt đầu thi là làm ngay.</p>
-      <button class="btn primary" id="exam-start-btn" style="width:100%;margin:12px 0" onclick="startExam()">Bắt đầu thi</button>
-      <details class="exam-options"><summary>Đổi số câu và thời gian</summary><div class="setup-group">
+      <div class="setup-group">
         <h3>Số câu hỏi</h3>
         <div class="chips" id="exam-count-chips">
           <button class="chip" data-v="10">10 câu</button>
@@ -160,8 +212,7 @@
           <button class="chip" data-v="60">60 phút</button>
         </div>
       </div>
-      </details>
-      <details class="exam-options"><summary>Tùy chọn khác</summary><div class="setup-group">
+      <div class="setup-group">
         <h3>Tùy chọn</h3>
         <div class="switch-row">
           <span id="lbl-shuffle-q">🔀 Đảo thứ tự câu hỏi</span>
@@ -172,7 +223,7 @@
           <button class="switch on" id="sw-shuffle-a" role="switch" aria-checked="true" aria-labelledby="lbl-shuffle-a sw-shuffle-a" onclick="toggleSwitch(this)"></button>
         </div>
       </div>
-      </details>
+      <button class="btn primary" id="exam-start-btn" style="width:100%;margin-top:8px" onclick="startExam()">Bắt đầu thi</button>
     </div>
   </section>
 
@@ -193,12 +244,13 @@
       <div class="qcat" id="exam-cat" style="display:none"></div>
       <div class="qtext" id="exam-q"></div>
       <div class="options" id="exam-opts"></div>
-      <div class="nav-grid" id="exam-nav" hidden></div>
+      <h3 class="section-label">Bảng câu hỏi</h3>
+      <div class="nav-grid" id="exam-nav"></div>
       <button class="btn danger" style="width:100%;margin-top:10px" onclick="confirmSubmitExam()">Nộp bài</button>
     </div>
     <div class="bottom-actions">
-      <button class="btn ghost" onclick="examPrev()">‹ Câu trước</button>
-      <button class="btn primary" id="exam-next-btn" onclick="examNext()">Câu tiếp ›</button>
+      <button class="btn primary" id="exam-next-btn" onclick="examNext()">Sau ›</button>
+      <button class="btn ghost" onclick="examPrev()">‹ Trước</button>
     </div>
   </section>
 
@@ -220,7 +272,6 @@
       <div class="stat-row">
         <div class="stat ok"><b id="er-ok">0</b><small>Đúng</small></div>
         <div class="stat no"><b id="er-no">0</b><small>Sai</small></div>
-        <div class="stat"><b id="er-unanswered">0</b><small>Chưa trả lời</small></div>
         <div class="stat"><b id="er-pct">0%</b><small>Tỷ lệ</small></div>
       </div>
       <h3 class="section-label">Chi tiết bài làm</h3>

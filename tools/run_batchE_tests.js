@@ -18,20 +18,21 @@ const vb = viewBody();
 // doc comment names the forbidden calls to explain the boundary).
 const vcode = vb.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/.*$/gm, '$1');
 
-// ---- home hierarchy ----
+// ---- home hierarchy (redesigned approved layout: mode rows in static HTML,
+// study first; rows always stack vertically full-width; view hint stays small) ----
 t('home order: study before view before exam', (() => {
-  const r = app.indexOf('Bắt đầu ôn tập');
-  const v = app.indexOf('Xem đáp án', r);
-  const e = app.indexOf('Thi thử', v);
+  const r = html.indexOf('data-mode="study"');
+  const v = html.indexOf('data-mode="view"', r);
+  const e = html.indexOf('data-mode="exam"', v);
   return r > 0 && v > r && e > v;
 })());
-t('view action visible in stable mode list', app.indexOf('data-mode="view"') >= 0 && css.indexOf('.mode-action') >= 0);
-t('mobile stacks vertically (all three full-width)', /\.set-actions \.btn\.(study-primary|view-secondary|exam-secondary)\{[^}]*grid-column:\s*1\/-1/.test(css));
-t('answer review position persistence retained', app.indexOf('viewResumeIndex') >= 0 && app.indexOf('getViewPos()') >= 0);
+t('view action is a clear mode row (full width by layout)', html.indexOf('data-mode="view"') >= 0 && /\.mode-list\{[^}]*flex-direction:\s*column/.test(css));
+t('modes always stack vertically (never cramped side-by-side)', /\.mode-list\{[^}]*flex-direction:\s*column/.test(css));
+t('resume hint small (Tiếp tục xem từ câu N, no large card)', app.indexOf('Tiếp tục xem từ câu ') >= 0 && app.indexOf('view-resume-hint') >= 0);
 
 // ---- view screen ----
 t('view screen exists (screen-view)', html.indexOf('id="screen-view"') >= 0);
-t('view shows scoped position and clear heading', vb.indexOf('view-position') >= 0 && vb.indexOf("'Xem đáp án'") >= 0);
+t('view shows scoped question position and Xem đáp án', vb.indexOf('view-position') >= 0 && vb.indexOf("'Xem đáp án'") >= 0);
 t('view has Danh sách câu entry', html.indexOf('id="screen-view"') >= 0 && html.split('id="screen-view"')[1].indexOf('Danh sách câu') >= 0);
 t('view shows correct badge (✓ Đáp án đúng)', vb.indexOf('✓ Đáp án đúng') >= 0);
 t('view shows star control (Lưu câu/Đã lưu)', vb.indexOf('Lưu câu') >= 0 && vb.indexOf('Đã lưu') >= 0);
