@@ -428,3 +428,7 @@ html[data-text-size="xlarge"] .grid2{grid-template-columns:1fr}
 .view-star-btn{width:100%;margin-top:14px}
 .view-star-btn.on{background:#FFF3D1;border-color:#D9A521;color:var(--ink-title)}
 #view-load-more{min-height:56px}
+
+/* Visible even when the Info panel is collapsed, to recover a dismissed update prompt. */
+.app-version-check{display:block;width:100%;min-height:48px;margin:0 0 12px;padding:11px 16px;border:1.5px solid #B6CDED;border-radius:14px;background:#fff;color:#164C99;font:inherit;font-weight:700;text-align:center;cursor:pointer}
+.app-version-check:focus-visible{outline:3px solid #1668DC;outline-offset:3px}
