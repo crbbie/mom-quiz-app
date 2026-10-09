@@ -37,7 +37,7 @@ function fnBody(src, sig) {
   t('new session begins directly from first dialog choice', (guard.match(/onDanger: function \(\) \{ proceed\(\); \}/g) || []).length === 2);
   t('no second replacement confirmation', !guard.includes('confirmDiscardThenStart'));
   t('no stored session starts immediately', guard.includes('if (!kept) { proceed(); return; }'));
-  t('resume card remains available', app.includes('resume-continue') && app.includes('window.resumeSession();'));
+  t('resume card remains available', app.includes('data-act="resume"') && app.includes('window.resumeSession();'));
   t('home discard still confirms', app.slice(app.indexOf('window.discardSession = function'), app.indexOf('window.discardSession = function') + 700).includes('showModal'));
   t('no unrelated storage mutation from guard', !/(setStars|setWrong|pushHistory)/.test(guard));
 }
