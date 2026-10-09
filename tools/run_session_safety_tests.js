@@ -1,8 +1,8 @@
 // Session-safety + update-detection regression tests.
 // Run: node tools/run_session_safety_tests.js
-// Logic-only: guards that an unfinished session is never silently overwritten,
-// cancellation preserves it, discard needs explicit double confirmation,
-// reload restores the exact session, review modes stay isolated, and content
+// User-approved behavior: starting a new quiz replaces an unfinished quiz immediately;
+// Resume still restores it, and explicit Home discard still confirms. Reload,
+// review isolation, and content updates preserve their prior safeguards.
 // updates are detected/announced safely without touching sessions.
 const fs = require('fs');
 const app = fs.readFileSync('js/app.js', 'utf8');
@@ -27,56 +27,19 @@ function fnBody(src, sig) {
   return '';
 }
 
-// ---------- 1. destructive writes are always guarded ----------
+// ---------- 1. Exactly ONE interrupting dialog when an unfinished session exists ----------
 {
-  const g = fnBody(app, 'function guardReplaceSession');
-  t('guard exists and detects kept session first', g.indexOf('keptSession()') >= 0);
-  const ss = app.indexOf('window.startStudy = startStudy');
-  t('startStudy routes through guard', app.indexOf('guardReplaceSession', ss - 2000) >= 0 || app.slice(ss, ss + 400).indexOf('guardReplaceSession') >= 0);
-  // Precise definition match (new home wrappers like startSelectedExam share a
-  // name prefix but are separate functions — intent: definitions route via guard).
-  t('startExam routes through guard', app.slice(app.indexOf('window.startExam = function'), app.indexOf('window.startExam = function') + 300).indexOf('guardReplaceSession') >= 0);
-  t('startWrongStudy routes through guard', app.slice(app.indexOf('window.startWrongStudy = function'), app.indexOf('window.startWrongStudy = function') + 3000).indexOf('guardReplaceSession') >= 0);
-}
-
-// ---------- 2. same unfinished quiz offers resume (never silent restart) ----------
-{
-  const g = fnBody(app, 'function guardReplaceSession');
-  t('same-study session detected (not auto-restarted)', g.indexOf('sameStudySession') >= 0);
-  t('same-exam session detected', g.indexOf('sameExamSession') >= 0);
-  t('same-quiz path asks with resume modal', g.indexOf('Bài này đang làm dở') >= 0 && g.indexOf('window.resumeSession') >= 0);
-  // The old buggy shortcut ("same study -> proceed() directly") must be gone:
-  // every proceed() inside the guard must be nested in a confirmation callback.
-  const directProceed = /sameStudySession\([^)]*\)\)\s*\{\s*proceed\(\)/.test(g);
-  t('no silent same-session restart', !directProceed);
-}
-
-// ---------- 3. different quiz: Resume / Discard-and-Start-New / Cancel ----------
-{
-  const g = fnBody(app, 'function guardReplaceSession');
-  const cancelCount = (g.match(/cancelLabel/g) || []).length;
-  const onCancelCount = (g.match(/onCancel/g) || []).length;
-  t('warning shows Resume choice', g.indexOf('Tiếp tục bài đang làm') >= 0);
-  t('warning shows Discard-and-Start-New choice', g.indexOf('Bỏ bài cũ, bắt đầu mới') >= 0);
-  t('warning shows Cancel choice (both paths)', cancelCount >= 2 && onCancelCount >= 2);
-  t('modal shell has 3 buttons', html.indexOf('id="modal-cancel"') >= 0);
-  t('showModal supports cancel callback', app.indexOf('onCancel') >= 0 && app.indexOf('modal-cancel') >= 0);
-  t('existing flows keep working without cancel (hideCancel default)', app.indexOf('hideCancel') >= 0);
-}
-
-// ---------- 4. discard needs explicit confirmation; cancel preserves ----------
-{
-  const g = fnBody(app, 'function guardReplaceSession');
-  t('discard goes through second confirmation', g.indexOf('confirmDiscardThenStart') >= 0);
-  t('guard never calls proceed() directly from warning danger', !/onDanger:\s*function\s*\(\)\s*\{\s*proceed\(\)/.test(g));
-  const c = fnBody(app, 'function confirmDiscardThenStart');
-  t('second confirmation modal exists', c.indexOf('showModal') >= 0);
-  t('second confirmation names the kept session', c.indexOf('keptDesc') >= 0);
-  t('second confirmation safe choice keeps session', c.indexOf('Giữ lại bài cũ') >= 0);
-  // Cancel handlers must not write storage: inspect onCancel callbacks in guard.
-  const cancelWrites = (g.match(/onCancel:[^}]*?(clearSession|setSession|proceed)/g) || []).length;
-  t('cancel preserves session byte-for-byte (no writes)', cancelWrites === 0);
-  t('home discard still double-confirms (discardSession modal)', app.slice(app.indexOf('window.discardSession = function'), app.indexOf('window.discardSession = function') + 700).indexOf('showModal') >= 0);
+  const guard = fnBody(app, 'function guardReplaceSession');
+  t('guard checks saved session', guard.includes('keptSession()'));
+  t('guard offers resume', guard.includes('window.resumeSession()'));
+  t('guard offers cancel', (guard.match(/onCancel/g) || []).length >= 2);
+  t('guard opens first dialog', guard.includes('showModal'));
+  t('new session begins directly from first dialog choice', (guard.match(/onDanger: function \(\) \{ proceed\(\); \}/g) || []).length === 2);
+  t('no second replacement confirmation', !guard.includes('confirmDiscardThenStart'));
+  t('no stored session starts immediately', guard.includes('if (!kept) { proceed(); return; }'));
+  t('resume card remains available', app.includes('resume-continue') && app.includes('window.resumeSession();'));
+  t('home discard still confirms', app.slice(app.indexOf('window.discardSession = function'), app.indexOf('window.discardSession = function') + 700).includes('showModal'));
+  t('no unrelated storage mutation from guard', !/(setStars|setWrong|pushHistory)/.test(guard));
 }
 
 // ---------- 5. reload / Safari restart / PWA reopen restores the EXACT session ----------

@@ -22,11 +22,9 @@ const normalizeVi = loadNormalize();
 // ---------- 1. Wrong-question Study session ----------
 {
   t('wrong session entry exists (startWrongStudy)', app.indexOf('window.startWrongStudy') >= 0);
-  t('home per-set wrong button starts session (not bare list)', (() => {
-    const i = app.indexOf('[data-act="wrong"]');
-    const body = app.slice(i, i + 120);
-    return body.indexOf('startWrongStudy') >= 0;
-  })());
+  t('home hub has one clear wrong-answer entry, not duplicated across cards',
+    app.indexOf("startWrongStudy(null)") >= 0 &&
+    app.indexOf("data-act=\"wrong\"") < 0);
   t('home global wrong tile starts session', app.indexOf("startWrongStudy(null)") >= 0);
   t('queue snapshot from stable keys (setId:questionId via questionById)', (() => {
     const i = app.indexOf('window.startWrongStudy = function');

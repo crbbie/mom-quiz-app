@@ -15,14 +15,12 @@ t('guard helper exists (guardReplaceSession)', app.indexOf('guardReplaceSession'
 t('startStudy goes through guard', bodyOf('function startStudy(setId)').indexOf('guardReplaceSession') >= 0);
 t('startWrongStudy goes through guard', bodyOf('window.startWrongStudy = function').indexOf('guardReplaceSession') >= 0);
 t('startExam goes through guard', bodyOf('window.startExam = function').indexOf('guardReplaceSession') >= 0);
-t('safe choice reads "Tiếp tục bài đang làm"', app.indexOf("safeLabel: 'Tiếp tục bài đang làm'") >= 0);
-t('safe choice resumes kept session', bodyOf('function guardReplaceSession', 1400).indexOf('resumeSession') >= 0);
-t('destructive choice says what happens (Bỏ bài cũ, bắt đầu mới)', app.indexOf('Bỏ bài cũ, bắt đầu mới') >= 0);
-t('same study session does not nag (sameStudySession bypass)', bodyOf('function guardReplaceSession', 1400).indexOf('sameStudySession') >= 0);
-t('guard uses in-app modal (no bare confirm)', (() => {
-  const b = bodyOf('function guardReplaceSession', 1400);
-  return b.indexOf('showModal') >= 0 && b.indexOf('confirm(') < 0;
+t('one modal gives resume, cancel, and new quiz', (() => {
+  const b = bodyOf('function guardReplaceSession', 2000);
+  return b.includes('showModal') && b.includes('window.resumeSession') && b.includes('onCancel') && b.includes('onDanger: function () { proceed(); }');
 })());
+t('existing resume card remains available', app.indexOf('resume-continue') >= 0 && app.indexOf('window.resumeSession()') >= 0);
+t('explicit discard confirmation remains', app.indexOf('window.discardSession = function') >= 0 && app.slice(app.indexOf('window.discardSession = function'), app.indexOf('window.discardSession = function') + 500).indexOf('showModal') >= 0);
 
 // ---- 2. final study button ----
 t('answerStudy updates next label on last question (Hoàn thành)', (() => {
