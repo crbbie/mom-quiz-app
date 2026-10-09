@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Ôn thi">
-<meta name="theme-color" content="#1e6fd9">
+<meta name="theme-color" content="#165CB8">
 <title>Ôn thi</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -21,29 +21,33 @@
   <section class="screen active" id="screen-home">
     <div class="body" style="padding-top:calc(30px + env(safe-area-inset-top))">
       <div class="hero">
-        <h1>Ôn thi 📚</h1>
+        <h1>Ôn thi</h1>
         <p>Chọn bộ đề để bắt đầu</p>
       </div>
-      <div class="update-banner" id="update-banner">
-        <span style="flex:1">✨ Có phiên bản mới của ứng dụng.</span>
-        <button onclick="applyAppUpdate()">Cập nhật</button>
-      </div>
-      <div id="resume-slot"></div>
-      <div id="set-list"></div>
-      <div id="home-nav"></div>
-      <div class="sync-line">
-        <span class="sync-dot" id="sync-dot"></span>
-        <span id="sync-text">Đang tải bộ đề…</span>
-        <button onclick="manualSync()">Cập nhật dữ liệu</button>
-      </div>
-      <p class="install-hint" id="install-hint">
-        Mẹo: Mở bằng Safari → nút Chia sẻ → <b>Thêm vào Màn hình chính</b><br>để dùng như app, mở là chạy.
-      </p>
-      <div class="textsize-row" role="group" aria-label="Cỡ chữ">
-        <span class="ts-label" id="ts-label">Cỡ chữ</span>
+      <div class="textsize-row" role="group" aria-label="Điều chỉnh cỡ chữ">
+        <span class="ts-label" id="ts-label">Điều chỉnh cỡ chữ</span>
         <button class="ts-btn" id="ts-large" data-ts="large" aria-pressed="true" aria-labelledby="ts-label ts-large" onclick="setTextSize('large')">Lớn</button>
         <button class="ts-btn" id="ts-xlarge" data-ts="xlarge" aria-pressed="false" aria-labelledby="ts-label ts-xlarge" onclick="setTextSize('xlarge')">Rất lớn</button>
       </div>
+      <div class="update-banner" id="update-banner">
+        <span style="flex:1">Có phiên bản mới của ứng dụng.</span>
+        <button onclick="applyAppUpdate()">Cập nhật</button>
+      </div>
+      <div class="sync-card sync-line" id="sync-card">
+        <div class="sync-card-top">
+          <span class="sync-dot" id="sync-dot"></span>
+          <span class="sync-card-text" id="sync-text">Đang tải bộ đề…</span>
+        </div>
+        <button class="btn ghost sync-btn" onclick="manualSync()">Cập nhật dữ liệu</button>
+        <p class="sync-hint">Nếu chưa thấy bộ đề mới, hãy bấm Cập nhật dữ liệu.</p>
+      </div>
+      <div id="resume-slot"></div>
+      <h2 class="home-section-label" id="sets-label">Danh sách bộ đề</h2>
+      <div id="set-list" role="list" aria-labelledby="sets-label"></div>
+      <div id="home-nav"></div>
+      <p class="install-hint" id="install-hint">
+        Mẹo: Mở bằng Safari → nút Chia sẻ → <b>Thêm vào Màn hình chính</b><br>để dùng như app, mở là chạy.
+      </p>
     </div>
   </section>
 
@@ -67,8 +71,8 @@
       <div id="study-feedback"></div>
     </div>
     <div class="bottom-actions">
-      <button class="btn ghost" id="study-prev" onclick="studyPrev()">‹ Câu trước</button>
       <button class="btn primary" id="study-next" onclick="studyNext()" disabled>Tiếp theo ›</button>
+      <button class="btn ghost" id="study-prev" onclick="studyPrev()">‹ Câu trước</button>
     </div>
   </section>
 
@@ -109,6 +113,10 @@
     </div>
     <div class="body">
       <button class="btn ghost picker-open" onclick="openQuestionPicker()">📋 Danh sách câu</button>
+      <div id="view-topic-filter" class="view-topic-filter" hidden>
+        <label for="view-topic-select">Chọn chuyên đề để xem đáp án</label>
+        <select id="view-topic-select" onchange="changeViewTopic(this.value)" aria-label="Lọc đáp án theo chuyên đề"></select>
+      </div>
       <div class="qcat" id="view-cat" style="display:none"></div>
       <div class="qtext" id="view-q"></div>
       <div class="options" id="view-ans"></div>
@@ -119,8 +127,8 @@
       </div>
     </div>
     <div class="bottom-actions">
-      <button class="btn ghost" id="view-prev" onclick="viewPrev()">‹ Câu trước</button>
       <button class="btn primary" id="view-next" onclick="viewNext()">Câu tiếp ›</button>
+      <button class="btn ghost" id="view-prev" onclick="viewPrev()">‹ Câu trước</button>
     </div>
   </section>
 
@@ -187,8 +195,8 @@
       <button class="btn danger" style="width:100%;margin-top:10px" onclick="confirmSubmitExam()">Nộp bài</button>
     </div>
     <div class="bottom-actions">
-      <button class="btn ghost" onclick="examPrev()">‹ Trước</button>
       <button class="btn primary" id="exam-next-btn" onclick="examNext()">Sau ›</button>
+      <button class="btn ghost" onclick="examPrev()">‹ Trước</button>
     </div>
   </section>
 
@@ -275,10 +283,14 @@
     <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-msg">
       <h2 id="modal-title">Xác nhận</h2>
       <p id="modal-msg"></p>
+      <div class="modal-progress" id="modal-progress" hidden>
+        <div class="modal-progress-top"><span id="modal-progress-label"></span><span id="modal-progress-pct"></span></div>
+        <div class="modal-progress-bar"><div id="modal-progress-fill"></div></div>
+      </div>
       <div class="modal-actions">
-        <button class="btn ghost" id="modal-safe">Tiếp tục làm bài</button>
-        <button class="btn danger" id="modal-danger">Nộp bài</button>
-        <button class="btn ghost modal-cancel" id="modal-cancel">Để sau</button>
+        <button class="btn primary" id="modal-safe">Tiếp tục làm bài</button>
+        <button class="btn danger-soft" id="modal-danger">Nộp bài</button>
+        <button class="btn ghost" id="modal-cancel" onclick="hideModal()">Đóng</button>
       </div>
     </div>
   </div>
