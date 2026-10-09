@@ -32,7 +32,7 @@ t('resume hint small (Tiếp tục xem từ câu N, no large card)', app.indexOf
 
 // ---- view screen ----
 t('view screen exists (screen-view)', html.indexOf('id="screen-view"') >= 0);
-t('view shows Câu X / Y + Xem đáp án', vb.indexOf("'Câu ' + (view.idx + 1) + ' / ' + total") >= 0 && vb.indexOf('Xem đáp án') >= 0);
+t('view shows scoped question position and Xem đáp án', vb.indexOf('view-position') >= 0 && vb.indexOf("'Xem đáp án'") >= 0);
 t('view has Danh sách câu entry', html.indexOf('id="screen-view"') >= 0 && html.split('id="screen-view"')[1].indexOf('Danh sách câu') >= 0);
 t('view shows correct badge (✓ Đáp án đúng)', vb.indexOf('✓ Đáp án đúng') >= 0);
 t('view shows star control (Lưu câu/Đã lưu)', vb.indexOf('Lưu câu') >= 0 && vb.indexOf('Đã lưu') >= 0);
