@@ -71,8 +71,8 @@
       <div id="study-feedback"></div>
     </div>
     <div class="bottom-actions">
-      <button class="btn primary" id="study-next" onclick="studyNext()" disabled>Tiếp theo ›</button>
       <button class="btn ghost" id="study-prev" onclick="studyPrev()">‹ Câu trước</button>
+      <button class="btn primary" id="study-next" onclick="studyNext()" disabled>Câu tiếp ›</button>
     </div>
   </section>
 
@@ -128,8 +128,8 @@
       </div>
     </div>
     <div class="bottom-actions">
-      <button class="btn primary" id="view-next" onclick="viewNext()">Câu tiếp ›</button>
       <button class="btn ghost" id="view-prev" onclick="viewPrev()">‹ Câu trước</button>
+      <button class="btn primary" id="view-next" onclick="viewNext()">Câu tiếp ›</button>
     </div>
   </section>
 
@@ -197,8 +197,8 @@
       <button class="btn danger" style="width:100%;margin-top:10px" onclick="confirmSubmitExam()">Nộp bài</button>
     </div>
     <div class="bottom-actions">
-      <button class="btn primary" id="exam-next-btn" onclick="examNext()">Sau ›</button>
-      <button class="btn ghost" onclick="examPrev()">‹ Trước</button>
+      <button class="btn ghost" onclick="examPrev()">‹ Câu trước</button>
+      <button class="btn primary" id="exam-next-btn" onclick="examNext()">Câu tiếp ›</button>
     </div>
   </section>
 
@@ -220,6 +220,7 @@
       <div class="stat-row">
         <div class="stat ok"><b id="er-ok">0</b><small>Đúng</small></div>
         <div class="stat no"><b id="er-no">0</b><small>Sai</small></div>
+        <div class="stat"><b id="er-unanswered">0</b><small>Chưa trả lời</small></div>
         <div class="stat"><b id="er-pct">0%</b><small>Tỷ lệ</small></div>
       </div>
       <h3 class="section-label">Chi tiết bài làm</h3>
