@@ -376,3 +376,10 @@ html[data-text-size="xlarge"] .grid2{grid-template-columns:1fr}
   html{scroll-behavior:auto}
   *,*::before,*::after{transition:none !important;animation:none !important}
 }
+
+/* Topic answer review: large, readable filter without changing study/exam layout. */
+.view-topic-filter[hidden]{display:none!important}
+.view-topic-filter{margin:12px 0 16px;padding:16px;background:#fff;border:1px solid #CDD7E5;border-radius:16px}
+.view-topic-filter label{display:block;margin-bottom:10px;font-size:var(--font-important,20px);font-weight:700;color:#141C28;line-height:1.45}
+.view-topic-filter select{display:block;width:100%;max-width:100%;min-height:58px;padding:12px 42px 12px 14px;border:2px solid #165CB8;border-radius:12px;background:#F4F7FB;color:#141C28;font-size:var(--font-answer,20px);font-weight:600;line-height:1.4;font-family:inherit;white-space:normal}
+.view-topic-filter select:focus-visible{outline:3px solid #165CB8;outline-offset:3px}

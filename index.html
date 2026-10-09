@@ -113,6 +113,10 @@
     </div>
     <div class="body">
       <button class="btn ghost picker-open" onclick="openQuestionPicker()">📋 Danh sách câu</button>
+      <div id="view-topic-filter" class="view-topic-filter" hidden>
+        <label for="view-topic-select">Chọn chuyên đề để xem đáp án</label>
+        <select id="view-topic-select" onchange="changeViewTopic(this.value)" aria-label="Lọc đáp án theo chuyên đề"></select>
+      </div>
       <div class="qcat" id="view-cat" style="display:none"></div>
       <div class="qtext" id="view-q"></div>
       <div class="options" id="view-ans"></div>

@@ -17,7 +17,7 @@
   // viewing never touches study/exam answers, wrong membership, history or
   // the unfinished-session slot. Only the per-set view position (its own
   // storage slot) plus explicit star taps may change.
-  var view = { active: false, setId: null, list: [], idx: 0, origin: null };
+  var view = { active: false, setId: null, list: [], idx: 0, origin: null, topic: 'all' };
   // Batch B §3: result context recorded at finish (study is cleared there),
   // so "Ôn lại" can retry the still-wrong scope instead of the full set.
   var lastResult = null;
@@ -112,22 +112,35 @@
     if ((s.wrongSetId || null) !== (wrongScope || null)) return false;
     return true;
   }
-  // proceed() starts the requested new session. If a DIFFERENT unfinished
-  // session exists, ask in-app: safe choice resumes it ("Tiếp tục bài đang
-  // làm"), destructive choice clearly replaces it. Resuming the same session
-  // (resumeSession) never passes through here, so it never nags.
+  // Keep the existing session intact until a separate discard confirmation.
+  function sameExamSession(s, setId) {
+    return !!s && s.kind === 'exam' && s.setId === setId;
+  }
+  function confirmDiscardThenStart(desc, proceed) {
+    showModal({
+      title: 'Bỏ bài cũ và bắt đầu mới?',
+      msg: 'Bài đang làm dở (' + desc + ') sẽ bị xóa. Bạn có chắc chắn muốn bỏ bài này?',
+      progress: sessionProgress(keptSession()),
+      safeLabel: 'Giữ lại bài cũ',
+      dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
+      onSafe: function () {},
+      onDanger: proceed
+    });
+  }
   function guardReplaceSession(kind, setId, isWrong, wrongScope, proceed) {
     var kept = keptSession();
     if (!kept) { proceed(); return; }
-    if (kind === 'study' && sameStudySession(kept, setId, isWrong, wrongScope)) { proceed(); return; }
+    var same = (kind === 'study' && sameStudySession(kept, setId, isWrong, wrongScope)) ||
+               (kind === 'exam' && sameExamSession(kept, setId));
     showModal({
-      title: 'Bài đang làm dở?',
-      msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Bắt đầu bài mới sẽ xóa bài đang làm dở này.',
+      title: same ? 'Bài này đang làm dở?' : 'Bài đang làm dở?',
+      msg: 'Bạn đang làm dở: ' + describeSession(kept) +
+        (same ? '. Bạn muốn tiếp tục hay làm lại từ đầu?' : '. Muốn làm bài mới, bạn cần bỏ bài này.'),
       progress: sessionProgress(kept),
       safeLabel: 'Tiếp tục bài đang làm',
-      dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
+      dangerLabel: same ? 'Làm lại từ đầu' : 'Bỏ bài cũ, bắt đầu mới',
       onSafe: function () { window.resumeSession(); },
-      onDanger: function () { proceed(); }
+      onDanger: function () { confirmDiscardThenStart(describeSession(kept), proceed); }
     });
   }
   // Display-only helper: real position/total of a kept session for the
@@ -1394,19 +1407,70 @@
     var idx = 0;
     for (var i = 0; i < list.length; i++) if (list[i].id === qid) { idx = i; break; }
     activeSetId = setId;
-    view = { active: true, setId: setId, list: list, idx: idx, origin: origin || { type: 'home', setId: setId } };
+    view = { active: true, setId: setId, list: list, idx: idx, origin: origin || { type: 'home', setId: setId }, topic: 'all' };
     // Isolation: deliberately no persistSession() — viewing must never
     // overwrite an unfinished Study/Exam session.
     show('view');
     renderView();
   }
   window.openViewAt = openViewAt;
+  // Topic filter applies ONLY to home-origin answer viewing of the combined set.
+  // All questions preserve original IDs; study/exam sessions never use this list.
+  var REVIEW_TOPICS = [
+    { id: '7', label: 'Chuyên đề 7' },
+    { id: '4', label: 'Chuyên đề 4' },
+    { id: '9', label: 'Chuyên đề 9' },
+    { id: '10', label: 'Chuyên đề 10' }
+  ];
+  function reviewTopicId(q) {
+    var m = /^Chuyên đề (4|7|9|10)(?: ·|$)/.exec(q && q.category || '');
+    return m ? m[1] : '';
+  }
+  function canFilterReview() {
+    return view.active && view.setId === 'chuyen-de-4-7-9-10' &&
+      (!view.origin || view.origin.type === 'home');
+  }
+  function updateReviewTopicPicker() {
+    var wrapper = $('view-topic-filter'), select = $('view-topic-select');
+    if (!wrapper || !select) return;
+    wrapper.hidden = !canFilterReview();
+    if (wrapper.hidden) return;
+    var all = questionsOf(view.setId);
+    select.innerHTML = '';
+    [{ id: 'all', label: 'Tất cả chuyên đề' }].concat(REVIEW_TOPICS).forEach(function (topic) {
+      var count = topic.id === 'all' ? all.length : all.filter(function (q) {
+        return reviewTopicId(q) === topic.id;
+      }).length;
+      var opt = document.createElement('option');
+      opt.value = topic.id;
+      opt.textContent = topic.label + ' (' + count + ' câu)';
+      select.appendChild(opt);
+    });
+    select.value = view.topic || 'all';
+  }
+  window.changeViewTopic = function (topic) {
+    if (!canFilterReview()) return;
+    var allowed = topic === 'all' || REVIEW_TOPICS.some(function (t) { return t.id === topic; });
+    if (!allowed) return;
+    var current = view.list[view.idx];
+    var all = questionsOf(view.setId);
+    var next = topic === 'all' ? all : all.filter(function (q) { return reviewTopicId(q) === topic; });
+    if (!next.length) { toast('Chuyên đề này chưa có câu hỏi'); updateReviewTopicPicker(); return; }
+    view.topic = topic;
+    view.list = next;
+    var same = current && next.findIndex(function (q) { return q.id === current.id; });
+    view.idx = same >= 0 ? same : 0;
+    renderView();
+    window.scrollTo(0, 0);
+  };
+
   function renderView() {
     var q = view.list[view.idx];
     if (!q) return;
     var total = view.list.length;
+    updateReviewTopicPicker();
     $('view-title').textContent = 'Câu ' + (view.idx + 1) + ' / ' + total;
-    $('view-sub').textContent = 'Xem đáp án · ' + setTitleOf(view.setId);
+    $('view-sub').textContent = 'Xem đáp án · ' + setTitleOf(view.setId) + (view.topic && view.topic !== 'all' ? ' · Chuyên đề ' + view.topic : '');
     var org = view.origin || {};
     $('view-back').setAttribute('aria-label',
       org.type === 'search' ? 'Quay lại tìm kiếm' : (org.type === 'star' ? 'Quay lại câu đã lưu' : 'Quay lại'));
