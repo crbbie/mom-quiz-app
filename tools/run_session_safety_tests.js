@@ -27,19 +27,19 @@ function fnBody(src, sig) {
   return '';
 }
 
-// ---------- 1. Explicitly choosing a NEW quiz replaces an old session immediately ----------
+// ---------- 1. Exactly ONE interrupting dialog when an unfinished session exists ----------
 {
   const guard = fnBody(app, 'function guardReplaceSession');
-  t('new quiz guard proceeds immediately', /proceed\(\)/.test(guard));
-  t('new quiz guard has no modal', guard.indexOf('showModal') < 0);
-  t('new quiz guard does not resume the old session', guard.indexOf('resumeSession') < 0);
-  const ss = app.indexOf('window.startStudy = startStudy');
-  t('new study uses replacement guard', app.slice(ss, ss + 360).includes('guardReplaceSession'));
-  t('new exam uses replacement guard', app.slice(app.indexOf('window.startExam'), app.indexOf('window.startExam') + 260).includes('guardReplaceSession'));
-  t('new wrong-answer practice uses replacement guard', app.slice(app.indexOf('window.startWrongStudy'), app.indexOf('window.startWrongStudy') + 3000).includes('guardReplaceSession'));
-  t('continue saved session still uses resumeSession', app.includes("window.resumeSession();") && app.includes('resume-continue'));
-  t('explicit home discard retains its own confirmation', app.slice(app.indexOf('window.discardSession = function'), app.indexOf('window.discardSession = function') + 700).includes('showModal'));
-  t('new quiz does not delete other user data', !/(setStars|setWrong|pushHistory|pruneStaleIds)/.test(guard));
+  t('guard checks saved session', guard.includes('keptSession()'));
+  t('guard offers resume', guard.includes('window.resumeSession()'));
+  t('guard offers cancel', (guard.match(/onCancel/g) || []).length >= 2);
+  t('guard opens first dialog', guard.includes('showModal'));
+  t('new session begins directly from first dialog choice', (guard.match(/onDanger: function \(\) \{ proceed\(\); \}/g) || []).length === 2);
+  t('no second replacement confirmation', !guard.includes('confirmDiscardThenStart'));
+  t('no stored session starts immediately', guard.includes('if (!kept) { proceed(); return; }'));
+  t('resume card remains available', app.includes('resume-continue') && app.includes('window.resumeSession();'));
+  t('home discard still confirms', app.slice(app.indexOf('window.discardSession = function'), app.indexOf('window.discardSession = function') + 700).includes('showModal'));
+  t('no unrelated storage mutation from guard', !/(setStars|setWrong|pushHistory)/.test(guard));
 }
 
 // ---------- 5. reload / Safari restart / PWA reopen restores the EXACT session ----------
