@@ -15,9 +15,9 @@ t('guard helper exists (guardReplaceSession)', app.indexOf('guardReplaceSession'
 t('startStudy goes through guard', bodyOf('function startStudy(setId)').indexOf('guardReplaceSession') >= 0);
 t('startWrongStudy goes through guard', bodyOf('window.startWrongStudy = function').indexOf('guardReplaceSession') >= 0);
 t('startExam goes through guard', bodyOf('window.startExam = function').indexOf('guardReplaceSession') >= 0);
-t('new quiz explicitly bypasses former interrupting modal', (() => {
-  const b = bodyOf('function guardReplaceSession', 650);
-  return b.indexOf('proceed()') >= 0 && b.indexOf('showModal') < 0;
+t('one modal gives resume, cancel, and new quiz', (() => {
+  const b = bodyOf('function guardReplaceSession', 2000);
+  return b.includes('showModal') && b.includes('window.resumeSession') && b.includes('onCancel') && b.includes('onDanger: function () { proceed(); }');
 })());
 t('existing resume card remains available', app.indexOf('resume-continue') >= 0 && app.indexOf('window.resumeSession()') >= 0);
 t('explicit discard confirmation remains', app.indexOf('window.discardSession = function') >= 0 && app.slice(app.indexOf('window.discardSession = function'), app.indexOf('window.discardSession = function') + 500).indexOf('showModal') >= 0);
