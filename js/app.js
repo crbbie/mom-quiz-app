@@ -143,41 +143,12 @@
       onCancel: function () {}
     });
   }
-  // Session-safety guard: detect the stored unfinished session BEFORE any
-  // destructive write. Same unfinished quiz -> offer Resume (restart needs
-  // its own explicit confirmation). Different quiz -> Resume / Discard and
-  // Start New (itself double-confirmed) / Cancel. Cancel and Resume never
-  // write storage, so the kept session survives byte-for-byte.
-  // proceed() starts the requested new session. Resuming the same session
-  // (resumeSession) never passes through here, so it never nags.
+  // Starting a NEW Study/Exam/Wrong-review session is an explicit replacement action.
+  // The user requested one-tap replacement: no interrupting resume/restart dialog.
+  // Keep "Tiếp tục bài đang làm" wired directly to resumeSession(), never here.
+  // All other persisted data (stars, wrong list, history, preferences) is untouched.
   function guardReplaceSession(kind, setId, isWrong, wrongScope, proceed) {
-    var kept = keptSession();
-    if (!kept) { proceed(); return; }
-    var isSame = (kind === 'study' && sameStudySession(kept, setId, isWrong, wrongScope)) ||
-                 (kind === 'exam' && sameExamSession(kept, setId));
-    if (isSame) {
-      showModal({
-        title: 'Bài này đang làm dở?',
-        msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Muốn tiếp tục bài đó hay làm lại từ đầu?',
-        safeLabel: 'Tiếp tục bài đang làm',
-        dangerLabel: 'Làm lại từ đầu',
-        cancelLabel: 'Để sau',
-        onSafe: function () { window.resumeSession(); },
-        onDanger: function () { confirmDiscardThenStart(describeSession(kept), proceed); },
-        onCancel: function () {}
-      });
-      return;
-    }
-    showModal({
-      title: 'Bài đang làm dở?',
-      msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Bắt đầu bài mới sẽ xóa bài đang làm dở này.',
-      safeLabel: 'Tiếp tục bài đang làm',
-      dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
-      cancelLabel: 'Để sau',
-      onSafe: function () { window.resumeSession(); },
-      onDanger: function () { confirmDiscardThenStart(describeSession(kept), proceed); },
-      onCancel: function () {}
-    });
+    proceed();
   }
 
   // Progress counts actual answers, not the current question position.
