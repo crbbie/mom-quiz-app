@@ -19,7 +19,7 @@ t('one modal gives resume, cancel, and new quiz', (() => {
   const b = bodyOf('function guardReplaceSession', 2000);
   return b.includes('showModal') && b.includes('window.resumeSession') && b.includes('onCancel') && b.includes('onDanger: function () { proceed(); }');
 })());
-t('existing resume card remains available', app.indexOf('resume-continue') >= 0 && app.indexOf('window.resumeSession()') >= 0);
+t('existing resume card remains available', app.indexOf('data-act="resume"') >= 0 && app.indexOf('window.resumeSession()') >= 0);
 t('explicit discard confirmation remains', app.indexOf('window.discardSession = function') >= 0 && app.slice(app.indexOf('window.discardSession = function'), app.indexOf('window.discardSession = function') + 500).indexOf('showModal') >= 0);
 
 // ---- 2. final study button ----
