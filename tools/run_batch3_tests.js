@@ -20,7 +20,7 @@ function t(name, cond) {
   const sy = html.indexOf('id="sync-dot"');
   t('home order: resume-slot before set-list', rs >= 0 && sl > rs);
   t('home order: set-list before home-nav', hn > sl);
-  t('home order: sync info last (after home-nav)', sy > hn);
+  t('Stitch update status near top of Home, before resume and set list', sy >= 0 && sy < rs && sy < sl);
   const rh = app.indexOf('Bắt đầu ôn tập');
   const ex = app.indexOf('Thi thử', rh);
   const wr = app.indexOf('Ôn câu sai', ex);
