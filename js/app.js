@@ -125,48 +125,62 @@
   }
   // Keep the existing session intact until a separate discard confirmation.
   function sameExamSession(s, setId) {
-    return !!s && s.kind === 'exam' && s.setId === setId;
+    if (!s || s.kind !== 'exam') return false;
+    return (s.setId || null) === (setId || null);
   }
-  function confirmDiscardThenStart(desc, proceed) {
+  // Second, explicit discard confirmation. The first warning's destructive
+  // choice never starts anything by itself — it always lands here, so a
+  // single stray tap can never erase an unfinished session.
+  function confirmDiscardThenStart(keptDesc, proceed) {
     showModal({
       title: 'Bỏ bài cũ và bắt đầu mới?',
-      msg: 'Bài đang làm dở (' + desc + ') sẽ bị xóa. Bạn có chắc chắn muốn bỏ bài này?',
-      progress: sessionProgress(keptSession()),
+      msg: 'Bài đang làm dở (' + keptDesc + ') sẽ bị xóa khỏi máy. Chỉ tiếp tục khi bạn chắc chắn muốn bỏ bài cũ.',
       safeLabel: 'Giữ lại bài cũ',
       dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
+      cancelLabel: 'Để sau',
       onSafe: function () {},
-      onDanger: proceed
+      onDanger: function () { proceed(); },
+      onCancel: function () {}
     });
   }
+  // Session-safety guard: detect the stored unfinished session BEFORE any
+  // destructive write. Same unfinished quiz -> offer Resume (restart needs
+  // its own explicit confirmation). Different quiz -> Resume / Discard and
+  // Start New (itself double-confirmed) / Cancel. Cancel and Resume never
+  // write storage, so the kept session survives byte-for-byte.
+  // proceed() starts the requested new session. Resuming the same session
+  // (resumeSession) never passes through here, so it never nags.
   function guardReplaceSession(kind, setId, isWrong, wrongScope, proceed) {
     var kept = keptSession();
     if (!kept) { proceed(); return; }
-    var same = (kind === 'study' && sameStudySession(kept, setId, isWrong, wrongScope)) ||
-               (kind === 'exam' && sameExamSession(kept, setId));
+    var isSame = (kind === 'study' && sameStudySession(kept, setId, isWrong, wrongScope)) ||
+                 (kind === 'exam' && sameExamSession(kept, setId));
+    if (isSame) {
+      showModal({
+        title: 'Bài này đang làm dở?',
+        msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Muốn tiếp tục bài đó hay làm lại từ đầu?',
+        safeLabel: 'Tiếp tục bài đang làm',
+        dangerLabel: 'Làm lại từ đầu',
+        cancelLabel: 'Để sau',
+        onSafe: function () { window.resumeSession(); },
+        onDanger: function () { confirmDiscardThenStart(describeSession(kept), proceed); },
+        onCancel: function () {}
+      });
+      return;
+    }
     showModal({
-      title: same ? 'Bài này đang làm dở?' : 'Bài đang làm dở?',
-      msg: 'Bạn đang làm dở: ' + describeSession(kept) +
-        (same ? '. Bạn muốn tiếp tục hay làm lại từ đầu?' : '. Muốn làm bài mới, bạn cần bỏ bài này.'),
-      progress: sessionProgress(kept),
+      title: 'Bài đang làm dở?',
+      msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Bắt đầu bài mới sẽ xóa bài đang làm dở này.',
       safeLabel: 'Tiếp tục bài đang làm',
-      dangerLabel: same ? 'Làm lại từ đầu' : 'Bỏ bài cũ, bắt đầu mới',
+      dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
+      cancelLabel: 'Để sau',
       onSafe: function () { window.resumeSession(); },
-      onDanger: function () { confirmDiscardThenStart(describeSession(kept), proceed); }
+      onDanger: function () { confirmDiscardThenStart(describeSession(kept), proceed); },
+      onCancel: function () {}
     });
   }
-  // Display-only helper: real position/total of a kept session for the
-  // Stitch-style progress card/modal. No session data is created or changed.
-  function sessionProgress(s) {
-    try {
-      var keys = sessionKeys(s) || [];
-      if (!keys.length) return null;
-      var pos = Math.min((s.idx || 0) + 1, keys.length);
-      return { pos: pos, total: keys.length, label: 'Câu ' + pos + ' / ' + keys.length };
-    } catch (e) { return null; }
-  }
 
-  // Display-only helper: real position/total of a kept session for the
-  // Stitch-style progress card/modal. No session data is created or changed.
+  // Progress counts actual answers, not the current question position.
   function sessionProgress(s) {
     try {
       var keys = sessionKeys(s) || [];
@@ -274,15 +288,23 @@
    * stacked actions — continue (primary), discard (soft warning), and an
    * explicit Close that only dismisses the dialog and changes nothing. */
   function showModal(opts) {
-    // opts: { title, msg, progress?:{pos,total,label}, safeLabel, dangerLabel, onSafe, onDanger, hideDanger? }
+    // opts: { title, msg, safeLabel, dangerLabel, cancelLabel, onSafe, onDanger, onCancel, hideDanger?, hideCancel? }
+    // Session-safety guards pass cancelLabel + onCancel so backing out
+    // preserves the unfinished session untouched. Other flows omit the
+    // cancel button (hideCancel) and behave exactly as before.
     $('modal-title').textContent = opts.title || 'Xác nhận';
     $('modal-msg').textContent = opts.msg || '';
-    var safe = $('modal-safe'), danger = $('modal-danger');
+    var safe = $('modal-safe'), danger = $('modal-danger'), cancel = $('modal-cancel');
     safe.textContent = opts.safeLabel || 'Tiếp tục làm bài';
     danger.textContent = opts.dangerLabel || 'Nộp bài';
     danger.style.display = opts.hideDanger ? 'none' : '';
     safe.onclick = function () { hideModal(); if (opts.onSafe) opts.onSafe(); };
     danger.onclick = function () { hideModal(); if (opts.onDanger) opts.onDanger(); };
+    if (cancel) {
+      cancel.textContent = opts.cancelLabel || 'Để sau';
+      cancel.hidden = !!opts.hideCancel;
+      cancel.onclick = function () { hideModal(); if (opts.onCancel) opts.onCancel(); };
+    }
     var prog = $('modal-progress');
     if (prog) {
       if (opts.progress && opts.progress.total) {
@@ -291,17 +313,6 @@
         var pct = Math.round(opts.progress.pos / opts.progress.total * 100);
         $('modal-progress-pct').textContent = pct + '%';
         $('modal-progress-fill').style.width = pct + '%';
-      } else {
-        prog.hidden = true;
-      }
-    }
-    var prog = $('modal-progress');
-    if (prog) {
-      if (opts.progress && opts.progress.total) {
-        prog.hidden = false;
-        $('modal-progress-label').textContent = opts.progress.label || '';
-        $('modal-progress-pct').textContent = Math.round(opts.progress.pos / opts.progress.total * 100) + '%';
-        $('modal-progress-fill').style.width = Math.round(opts.progress.pos / opts.progress.total * 100) + '%';
       } else { prog.hidden = true; }
     }
     $('modal-overlay').hidden = false;
