@@ -112,22 +112,35 @@
     if ((s.wrongSetId || null) !== (wrongScope || null)) return false;
     return true;
   }
-  // proceed() starts the requested new session. If a DIFFERENT unfinished
-  // session exists, ask in-app: safe choice resumes it ("Tiếp tục bài đang
-  // làm"), destructive choice clearly replaces it. Resuming the same session
-  // (resumeSession) never passes through here, so it never nags.
+  // Keep the existing session intact until a separate discard confirmation.
+  function sameExamSession(s, setId) {
+    return !!s && s.kind === 'exam' && s.setId === setId;
+  }
+  function confirmDiscardThenStart(desc, proceed) {
+    showModal({
+      title: 'Bỏ bài cũ và bắt đầu mới?',
+      msg: 'Bài đang làm dở (' + desc + ') sẽ bị xóa. Bạn có chắc chắn muốn bỏ bài này?',
+      progress: sessionProgress(keptSession()),
+      safeLabel: 'Giữ lại bài cũ',
+      dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
+      onSafe: function () {},
+      onDanger: proceed
+    });
+  }
   function guardReplaceSession(kind, setId, isWrong, wrongScope, proceed) {
     var kept = keptSession();
     if (!kept) { proceed(); return; }
-    if (kind === 'study' && sameStudySession(kept, setId, isWrong, wrongScope)) { proceed(); return; }
+    var same = (kind === 'study' && sameStudySession(kept, setId, isWrong, wrongScope)) ||
+               (kind === 'exam' && sameExamSession(kept, setId));
     showModal({
-      title: 'Bài đang làm dở?',
-      msg: 'Bạn đang làm dở: ' + describeSession(kept) + '. Bắt đầu bài mới sẽ xóa bài đang làm dở này.',
+      title: same ? 'Bài này đang làm dở?' : 'Bài đang làm dở?',
+      msg: 'Bạn đang làm dở: ' + describeSession(kept) +
+        (same ? '. Bạn muốn tiếp tục hay làm lại từ đầu?' : '. Muốn làm bài mới, bạn cần bỏ bài này.'),
       progress: sessionProgress(kept),
       safeLabel: 'Tiếp tục bài đang làm',
-      dangerLabel: 'Bỏ bài cũ, bắt đầu mới',
+      dangerLabel: same ? 'Làm lại từ đầu' : 'Bỏ bài cũ, bắt đầu mới',
       onSafe: function () { window.resumeSession(); },
-      onDanger: function () { proceed(); }
+      onDanger: function () { confirmDiscardThenStart(describeSession(kept), proceed); }
     });
   }
   // Display-only helper: real position/total of a kept session for the
