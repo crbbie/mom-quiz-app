@@ -1169,7 +1169,7 @@
   window.confirmExitExam = function () {
     showModal({
       title: 'Thoát bài thi?',
-      msg: 'Bài thi chưa nộp sẽ không được chấm. Bài làm dở vẫn được giữ để tiếp tục.',
+      msg: 'Bài thi được lưu. Thời gian thi vẫn tiếp tục chạy khi bạn rời khỏi trang.',
       safeLabel: 'Ở lại làm bài',
       dangerLabel: 'Thoát (giữ bài dở)',
       onSafe: function () {},
@@ -1230,10 +1230,13 @@
     $('er-num').textContent = correct;
     $('er-den').textContent = '/ ' + total;
     $('er-ok').textContent = correct;
-    $('er-no').textContent = total - correct;
+    var unanswered = exam.answers.filter(function (a) { return a < 0; }).length;
+    var incorrect = total - correct - unanswered;
+    $('er-no').textContent = incorrect;
+    if ($('er-unanswered')) $('er-unanswered').textContent = unanswered;
     $('er-pct').textContent = pct + '%';
     $('er-circle').style.setProperty('--deg', (pct * 3.6) + 'deg');
-    $('er-msg').textContent = pct >= 80 ? 'Xuất sắc! 🎉' : pct >= 60 ? 'Đạt yêu cầu 👍' : pct >= 50 ? 'Cần cố gắng thêm' : 'Cần ôn lại nhiều 💪';
+    $('er-msg').textContent = 'Kết quả luyện tập';
     $('er-sub').textContent = 'Thời gian: ' + fmtTime(usedTime) + ' · ' + correct + '/' + total + ' câu đúng';
     var rev = $('er-review');
     rev.innerHTML = '';
